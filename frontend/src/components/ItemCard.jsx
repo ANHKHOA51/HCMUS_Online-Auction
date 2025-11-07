@@ -1,0 +1,64 @@
+import { MdPeopleAlt } from "react-icons/md";
+import { BsPersonCheck } from "react-icons/bs";
+import { FaMoneyBillTrendUp } from "react-icons/fa6";
+import { FaMoneyBill, FaCalendarAlt, FaClock } from "react-icons/fa";
+import { BsEye } from "react-icons/bs";
+import { RiAuctionLine } from "react-icons/ri";
+
+import { formatPriceVN } from '../utils/formatCurrency';
+import { formatDateVN } from '../utils/formatDate';
+import { timeLeft } from '../utils/calcTimeLeft';
+
+import './style.css'
+
+export default function ItemCard({ item }) {
+
+    return (
+        <div className="card card-animation" style={{ width: "23rem" }}>
+            <img className="card-img-top"
+                style={{ width: '100%', height: '160px', objectFit: 'cover' }}
+                src={item.img} />
+            <div className="card-body">
+                <h3 className="card-title text-center">{item.title}</h3>
+                <div className='mt-2 d-flex'>
+                    <BsPersonCheck size={25} />
+                    <h5 className="card-subtitle pt-1 ms-2 text-muted">{item.bidder}</h5>
+                </div>
+                <div className='d-flex mt-3 justify-content-between'>
+                    <div className='d-flex'>
+                        <MdPeopleAlt size={23} />
+                        <p className='ms-1'>{item.num_bid}</p>
+                    </div>
+                    <div className='ps-3 d-flex'>
+                        <FaCalendarAlt size={20} />
+                        <p className='ms-1'>{formatDateVN(item.time_publish)}</p>
+                    </div>
+                    <div className='d-flex'>
+                        <FaClock size={20} />
+                        <p className='ms-1'>{timeLeft(item.time_publish)}</p>
+                    </div>
+                </div>
+                <div className='d-flex justify-content-between row'>
+                    <div className='d-flex col-md-6 border border-dark border-end-0 pt-2 px-3'>
+                        <FaMoneyBillTrendUp size={23} />
+                        <h4 className='ps-2 fw-bold card-title text-danger'>{formatPriceVN(item.cur_price)}</h4>
+                    </div>
+                    <div className='d-flex col-md-6 border border-dark pt-2 px-3' >
+                        <FaMoneyBill className='pt-1' size={23} />
+                        <h4 className='ps-2 fw-bold card-title text-danger'>{formatPriceVN(item.instant_price)}</h4>
+                    </div>
+                </div>
+            </div>
+            <div className='card-footer d-flex justify-content-end'>
+                <button type="button" className="btn btn-outline-info me-2">
+                    View Detail
+                    <BsEye className='ms-1' />
+                </button>
+                <button type="button" className="btn btn-outline-success">
+                    Bid
+                    <RiAuctionLine className='ms-1' />
+                </button>
+            </div>
+        </div>
+    )
+}
