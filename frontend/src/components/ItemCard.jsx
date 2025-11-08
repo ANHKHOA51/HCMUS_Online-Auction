@@ -12,19 +12,18 @@ import { timeLeft } from '../utils/calcTimeLeft';
 import './style.css'
 
 export default function ItemCard({ item }) {
-
     return (
         <div className="card card-animation" style={{ width: "23rem" }}>
             <img className="card-img-top"
                 style={{ width: '100%', height: '160px', objectFit: 'cover' }}
                 src={item.img} />
             <div className="card-body">
-                <h3 className="card-title text-center">{item.title}</h3>
-                <div className='mt-2 d-flex'>
-                    <BsPersonCheck size={25} />
-                    <h5 className="card-subtitle pt-1 ms-2 text-muted">{item.bidder}</h5>
+                <h3 className="card-title text-center mb-0">{item.title}</h3>
+                <div className='d-flex'>
+                    <BsPersonCheck size={23} />
+                    <h5 className="card-subtitle ms-2 text-muted fs-5 pt-1">{item.bidder}</h5>
                 </div>
-                <div className='d-flex mt-3 justify-content-between'>
+                <div className='d-flex mt-2 fs-6 justify-content-between pt-1'>
                     <div className='d-flex'>
                         <MdPeopleAlt size={23} />
                         <p className='ms-1'>{item.num_bid}</p>

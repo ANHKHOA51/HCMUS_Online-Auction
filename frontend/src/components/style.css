@@ -24,7 +24,12 @@
 }
 
 .top-container {
-    height: 720px;
+    background-color: #e6f4ff;
+    height: 700px;
     padding-left: 300px;
     padding-right: 300px;
+}
+
+::-ms-reveal {
+  filter: invert(100%) ;
 }

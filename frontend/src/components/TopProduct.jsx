@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import ItemCard from "./ItemCard";
+import './style.css'
 
 export default function TopProduct({ title, fetchFunc }) {
-    const [results, setResults] = useState(null);
+    const [results, setResults] = useState([]);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         let mounted = true;
         async function fetchData() {
             try {
-                // nếu fetchFunc là function thì gọi nó, nếu là Promise thì await trực tiếp
                 const res = await (typeof fetchFunc === "function" ? fetchFunc() : fetchFunc);
                 if (mounted) setResults(res);
             } catch (err) {
@@ -21,8 +21,6 @@ export default function TopProduct({ title, fetchFunc }) {
         return () => { mounted = false; };
     }, []);
 
-    console.log(results)
-
     let firstRow = [];
     let secondRow = [];
     if (results != null) {
@@ -32,8 +30,8 @@ export default function TopProduct({ title, fetchFunc }) {
 
     return (
         <>
-            <h1 className="mt-5 d-flex justify-content-center">{title}</h1>
-            <div className="mt-1 bg-body-secondary top-container">
+            <h1 className="mt-5 d-flex justify-content-center fw-bold">{title}</h1>
+            <div className="mt-1 top-container">
                 <div className="scaled-container">
                     <div className="row mb-3 pt-4 justify-content-md-center">
                         {firstRow.map((e, idx) => (
