@@ -22,7 +22,9 @@ router.get('/', async (req, res) => {
         p.start_time, 
         p.end_time, 
         p.status,
+        p.category_id,
         p.seller_id,
+        p.created_at,
         u.full_name as seller_name
       FROM products p
       JOIN users u ON p.seller_id = u.id
