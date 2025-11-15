@@ -1,6 +1,12 @@
 import express from 'express';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './src/routes/auth.routes.js';
+import productRoutes from './src/routes/product.routes.js';
+
+// Load environment variables FIRST
+dotenv.config();
+
 import pool from './src/config/db.js';
 import { createUserTable } from './src/models/user.model.js';
 import { createActivityLogTable } from './src/models/activityLog.model.js';
@@ -19,8 +25,10 @@ pool.query("SELECT NOW()")
   .catch(err => console.error("❌ DB ERROR:", err.message));
 
 
-dotenv.config();
 const app = express();
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 
 // Khởi tạo bảng
@@ -35,6 +43,7 @@ createWatchlistTable();
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`🚀 Server running on port ${process.env.PORT || 3000}`);

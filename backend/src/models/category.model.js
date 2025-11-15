@@ -3,10 +3,11 @@ import pool from '../config/db.js';
 export const createCategoryTable = async () => {
   const query = `
     CREATE TABLE IF NOT EXISTS categories (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(100) NOT NULL,
-      description TEXT,
-      parent_category_id INT REFERENCES categories(id) ON DELETE SET NULL
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT,
+        parent_category_id INT REFERENCES categories(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT NOW()
     );
   `;
   await pool.query(query);
