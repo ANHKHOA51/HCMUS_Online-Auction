@@ -14,6 +14,10 @@ const HomePage = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('newest');
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpenSort, setIsDropdownOpenSort] = useState(false);
+
+
 
   useEffect(() => {
     fetchData();
@@ -46,6 +50,16 @@ const HomePage = () => {
       setLoading(false);
     }
   };
+
+  // Chia mảng thành các cột
+  const splitIntoColumns = (arr, numCols) => {
+        if (!arr || arr.length === 0) return [];
+        const itemsPerCol = Math.ceil(arr.length / numCols);
+        return Array.from({ length: numCols }, (_, i) => 
+            arr.slice(i * itemsPerCol, i * itemsPerCol + itemsPerCol)
+        );
+    };
+
 
   const applyFilters = () => {
     let filtered = [...products];
@@ -105,13 +119,111 @@ const HomePage = () => {
     );
   }
 
+  const handleCategorySelect = (categoryId) => {
+        setSelectedCategory(categoryId);
+        // Đóng dropdown sau khi chọn
+        setIsDropdownOpen(false); 
+    };
+
+    const handleSortSelect = (sortOption) => {
+        setSortBy(sortOption);
+        // Đóng dropdown sau khi chọn
+        setIsDropdownOpenSort(false); 
+    }
+
+  const categoryColumns = splitIntoColumns(categories, 4);
+
   return (
     <div className="home-page">
       {/* Header */}
       <div className="home-header">
         <div className="header-content">
-          <h1>🏆 Sàn Đấu Giá Trực Tuyến</h1>
-          <p>Tìm kiếm sản phẩm yêu thích của bạn</p>
+          <h1>Auction</h1>
+        </div>
+        <div className="filters-container">
+            
+            <div className="filter-search">
+                <input
+                type="text"
+                placeholder="Tên sản phẩm..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+                />
+            </div>
+        
+            
+                <div className="filter-category custom-dropdown">
+                    <div
+                        className="dropdown-toggle"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                        <h3>Chuyên Mục</h3><span className="arrow">▼</span>
+                    </div>
+
+                    {isDropdownOpen && (
+                        <div className="custom-dropdown-content">
+                            {categoryColumns.length > 0 ? (
+                                categoryColumns.map((column, colIndex) => (
+                                    <ul key={colIndex} className="genre-columns">
+                                        {/* Mục "Tất cả" luôn ở cột đầu tiên */}
+                                        {colIndex === 0 && (
+                                            <li 
+                                                onClick={() => handleCategorySelect("")}
+                                                className={selectedCategory === "" ? "selected" : ""}
+                                            >
+                                                <a href="#">Tất cả chuyên mục</a>
+                                            </li>
+                                        )}
+
+                                        {column.map(cat => (
+                                            <li 
+                                                key={cat.id} 
+                                                onClick={() => handleCategorySelect(String(cat.id))}
+                                                className={String(cat.id) === selectedCategory ? "selected" : ""}
+                                            >
+                                                <a href="#">{cat.name}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ))
+                            ) : (
+                                <div className="loading-message">Đang tải chuyên mục...</div>
+                            )}
+                        </div>
+                    )}  
+                </div>
+            
+                <div className="filter-sort custom-dropdown">
+                    <div
+                        className="dropdown-toggle"
+                        onClick={() => setIsDropdownOpenSort(!isDropdownOpenSort)}>
+                        <h3>Sắp xếp</h3><span className="arrow">▼</span>
+                    </div>
+                    
+                    {isDropdownOpenSort && (
+                        <div className="custom-dropdown-content">
+                            <ul className ="genre-columns">
+                                <li onClick={() => handleSortSelect('newest')} className={sortBy === 'newest' ? 'selected' : ''}>
+                                    <a href="#">Mới nhất</a>
+                                </li>
+                                <li onClick={() => handleSortSelect('ending')} className={sortBy === 'ending' ? 'selected' : ''}>
+                                    <a href="#">Sắp kết thúc</a>
+                                </li>
+                                <li onClick={() => handleSortSelect('price_low')} className={sortBy === 'price_low' ? 'selected' : ''}>
+                                    <a href="#">Giá thấp đến cao</a>
+                                </li>
+                                <li onClick={() => handleSortSelect('price_high')} className={sortBy === 'price_high' ? 'selected' : ''}>
+                                    <a href="#">Giá cao đến thấp</a>
+                                </li>
+                            </ul>
+                        </div>
+                    )}  
+                </div>
+
+        </div>
+
+        <div className="header-content">
+            <h1>Auction</h1>
         </div>
       </div>
 
@@ -126,59 +238,13 @@ const HomePage = () => {
       <div className="home-container">
         {/* Sidebar: Filters */}
         <aside className="sidebar">
-          <div className="filter-section">
-            <h3>🔍 Tìm Kiếm</h3>
-            <input
-              type="text"
-              placeholder="Tên sản phẩm..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-          </div>
 
-          <div className="filter-section">
-            <h3>📁 Chuyên Mục</h3>
-            <select
-              value={selectedCategory}
-              onChange={(e) => {
-                console.log('Selected category:', e.target.value);
-                setSelectedCategory(e.target.value);
-              }}
-              className="category-select"
-            >
-              <option value="">Tất cả chuyên mục</option>
-              {categories && categories.length > 0 ? (
-                categories.map(cat => (
-                  <option key={cat.id} value={String(cat.id)}>
-                    {cat.name}
-                  </option>
-                ))
-              ) : (
-                <option disabled>Đang tải chuyên mục...</option>
-              )}
-            </select>
-          </div>
-
-          <div className="filter-section">
-            <h3>📊 Sắp Xếp</h3>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="sort-select"
-            >
-              <option value="newest">Mới nhất</option>
-              <option value="ending">Sắp kết thúc</option>
-              <option value="price_low">Giá thấp đến cao</option>
-              <option value="price_high">Giá cao đến thấp</option>
-            </select>
-          </div>
 
           <button
             className="clear-filters-btn"
             onClick={handleClearFilters}
           >
-            🔄 Xóa bộ lọc
+             Xóa bộ lọc
           </button>
         </aside>
 

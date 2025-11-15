@@ -5,22 +5,20 @@
 
 /* Header */
 .home-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px 20px;
-  text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 20px;
+    height: 30px;
+    text-align: center;
 }
 
 .header-content h1 {
   font-size: 48px;
   margin: 0 0 10px;
   font-weight: 700;
-}
-
-.header-content p {
-  font-size: 18px;
-  margin: 0;
-  opacity: 0.9;
 }
 
 /* Error Banner */
@@ -67,22 +65,6 @@
   top: 20px;
 }
 
-.filter-section {
-  margin-bottom: 25px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.filter-section:last-of-type {
-  border-bottom: none;
-}
-
-.filter-section h3 {
-  margin: 0 0 12px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-}
 
 .search-input,
 .category-select,
@@ -285,4 +267,113 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
+}
+
+.filter-search{
+    display: flex;
+    align-items: center;
+    background-color: var(--search-bg);
+    border-radius: 8px;
+    padding: 5px 15px;
+    flex-grow: 0; /* Không cho chiếm hết không gian */
+    width: 300px; /* Chiều rộng thanh tìm kiếm */
+    margin-right: 30px;
+}
+
+
+.filters-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    align-items: center;
+}
+
+/*DROPDOWN MEGA MENU*/
+.custom-dropdown {
+    position: relative; /* Quan trọng: làm điểm neo cho dropdown content */
+    display: inline-block;
+}
+
+.custom-dropdown h3 {
+    color: var(--text-color);
+    margin-bottom: 5px;
+}
+
+.custom-dropdown-content {
+    /* Thiết lập vị trí và kích thước */
+    position: absolute;
+    top: 100%; /* Đặt ngay dưới nút bấm */
+    left: 0;
+    margin-top: 5px; /* Khoảng cách giữa nút và menu */
+    
+    /* Kiểu dáng */
+    width: max-content;
+    background-color: black;
+    border: 1px solid var(--border-color);
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+    z-index: 20; /* Cao hơn các thành phần khác */
+    padding: 20px 10px; 
+    
+    /* Bố cục nhiều cột dùng Flexbox */
+    display: flex;
+    justify-content: flex-start; /* Căn cột từ trái qua */
+    gap: 50px; /* Khoảng cách giữa các cột */
+}
+
+.genre-columns {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    /* Đảm bảo mỗi cột có độ rộng bằng nhau */
+}
+
+.genre-columns li {
+    margin-bottom: 3px;
+    cursor: pointer;
+}
+
+.genre-columns li a {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 4px 8px;
+    display: block;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+
+.genre-columns li a:hover,
+.genre-columns li.selected a { /* Mục đang chọn sẽ có kiểu dáng khác */
+    background-color: var(--search-bg); 
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.dropdown-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+}
+
+.dropdown-toggle h3 {
+    margin: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.dropdown-toggle .arrow {
+    margin-left: 10px;
+    font-size: 12px;
+    color: var(--text-color);
+}
+
+.dropdown-toggle:hover {
+    border-color: var(--primary-color);
 }
