@@ -8,16 +8,6 @@ import productRoutes from './src/routes/product.routes.js';
 dotenv.config();
 
 import pool from './src/config/db.js';
-import { createUserTable } from './src/models/user.model.js';
-import { createActivityLogTable } from './src/models/activityLog.model.js';
-import { createBidTable } from './src/models/bid.model.js';
-import { createCategoryTable } from './src/models/category.model.js';
-import { createNotificationTable } from './src/models/notification.model.js';
-import { createProductTable } from './src/models/product.model.js';
-import { createRatingTable } from './src/models/rating.model.js';
-import { createWatchlistTable } from './src/models/watchlist.model.js';
-
-
 
 
 pool.query("SELECT NOW()")
@@ -30,16 +20,6 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-
-// Khởi tạo bảng
-createUserTable();
-createActivityLogTable();
-createBidTable();
-createCategoryTable();
-createNotificationTable();
-createProductTable();
-createRatingTable();
-createWatchlistTable();
 
 // Routes
 app.use('/api/auth', authRoutes);

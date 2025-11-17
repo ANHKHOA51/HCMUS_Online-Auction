@@ -1,103 +1,172 @@
 import pool from '../config/db.js';
 
-export const createProductTable = async () => {
-  const query = `
-    CREATE TABLE IF NOT EXISTS products (
-      id SERIAL PRIMARY KEY,
-      seller_id INT REFERENCES users(id) ON DELETE CASCADE,
-      category_id INT REFERENCES categories(id) ON DELETE SET NULL,
-      name VARCHAR(255) NOT NULL,
-      description TEXT,
-      starting_price NUMERIC(10,2) NOT NULL,
-      current_price NUMERIC(10,2),
-      buy_now_price NUMERIC(10,2),
-      step_price NUMERIC(10,2) DEFAULT 0,
-      images TEXT[],                                -- mảng đường dẫn ảnh
-      start_time TIMESTAMP DEFAULT NOW(),
-      end_time TIMESTAMP,
-      status VARCHAR(20) DEFAULT 'active',
-      winner_id INT REFERENCES users(id) ON DELETE SET NULL,
-      created_at TIMESTAMP DEFAULT NOW(),
-      updated_at TIMESTAMP DEFAULT NOW()
-    );
+const getAllProducts = async (queryParams) => {
+  const { category_id, sort = 'newest', search } = queryParams || {};
+
+  let query = `
+    SELECT
+      p.id,
+      p.name,
+      p.description,
+      p.starting_price,
+      p.current_price,
+      p.buy_now_price,
+      p.images,
+      p.start_time,
+      p.end_time,
+      p.status,
+      p.category_id,
+      p.seller_id,
+      p.created_at,
+      u.full_name as seller_name
+    FROM products p
+    JOIN users u ON p.seller_id = u.id
+    WHERE p.status = 'active'
   `;
-  await pool.query(query);
-  console.log('✅ products table ready');
+
+  const params = [];
+
+  if (category_id) {
+    query += ` AND p.category_id = $${params.length + 1}`;
+    params.push(category_id);
+  }
+
+  if (search) {
+    query += ` AND p.name ILIKE $${params.length + 1}`;
+    params.push(`%${search}%`);
+  }
+
+  if (sort === 'newest') {
+    query += ` ORDER BY p.created_at DESC`;
+  } else if (sort === 'ending') {
+    query += ` ORDER BY p.end_time ASC`;
+  } else if (sort === 'price_low') {
+    query += ` ORDER BY p.current_price ASC`;
+  } else if (sort === 'price_high') {
+    query += ` ORDER BY p.current_price DESC`;
+  }
+
+  query += ` LIMIT 50`;
+
+  const result = await pool.query(query, params);
+  return result.rows;
 };
 
-// ---------------- CRUD ----------------
+const getProductDetail = async (id) => {
+  const productQuery = `
+    SELECT
+      p.*,
+      c.name as category_name,
+      u.id as seller_id,
+      u.full_name as seller_name,
+      u.email as seller_email,
+      u.phone as seller_phone,
+      u.rating_positive,
+      u.rating_negative,
+      u.avatar_url as seller_avatar
+    FROM products p
+    JOIN categories c ON p.category_id = c.id
+    JOIN users u ON p.seller_id = u.id
+    WHERE p.id = $1
+  `;
 
-export const ProductModel = {
-  async create(data) {
-    const query = `
-      INSERT INTO products (
-        seller_id, category_id, name, description,
-        starting_price, current_price, buy_now_price, step_price,
-        images, start_time, end_time, status, winner_id
-      )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-      RETURNING *;
+  const productResult = await pool.query(productQuery, [id]);
+
+  if (productResult.rows.length === 0) {
+    return { product: null };
+  }
+
+  const product = productResult.rows[0];
+
+  // Lấy thông tin người đặt giá cao nhất
+  let highestBidder = null;
+  if (product.winner_id) {
+    const bidderQuery = `
+      SELECT id, full_name, email, phone, rating_positive, rating_negative, avatar_url
+      FROM users
+      WHERE id = $1
     `;
-    const values = [
-      data.sellerId,
-      data.categoryId,
-      data.name,
-      data.description,
-      data.startingPrice,
-      data.currentPrice,
-      data.buyNowPrice,
-      data.stepPrice,
-      data.images,
-      data.startTime,
-      data.endTime,
-      data.status || 'active',
-      data.winnerId || null,
-    ];
-    const res = await pool.query(query, values);
-    return res.rows[0];
-  },
+    const bidderResult = await pool.query(bidderQuery, [product.winner_id]);
+    if (bidderResult.rows.length > 0) {
+      highestBidder = bidderResult.rows[0];
+    }
+  }
 
-  async findAll() {
-    const res = await pool.query('SELECT * FROM products ORDER BY created_at DESC');
-    return res.rows;
-  },
+  // Lấy lịch sử Q&A
+  const qaQuery = `
+    SELECT
+      qa.id,
+      qa.question,
+      qa.answer,
+      qa.created_at,
+      qa.answered_at,
+      u1.full_name as user_name,
+      u2.full_name as seller_name
+    FROM questions_answers qa
+    JOIN users u1 ON qa.user_id = u1.id
+    LEFT JOIN users u2 ON qa.answered_by = u2.id
+    WHERE qa.product_id = $1
+    ORDER BY qa.created_at DESC
+  `;
+  const qaResult = await pool.query(qaQuery, [id]);
 
-  async findById(id) {
-    const res = await pool.query('SELECT * FROM products WHERE id=$1', [id]);
-    return res.rows[0];
-  },
-
-  async update(id, data) {
-    const query = `
-      UPDATE products SET
-        name = COALESCE($1, name),
-        description = COALESCE($2, description),
-        current_price = COALESCE($3, current_price),
-        buy_now_price = COALESCE($4, buy_now_price),
-        step_price = COALESCE($5, step_price),
-        images = COALESCE($6, images),
-        status = COALESCE($7, status),
-        winner_id = COALESCE($8, winner_id),
-        updated_at = NOW()
-      WHERE id = $9
-      RETURNING *;
-    `;
-    const values = [
-      data.name,
-      data.description,
-      data.currentPrice,
-      data.buyNowPrice,
-      data.stepPrice,
-      data.images,
-      data.status,
-      data.winnerId,
+  // Lấy 5 sản phẩm cùng category
+  const relatedQuery = `
+    SELECT
       id,
-    ];
-    const res = await pool.query(query, values);
-    return res.rows[0];
-  },
+      name,
+      current_price,
+      starting_price,
+      buy_now_price,
+      images,
+      end_time
+    FROM products
+    WHERE category_id = $1 AND id != $2 AND status = 'active'
+    ORDER BY created_at DESC
+    LIMIT 5
+  `;
+  const relatedResult = await pool.query(relatedQuery, [product.category_id, id]);
 
-  async delete(id) {
-    await pool.query('DELETE FROM products WHERE id=$1', [id]);
-  },
+  return {
+    product,
+    highestBidder,
+    faqs: qaResult.rows,
+    relatedProducts: relatedResult.rows
+  };
+};
+
+const getProductBids = async (id) => {
+  const query = `
+    SELECT
+      b.id,
+      b.bid_amount,
+      b.bid_time,
+      u.id as bidder_id,
+      u.full_name as bidder_name,
+      u.username
+    FROM bids b
+    JOIN users u ON b.bidder_id = u.id
+    WHERE b.product_id = $1
+    ORDER BY b.bid_time DESC
+  `;
+
+  const result = await pool.query(query, [id]);
+  return result.rows;
+};
+
+const getAllCategories = async () => {
+  const query = `
+    SELECT id, name, description
+    FROM categories
+    ORDER BY name
+  `;
+  const result = await pool.query(query);
+  return result.rows;
+};
+
+export default {
+  getAllProducts,
+  getProductDetail,
+  getProductBids,
+  getAllCategories
 };
