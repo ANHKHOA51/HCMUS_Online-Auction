@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './ProductDetail.css';
 import ProductGallery from '../components/ProductGallery';
 import UserInfo from '../components/UserInfo';
@@ -8,6 +9,7 @@ import RelatedProducts from '../components/RelatedProducts';
 import { formatPrice, getRelativeTime, shouldShowRelativeTime, formatDate } from '../utils/timeUtil';
 
 const ProductDetail = () => {
+    const navigate = useNavigate();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [seller, setSeller] = useState(null);
@@ -137,7 +139,7 @@ const ProductDetail = () => {
           <QAHistory faqs={faqs} />
 
           {/* Related Products */}
-          <RelatedProducts products={relatedProducts} onProductClick={(id) => console.log('Navigate to product', id)} />
+          <RelatedProducts products={relatedProducts} onProductClick={(id) => navigate(`/product/${id}`)} />
         </div>
 
         {/* Right Section: Product Info and Bidding */}

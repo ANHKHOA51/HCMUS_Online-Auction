@@ -3,7 +3,8 @@ import './RelatedProducts.css';
 import { formatPrice, getRelativeTime, shouldShowRelativeTime } from '../utils/timeUtil';
 
 const RelatedProducts = ({ products = [], onProductClick }) => {
-    
+
+    onProductClick = onProductClick || (() => {});
   return (
     <div className="related-products">
       <h4 className="section-title">📦 5 sản phẩm khác trong chuyên mục</h4>
