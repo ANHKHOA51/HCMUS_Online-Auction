@@ -21,35 +21,17 @@ export default function TopProduct({ title, fetchFunc }) {
         return () => { mounted = false; };
     }, []);
 
-    let firstRow = [];
-    let secondRow = [];
-    if (results != null) {
-        firstRow = results.slice(0, 2);
-        secondRow = results.slice(2, 5);
-    }
-
     return (
         <>
-            <h1 className="mt-5 d-flex justify-content-center fw-bold">{title}</h1>
-            <div className="mt-1 top-container">
-                <div className="scaled-container">
-                    <div className="row mb-3 pt-4 justify-content-md-center">
-                        {firstRow.map((e, idx) => (
-                            <div key={idx} className="col col-md-4 d-flex justify-content-center">
-                                <ItemCard item={e}></ItemCard>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="row justify-content-md-center">
-                        {secondRow.map((e, idx) => (
-                            <div key={idx + 2} className="col col-md-4 d-flex justify-content-center">
-                                <ItemCard item={e}></ItemCard>
-                            </div>
-                        ))}
-                    </div>
+            <h1 className="mt-2 d-flex justify-content-center fw-bold">{title}</h1>
+                <div className="top-container">
+                    {results.map((e, idx) => (
+                        <div key={idx} className="scaled-container">
+                            <ItemCard item={e}></ItemCard>
+                        </div>
+                    ))}
                 </div>
-            </div>
+
         </>
     )
 }
