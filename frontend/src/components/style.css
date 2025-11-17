@@ -1,0 +1,35 @@
+.card-animation {
+    transition: transform 150ms ease-in-out;
+}
+
+.card-animation:hover {
+    transform: scale(1.02);
+}
+
+.item_in_list {
+    color: #fffffe;
+}
+
+.item_in_list:hover {
+    color: #5f6c7b;
+}
+
+.item_in_list:active {
+    background-color: #fffffe !important;
+}
+
+.scaled-container {
+    transform: scale(0.8);
+    transform-origin: top;
+}
+
+.top-container {
+    background-color: #e6f4ff;
+    height: 700px;
+    padding-left: 300px;
+    padding-right: 300px;
+}
+
+::-ms-reveal {
+  filter: invert(100%) ;
+}
