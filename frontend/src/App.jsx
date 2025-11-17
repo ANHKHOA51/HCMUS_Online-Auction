@@ -1,4 +1,5 @@
 import './App.css'
+<<<<<<< HEAD
 import Header from './components/Header'
 import AuthLayout from './layouts/AuthLayout';
 import MainLayout from './layouts/MainLayout';
@@ -25,3 +26,22 @@ export default function App() {
         </BrowserRouter>
     )
 }
+=======
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import ProductDetail from './pages/ProductDetail'
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/product/:id" element={<ProductDetail />} />
+        {/* Thêm các route khác ở đây */}
+      </Routes>
+    </Router>
+  )
+}
+
+export default App
+>>>>>>> tienluat
