@@ -24,10 +24,6 @@ export default function LoginForm() {
                     <label htmlFor="InputPassword" className="form-label">Password</label>
                     <input type="password" className="form-control" id="InputPassword" />
                 </div>
-                {/* <div className="mb-3 form-check">
-                    <input type="checkbox" className="form-check-input" id="exampleCheck1" />
-                    <label className="form-check-label" htmlFor="exampleCheck1">Check me out</label>
-                </div> */}
                 <button type="submit" className="btn btn-primary w-100">Sign in</button>
                 <a href="/register" className="d-block mt-2 text-center">Don't have an account?</a>
             </form>

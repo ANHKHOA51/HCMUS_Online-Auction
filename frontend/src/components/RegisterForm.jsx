@@ -1,11 +1,11 @@
 import ReCAPTCHA from "react-google-recaptcha"
 import "./style.css"
-import { useState } from "react"
+import { useState, useRef } from "react"
+import { useNavigate } from "react-router-dom"
+import registerReq from "../services/register"
 
 export default function RegisterForm() {
-    const [key, setKey] = useState('')
-    const [errors, setErrors] = useState({})
-    const [formData, setFormData] = useState({
+    const initData = {
         firstname: '',
         lastname: '',
         address: '',
@@ -13,23 +13,39 @@ export default function RegisterForm() {
         email: '',
         password: '',
         confirmPw: '',
-        captcha: false
-    })
+        captcha_status: false,
+        captcha_key: ''
+    }
+
+    const navigate = useNavigate();
+    const [captchaStatus, setCaptchaStatus] = useState(false)
+    const [errors, setErrors] = useState({})
+    const [formData, setFormData] = useState(initData)
+    const captchaRef = useRef(null);
 
     const onChange = (e) => {
         const { id, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [id]: value,
-        }));
-
         if (errors[id]) {
             setErrors((prev) => ({
                 ...prev,
                 [id]: null,
             }));
         }
+
+        setFormData((prev) => ({
+            ...prev,
+            [id]: value,
+        }));
     };
+
+    const onCheck = (key) => {
+        setFormData((prev) => ({
+            ...prev,
+            captcha_key: key
+        }))
+        setCaptchaStatus(true)
+        setErrors({})
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -37,7 +53,7 @@ export default function RegisterForm() {
         setErrors({});
 
         const cur_errors = {};
-        if (!formData.captcha) {
+        if (!captchaStatus) {
             cur_errors.captcha = 'Forget to check captcha'
             setErrors(cur_errors)
             return
@@ -58,20 +74,18 @@ export default function RegisterForm() {
         if (formData.email === '') {
             cur_errors.email = 'Please fill in this field'
         }
-        else if (!formData.email.includes('@')) {
-            cur_errors.email = 'Not a email format'
-        }
-
-        if (formData.password.length < 8) {
-            cur_errors.password = 'Password must have at least 8 characters'
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            cur_errors.email = 'Not a valid email format'
         }
 
         if (formData.password === '') {
             cur_errors.password = 'Please fill in this field'
         }
-
-        if (formData.confirmPw !== formData.password) {
-            cur_errors.confirmPw = 'Confirm password not match the password'
+        else if (formData.password.length < 8) {
+            cur_errors.password = 'Password must have at least 8 characters'
+        }
+        else if (formData.confirmPw !== formData.password) {
+            cur_errors.confirmPw = 'Confirm password does not match the password'
         }
 
         if (Object.keys(cur_errors).length > 0) {
@@ -79,50 +93,27 @@ export default function RegisterForm() {
             return;
         }
 
-        try {
-            const response = await fetch("http://localhost:3000/api/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    ...formData,
-                    captcha: key
-                })
-            });
+        const response = await registerReq(formData)
+        
+        console.log(response)
 
-            const result = await response.json();
-
-            if (response.ok) {
-                console.log("Đăng ký thành công:", result);
-            } else {
-                const serverErrors = {};
-                // server may return fields like username, email, captcha or a message
-                if (result.username) serverErrors.username = result.username;
-                if (result.email) serverErrors.email = result.email;
-                if (result.captcha) {
-                    // server sent array or string
-                    serverErrors.captcha = Array.isArray(result.captcha) ? result.captcha.join(', ') : result.captcha;
-                }
-                if (result.message && Object.keys(serverErrors).length === 0) {
-                    serverErrors.general = result.message;
-                }
-                setErrors(serverErrors);
-                return;
-            }
-
-        } catch (error) {
-            console.error("Lỗi kết nối:", error);
+        if (captchaRef.current) {
+            captchaRef.current.reset();
+            setCaptchaStatus(false);
         }
-    }
 
-    const onCheck = (key) => {
         setFormData((prev) => ({
             ...prev,
-            captcha: true
+            captcha_key: ''
         }))
-        setKey(key)
-        setErrors({})
+
+        if (response.ok) {
+            setFormData(initData)
+            sessionStorage.setItem('Verifying email', formData.email)
+            navigate('/register/otp')
+        } else {
+            setErrors(response.body);
+        }
     }
 
     return (
@@ -201,12 +192,13 @@ export default function RegisterForm() {
 
                 <div className="mb-2">
                     <ReCAPTCHA className="d-flex justify-content-center"
+                        ref={captchaRef}
                         sitekey="6LdlVQYsAAAAAA1cMnLOGjj_2kyNEUmChCWFFKvV"
                         onChange={onCheck}
                         onExpired={() => setFormData((prev) => ({
                             ...prev,
-                            captcha: false
-                        }))}
+                            captcha_key: ''
+                        }), setCaptchaStatus(false))}
                     />
                     {errors.captcha && (<div className="invalid-feedback d-block">
                         {errors.captcha}
