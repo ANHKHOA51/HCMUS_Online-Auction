@@ -143,7 +143,6 @@ export function useOTP() {
         error,
         handleChange,
         handleKeyDown,
-        handleKeyDown,
         handlePaste,
         handleResend
     }
