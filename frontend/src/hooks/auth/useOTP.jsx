@@ -1,13 +1,15 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"
 
-export function useOTP() {
+export default function useOTP() {
     const LEN = 6;
-    
+
     const [values, setValues] = useState(Array(LEN).fill(""));
     const [message, setMessage] = useState(null);
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isResending, setIsResending] = useState(false);
+    const navigate = useNavigate();
 
     const inputsRef = useRef([]);
     inputsRef.current = Array(LEN)
@@ -21,7 +23,8 @@ export function useOTP() {
     useEffect(() => {
         const otp = values.join("");
         if (otp.length === LEN && !isSubmitting) {
-            submitOtp(otp);
+            const email = sessionStorage.getItem('VerifyingEmail')
+            submitOtp(email, otp);
         }
     }, [values]);
 
@@ -65,7 +68,10 @@ export function useOTP() {
 
         if (e.key === "Enter") {
             const otp = values.join("");
-            if (otp.length === LEN) submitOtp(otp);
+            if (otp.length === LEN) {
+                const email = sessionStorage.getItem('VerifyingEmail')
+                submitOtp(email, otp);
+            }
         }
     };
 
@@ -83,16 +89,16 @@ export function useOTP() {
         inputsRef.current[last]?.current?.focus();
     };
 
-    async function submitOtp(otp) {
+    async function submitOtp(email, otp) {
         setIsSubmitting(true);
         setMessage(null);
         setError(null);
 
         try {
-            const res = await fetch("/api/verify-otp", {
+            const res = await fetch("http://localhost:3000/register/otp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ otp }),
+                body: JSON.stringify({ email, otp }),
                 credentials: "include",
             });
 
@@ -100,6 +106,7 @@ export function useOTP() {
             if (!res.ok) throw new Error(data.error || "Verify failed");
 
             setMessage("Xác thực thành công!");
+            navigate('/register')
         } catch (err) {
             setError(err.message);
             setValues(Array(LEN).fill(""));
@@ -144,6 +151,7 @@ export function useOTP() {
         handleChange,
         handleKeyDown,
         handlePaste,
-        handleResend
+        handleResend,
+        submitOtp
     }
 }

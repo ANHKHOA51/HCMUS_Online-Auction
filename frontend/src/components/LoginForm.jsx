@@ -1,11 +1,14 @@
+import useLogin from "../hooks/auth/useLogin"
 import "./style.css"
 
 export default function LoginForm() {
+    const { error, isLoading, handleSubmit, onChange } = useLogin()
     return (
         <div className="d-flex justify-content-center align-items-center min-vh-100">
             <form
                 className="bg-white p-4 shadow-lg"
                 style={{ width: '100%', maxWidth: '420px', borderRadius: '8px' }}
+                onSubmit={handleSubmit}
             >
                 <div className="mb-3 mx-auto d-flex">
                     <img
@@ -18,13 +21,22 @@ export default function LoginForm() {
                 </div>
                 <div className="mb-3">
                     <label htmlFor="InputUser" className="form-label">Username or Email</label>
-                    <input className="form-control" id="InputUser" />
+                    <input className="form-control" id="identifier" onChange={onChange} />
                 </div>
                 <div className="mb-3">
                     <label htmlFor="InputPassword" className="form-label">Password</label>
-                    <input type="password" className="form-control" id="InputPassword" />
+                    <input type="password" className="form-control" id="password" onChange={onChange} />
                 </div>
-                <button type="submit" className="btn btn-primary w-100">Sign in</button>
+                {error && (
+                    <div className="alert alert-danger mt-2" role="alert">
+                        {error}
+                    </div>
+                )}
+                <button type="submit" className="btn btn-primary w-100"
+                    disabled={isLoading}
+                    aria-busy={isLoading}>
+                    {isLoading ? "Signing..." : "Sign in"}
+                </button>
                 <a href="/register" className="d-block mt-2 text-center">Don't have an account?</a>
             </form>
         </div>

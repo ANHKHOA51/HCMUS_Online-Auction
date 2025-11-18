@@ -1,11 +1,13 @@
-import React, { useRef, useState, useEffect } from "react";
-import { useOTP } from "../hooks/useOTP";
+import useOTP from "../hooks/auth/useOTP";
+import { maskEmail } from "../utils/auth";
 
 export default function OtpInput() {
     const {
         values, inputsRef, isSubmitting, isResending, message, error,
-        handleChange, handleKeyDown, handlePaste, handleResend
+        handleChange, handleKeyDown, handlePaste, handleResend, submitOtp
     } = useOTP()
+
+    const email = maskEmail(sessionStorage.getItem('VerifyingEmail'))
 
     return (
         <div className="container min-vh-100 d-flex justify-content-center align-items-center">
@@ -13,7 +15,7 @@ export default function OtpInput() {
                 <h6>Enter the OTP to verify your account</h6>
                 <div>
                     <span>A code has been sent to</span>{" "}
-                    <small className="text-muted">*******9897</small>
+                    <small className="text-muted">{email}</small>
                 </div>
 
                 <div className="d-flex justify-content-center mt-3">
@@ -36,19 +38,11 @@ export default function OtpInput() {
 
                 <div className="mt-3 d-flex justify-content-center gap-2">
                     <button
-                        className="btn btn-danger px-4"
-                        disabled={isSubmitting}
-                        onClick={() => submitOtp(values.join(""))}
-                    >
-                        {isSubmitting ? "Verifying..." : "Validate"}
-                    </button>
-
-                    <button
                         className="btn btn-outline-secondary"
                         onClick={handleResend}
                         disabled={isResending}
                     >
-                        {isResending ? "Sending..." : "Resend"}
+                        {isSubmitting ? "Verifying..." : isResending ? "Sending..." : "Resend"}
                     </button>
                 </div>
 
