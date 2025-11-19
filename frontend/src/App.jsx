@@ -1,5 +1,4 @@
 import './App.css'
-import Header from './components/Header'
 import AuthLayout from './layouts/AuthLayout';
 import MainLayout from './layouts/MainLayout';
 import HomePage from "./pages/HomePage";

@@ -19,12 +19,13 @@
 }
 
 .scaled-container {
-  transform: scale(0.85);
-  transform-origin: center;
+    transform: scale(0.85);
+    transform-origin: center;
 
 }
 
 .top-container {
+    width: 100%;
     background-color: #e6f4ff;
     height: 100%;
     display: flex;
@@ -32,5 +33,5 @@
 }
 
 ::-ms-reveal {
-  filter: invert(100%) ;
+    filter: invert(100%);
 }
