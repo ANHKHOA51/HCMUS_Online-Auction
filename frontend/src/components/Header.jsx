@@ -1,48 +1,127 @@
 import './style.css'
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 export default function Header() {
+    const navigate = useNavigate();
+    const [searchInput, setSearchInput] = useState('');
+
+
+  // Filter & Search states
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [sortBy, setSortBy] = useState('newest');
+    const [filteredProducts, setFilteredProducts] = useState([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isDropdownOpenSort, setIsDropdownOpenSort] = useState(false);
+
+    
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (searchInput.trim()) {
+            navigate(`/search?q=${encodeURIComponent(searchInput)}`);
+            setSearchInput('');
+        }
+    };
+
     return (
-        <nav className="navbar sticky-top navbar-expand-lg navbar-dark" style={{backgroundColor: "#094067"}}>
-            <div className="container">
-                <a className="navbar-brand fs-4" href="/">
-                    <img
-                        src="logo.png"
-                        alt="Logo"
-                        width="60"
-                        height="60"
-                        className="d-inline-block align-text-center me-2"
-                    />
-                    ONLINE AUCTION
-                </a>
-
-                <div className="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li className="nav-item ">
-                        <a className="nav-link active" aria-current="page" aria-expanded="false" href="/">Home</a>
-                    </li>
-                    <li className="nav-item dropdown">
-                        <a className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Categories
-                        </a>
-                        <ul className="dropdown-menu" style={{backgroundColor: "#094067"}}>
-                            <li><a className="dropdown-item item_in_list" href="">Action</a></li>
-                            <li><a className="dropdown-item item_in_list" href="">Another action</a></li>
-                            <li><hr className="dropdown-divider" style={{ borderColor: 'white' }}/></li>
-                            <li><a className="dropdown-item item_in_list" href="">All</a></li>
-                        </ul>
-                    </li>
-                </div>
-
-                <div className="navbar-nav">
-                    <form className="d-flex" role="search">
-                        <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-                        <button className="btn btn-outline-success" type="submit">Search</button>
-                    </form>
-                    <li className="nav-item ps-2">
-                        <a className="nav-link" aria-current="page" href="/login">Đăng nhập</a>
-                    </li>
-                </div>
-
+        <div className="home-header">
+            <a className="navbar-brand fs-4" href="/">
+                <img
+                    src="logo.png"
+                    alt="Logo"
+                    width="60"
+                    height="60"
+                    className="d-inline-block align-text-center me-2"
+                />
+                ONLINE AUCTION
+            </a>
+        <div className="filters-container">
+            
+            <div className="filter-search">
+                <input
+                type="text"
+                placeholder="Tên sản phẩm..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+                />
             </div>
-        </nav>
+        
+            
+                <div className="filter-category custom-dropdown">
+                    <div
+                        className="dropdown-toggle"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                        <h3>Chuyên Mục</h3><span className="arrow">▼</span>
+                    </div>
+
+                    {isDropdownOpen && (
+                        <div className="custom-dropdown-content">
+                            {categoryColumns.length > 0 ? (
+                                categoryColumns.map((column, colIndex) => (
+                                    <ul key={colIndex} className="genre-columns">
+                                        {/* Mục "Tất cả" luôn ở cột đầu tiên */}
+                                        {colIndex === 0 && (
+                                            <li 
+                                                onClick={() => handleCategorySelect("")}
+                                                className={selectedCategory === "" ? "selected" : ""}
+                                            >
+                                                <a href="#">Tất cả chuyên mục</a>
+                                            </li>
+                                        )}
+
+                                        {column.map(cat => (
+                                            <li 
+                                                key={cat.id} 
+                                                onClick={() => handleCategorySelect(String(cat.id))}
+                                                className={String(cat.id) === selectedCategory ? "selected" : ""}
+                                            >
+                                                <a href="#">{cat.name}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ))
+                            ) : (
+                                <div className="loading-message">Đang tải chuyên mục...</div>
+                            )}
+                        </div>
+                    )}  
+                </div>
+            
+                <div className="filter-sort custom-dropdown">
+                    <div
+                        className="dropdown-toggle"
+                        onClick={() => setIsDropdownOpenSort(!isDropdownOpenSort)}>
+                        <h3>Sắp xếp</h3><span className="arrow">▼</span>
+                    </div>
+                    
+                    {isDropdownOpenSort && (
+                        <div className="custom-dropdown-content">
+                            <ul className ="genre-columns">
+                                <li onClick={() => handleSortSelect('newest')} className={sortBy === 'newest' ? 'selected' : ''}>
+                                    <a href="#">Mới nhất</a>
+                                </li>
+                                <li onClick={() => handleSortSelect('ending')} className={sortBy === 'ending' ? 'selected' : ''}>
+                                    <a href="#">Sắp kết thúc</a>
+                                </li>
+                                <li onClick={() => handleSortSelect('price_low')} className={sortBy === 'price_low' ? 'selected' : ''}>
+                                    <a href="#">Giá thấp đến cao</a>
+                                </li>
+                                <li onClick={() => handleSortSelect('price_high')} className={sortBy === 'price_high' ? 'selected' : ''}>
+                                    <a href="#">Giá cao đến thấp</a>
+                                </li>
+                            </ul>
+                        </div>
+                    )}  
+                </div>
+
+        </div>
+
+        <div className="header-content">
+            <h1>Auction</h1>
+        </div>
+      </div>
     )
 }

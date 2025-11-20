@@ -13,14 +13,22 @@ export const db = knex({
         user: db_user,
         database: 'postgres',
         password: db_pw,
+        connectionTimeoutMillis: 5000,
     },
-    pool: { min: 0, max: 10 }
+    pool: { min: 0, max: 10, acquireTimeoutMillis: 30000, idleTimeoutMillis: 30000 }
 });
 
-try {
-    await db.raw('SELECT 1');
-    console.log('✓ DB connected successfully');
-} catch (error) {
-    console.error('✗ DB connection failed:', error.message);
-    process.exit(1);
-}
+// Test connection asynchronously with timeout
+(async () => {
+    try {
+        console.log('⏳ Testing database connection...');
+        const result = await Promise.race([
+            db.raw('SELECT 1'),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('DB connection timeout')), 10000))
+        ]);
+        console.log('✓ DB connected successfully');
+    } catch (error) {
+        console.error('✗ DB connection failed:', error.message);
+        process.exit(1);
+    }
+})();

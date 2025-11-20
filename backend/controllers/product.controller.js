@@ -2,11 +2,14 @@ import productModel from '../models/product.model.js';
 
 const getAllProducts = async (req, res) => {
   try {
+    console.log('🔍 getAllProducts called with query:', req.query);
     // truyền nguyên req.query vào service để giữ nguyên behavior
     const rows = await productModel.getAllProducts(req.query);
+    console.log('✓ Found', rows.length, 'products');
     res.json({ success: true, data: rows });
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error('❌ Error fetching products:', error.message);
+    console.error('Stack:', error.stack);
     res.status(500).json({ success: false, error: error.message });
   }
 };

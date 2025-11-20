@@ -1,6 +1,7 @@
 import React from 'react';
 import './RelatedProducts.css';
-import { formatPrice, getRelativeTime, shouldShowRelativeTime } from '../utils/timeUtil';
+import { getRelativeTime, shouldShowRelativeTime } from '../utils/timeUtil';
+import { formatPriceVN } from '../utils/formatCurrency';
 
 const RelatedProducts = ({ products = [], onProductClick }) => {
 
@@ -29,7 +30,7 @@ const RelatedProducts = ({ products = [], onProductClick }) => {
 
                 <div className="product-price">
                   <span className="current-price">
-                    {formatPrice(product.current_price || product.starting_price)}
+                    {formatPriceVN(product.current_price || product.starting_price)}
                   </span>
                 </div>
 
