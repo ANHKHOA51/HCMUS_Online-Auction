@@ -1,62 +1,75 @@
-.products-grid {
+.top-products-section {
+  margin-bottom: 50px;
+  background: white;
+  border-radius: 8px;
+  padding: 30px 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.top-products-section h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
 }
 
-.no-products {
-  background: white;
-  border-radius: 8px;
-  padding: 60px 20px;
+.loading-spinner {
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.no-products-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
-}
-
-.no-products h3 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 10px;
-}
-
-.no-products p {
   color: #666;
+  padding: 40px 20px;
   font-size: 16px;
-  margin: 0 0 20px;
 }
 
-.reset-btn {
-  padding: 12px 24px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 4px;
+.no-products-message {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
   font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
 }
 
-.reset-btn:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
+@media (max-width: 1024px) {
+  .top-products-section {
+    padding: 20px 15px;
+  }
+
+  .top-products-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+  }
+
+  .top-products-section h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
 }
 
 @media (max-width: 768px) {
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
+  .top-products-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .top-products-section h2 {
+    font-size: 18px;
   }
 }
 
 @media (max-width: 480px) {
-  .products-grid {
+  .top-products-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+
+  .top-products-section {
+    padding: 15px 10px;
   }
 }

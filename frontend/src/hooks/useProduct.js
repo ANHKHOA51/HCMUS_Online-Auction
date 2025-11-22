@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { productService } from '../services/apiService';
 
-export const useProducts = () => {
+export const useProducts = (queryParams = {}) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,15 +13,14 @@ export const useProducts = () => {
         setLoading(true);
         setError(null);
 
-        const [categoriesRes, productsRes] = await Promise.all([
-          productService.getCategories(),
-          productService.getProducts(),
-        ]);
-
+        // Fetch categories always
+        const categoriesRes = await productService.getCategories();
         if (categoriesRes.success) {
           setCategories(categoriesRes.data);
         }
 
+        // Fetch products with query params (search, category, sort)
+        const productsRes = await productService.getProducts(queryParams);
         if (productsRes.success) {
           setProducts(productsRes.data);
         }
@@ -34,63 +33,17 @@ export const useProducts = () => {
     };
 
     fetchData();
-  }, []);
+  }, [JSON.stringify(queryParams)]);
 
   return { products, categories, loading, error };
 };
+
+
 
 export const useFilters = (products) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [sortBy, setSortBy] = useState('newest');
-  const [filteredProducts, setFilteredProducts] = useState([]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [products, searchQuery, selectedCategory, sortBy]);
-
-  const applyFilters = () => {
-    let filtered = [...products];
-
-    // Filter by category
-    if (selectedCategory) {
-      const categoryId = parseInt(selectedCategory);
-      filtered = filtered.filter(p => p.category_id === categoryId);
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      filtered = filtered.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Sort
-    switch (sortBy) {
-      case 'newest':
-        filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-        break;
-      case 'price_low':
-        filtered.sort((a, b) => (a.current_price || a.starting_price) - (b.current_price || b.starting_price));
-        break;
-      case 'price_high':
-        filtered.sort((a, b) => (b.current_price || b.starting_price) - (a.current_price || a.starting_price));
-        break;
-      case 'ending':
-        filtered.sort((a, b) => new Date(a.end_time) - new Date(b.end_time));
-        break;
-      default:
-        break;
-    }
-
-    setFilteredProducts(filtered);
-  };
-
-  const handleClearFilters = () => {
-    setSearchQuery('');
-    setSelectedCategory('');
-    setSortBy('newest');
-  };
 
   return {
     searchQuery,
@@ -99,10 +52,9 @@ export const useFilters = (products) => {
     setSelectedCategory,
     sortBy,
     setSortBy,
-    filteredProducts,
-    handleClearFilters,
   };
 };
+
 
 export const useProductDetail = (productId) => {
   const [product, setProduct] = useState(null);

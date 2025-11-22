@@ -1,5 +1,4 @@
 import './App.css'
-import Header from './components/Header_old'
 import AuthLayout from './layouts/AuthLayout';
 import MainLayout from './layouts/MainLayout';
 import HomePage from "./pages/HomePage";
@@ -8,7 +7,7 @@ import OtpPage from './pages/OtpPage';
 import RegisterPage from './pages/RegisterPage';
 import ProductDetail from './pages/ProductDetail';
 import SearchResultsPage from './pages/SearchResultsPage';
-import { Route, Routes, BrowserRouter, useLocation } from "react-router-dom";
+import { Route, Routes, BrowserRouter } from "react-router-dom";
 
 export default function App() {
     return (

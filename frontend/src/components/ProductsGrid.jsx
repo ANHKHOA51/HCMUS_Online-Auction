@@ -2,32 +2,34 @@ import React from 'react';
 import ProductCard from './ProductCard';
 import './ProductsGrid.css';
 
-const ProductsGrid = ({ products, searchQuery, selectedCategory, onClearFilters }) => {
-  if (products.length === 0) {
+const ProductsGrid = ({ title, icon, products, loading }) => {
+  if (loading) {
     return (
-      <div className="no-products">
-        <div className="no-products-icon">📭</div>
-        <h3>Không tìm thấy sản phẩm</h3>
-        <p>
-          {searchQuery || selectedCategory
-            ? 'Hãy thử thay đổi bộ lọc hoặc từ khóa tìm kiếm'
-            : 'Không có sản phẩm nào có sẵn'}
-        </p>
-        {(searchQuery || selectedCategory) && (
-          <button className="reset-btn" onClick={onClearFilters}>
-            ↻ Xóa bộ lọc
-          </button>
-        )}
-      </div>
+      <section className="top-products-section">
+        <h2>{icon} {title}</h2>
+        <div className="loading-spinner">Đang tải...</div>
+      </section>
+    );
+  }
+
+  if (!products || products.length === 0) {
+    return (
+      <section className="top-products-section">
+        <h2>{icon} {title}</h2>
+        <div className="no-products-message">Chưa có sản phẩm</div>
+      </section>
     );
   }
 
   return (
-    <div className="products-grid">
-      {products.map(product => (
-        <ProductCard key={product.id} product={product} />
-      ))}
-    </div>
+    <section className="top-products-section">
+      <h2>{icon} {title}</h2>
+      <div className="top-products-grid">
+        {products.map(product => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+    </section>
   );
 };
 

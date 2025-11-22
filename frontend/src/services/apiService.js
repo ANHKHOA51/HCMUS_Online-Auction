@@ -7,7 +7,15 @@ const API_BASE_URL = 'http://localhost:3000/api';
 export const productService = {
   // Lấy danh sách sản phẩm
   async getProducts(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
+    // Map URL param names to API param names
+    const apiParams = {
+      ...(params.q && { search: params.q }),
+      ...(params.search && { search: params.search }),
+      ...(params.category_id && { category_id: params.category_id }),
+      ...(params.category && { category_id: params.category }),
+      ...(params.sort && { sort: params.sort }),
+    };
+    const queryString = new URLSearchParams(apiParams).toString();
     const response = await fetch(`${API_BASE_URL}/products?${queryString}`);
     if (!response.ok) throw new Error('Lỗi khi lấy danh sách sản phẩm');
     return response.json();

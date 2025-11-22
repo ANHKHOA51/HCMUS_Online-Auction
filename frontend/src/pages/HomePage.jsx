@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './HomePage.css';
-import TopProductsSection from '../components/TopProductsSection';
+import ProductsGrid from '../components/ProductsGrid';
 import { useTopProductsEndingSoon, useTopProductsByBids, useTopProductsByPrice } from '../hooks/useTopProducts';
 
 const HomePage = () => {
@@ -16,39 +16,29 @@ const HomePage = () => {
 
   return (
     <div className="home-page">
-      {/* Hero Banner */}
-      <div className="home-hero">
-        <div className="hero-content">
-          <h1>🏆 Sàn Đấu Giá Trực Tuyến</h1>
-          <p>Tìm kiếm và đấu giá những sản phẩm yêu thích</p>
-          <button className="hero-search-btn" onClick={handleSearchClick}>
-            🔍 Tìm kiếm sản phẩm
-          </button>
-        </div>
-      </div>
 
       {/* Main Content */}
       <div className="home-content">
         {/* Top Products Ending Soon */}
-        <TopProductsSection
+        <ProductsGrid
           title="Top 5 Sản Phẩm Gần Kết Thúc"
-          icon="⏰"
+          icon=""
           products={endingSoonProducts}
           loading={loadingEndingSoon}
         />
 
         {/* Top Products By Bids */}
-        <TopProductsSection
+        <ProductsGrid
           title="Top 5 Sản Phẩm Có Nhiều Lượt Ra Giá"
-          icon="🔥"
+          icon=""
           products={mostBidProducts}
           loading={loadingBids}
         />
 
         {/* Premium Products */}
-        <TopProductsSection
+        <ProductsGrid
           title="Top 5 Sản Phẩm Có Giá Cao Nhất"
-          icon="💎"
+          icon=""
           products={premiumProducts}
           loading={loadingPrice}
         />

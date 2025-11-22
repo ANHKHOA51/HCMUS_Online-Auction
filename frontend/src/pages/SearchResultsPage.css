@@ -49,9 +49,6 @@
   max-width: 1400px;
   margin: 30px auto;
   padding: 0 15px;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 30px;
 }
 
 /* Results Section */
@@ -76,29 +73,33 @@
   margin: 0;
 }
 
-/* Pagination */
+/* Pagination - Improved */
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  margin-top: 40px;
-  padding: 30px 20px;
+  gap: 10px;
+  margin-top: 50px;
+  padding: 40px 20px;
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .pagination-btn {
-  padding: 10px 16px;
-  border: 1px solid #ddd;
+  padding: 12px 18px;
+  border: 2px solid #ddd;
   background: white;
   color: #333;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .pagination-btn:hover:not(:disabled) {
@@ -106,31 +107,31 @@
   color: white;
   border-color: #667eea;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
 }
 
 .pagination-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .pagination-numbers {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   align-items: center;
 }
 
 .pagination-number {
-  width: 40px;
-  height: 40px;
-  border: 1px solid #ddd;
+  width: 44px;
+  height: 44px;
+  border: 2px solid #ddd;
   background: white;
   color: #333;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -139,18 +140,20 @@
 .pagination-number:hover {
   border-color: #667eea;
   color: #667eea;
+  transform: scale(1.05);
 }
 
 .pagination-number.active {
-  background: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border-color: #667eea;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 .pagination-dots {
   color: #999;
   font-size: 18px;
-  margin: 0 4px;
+  margin: 0 6px;
 }
 
 /* Loading */

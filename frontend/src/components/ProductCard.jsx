@@ -26,7 +26,7 @@ const ProductCard = ({ product }) => {
         {/* Badge trạng thái + Badge số lượt bid */}
         <div className="card-badges">
             <span className={`status-badge ${product.bid_count > 0 ? 'hot' : 'new'}`}>
-                {product.bid_count > 0 ? '🔥 Hot' : '🆕 Mới'}
+                {product.bid_count > 0 ? 'Hot' : 'Mới'}
             </span>
         </div>
       </div>
@@ -64,7 +64,7 @@ const ProductCard = ({ product }) => {
                 </span>
             </div>
             <div className="stat-row">
-                <span className="icon">👑</span>
+                <span className="icon"></span>
                 <span className="text winner">
                     {product.winner_name ? (
                         <>Top: <b>{product.winner_name}</b></>
@@ -79,18 +79,18 @@ const ProductCard = ({ product }) => {
         <div className="product-footer-meta">
             {/* Ngày đăng */}
             <div className="meta-item" title="Ngày đăng">
-                📅 <small>Đăng: {new Date(product.created_at || Date.now()).toLocaleDateString('vi-VN')}</small>
+                <small>Đăng: {new Date(product.created_at || Date.now()).toLocaleDateString('vi-VN')}</small>
             </div>
             
             {/* Thời gian còn lại */}
             <div className="meta-item time-left">
                 {shouldShowRelativeTime(product.end_time) ? (
                     <span className="tag-urgent">
-                    ⏳ {getRelativeTime(product.end_time)}
+                    {getRelativeTime(product.end_time)}
                     </span>
                 ) : (
                     <span className="tag-finished">
-                    🏁 Kết thúc: {new Date(product.end_time).toLocaleDateString('vi-VN')}
+                    Kết thúc: {new Date(product.end_time).toLocaleDateString('vi-VN')}
                     </span>
                 )}
             </div>

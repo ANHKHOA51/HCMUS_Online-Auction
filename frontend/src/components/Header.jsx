@@ -1,127 +1,177 @@
-import './style.css'
+import './Header.css'
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useProducts, useFilters } from '../hooks/useProduct';
 
 export default function Header() {
-    const navigate = useNavigate();
-    const [searchInput, setSearchInput] = useState('');
+        const navigate = useNavigate();
+        const { categories } = useProducts();
+        const {
+            searchQuery,
+            setSearchQuery,
+            selectedCategory,
+            setSelectedCategory,
+            sortBy,
+            setSortBy,
+        } = useFilters([]);
+        const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+        const [isDropdownOpenSort, setIsDropdownOpenSort] = useState(false);
 
+        // Chia categories thành các cột (chưa có hiểu đoạn này nhe)
+        const splitIntoColumns = (arr, numCols) => {
+            if (!arr || arr.length === 0) return [];
+            const itemsPerCol = Math.ceil(arr.length / numCols);
+            return Array.from({ length: numCols }, (_, i) =>
+                arr.slice(i * itemsPerCol, i * itemsPerCol + itemsPerCol)
+            );
+        };
+        const categoryColumns = splitIntoColumns(categories, 3);
 
-  // Filter & Search states
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [sortBy, setSortBy] = useState('newest');
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [isDropdownOpenSort, setIsDropdownOpenSort] = useState(false);
+        // Xử lý chọn chuyên mục và sắp xếp
+        const handleCategorySelect = (categoryId) => {
+            setSelectedCategory(String(categoryId));
+            setIsDropdownOpen(false);
+            const params = new URLSearchParams();
+            params.set('category', String(categoryId));
+            if (sortBy && sortBy !== 'newest') params.set('sort', sortBy);
+            navigate(`/search?${params.toString()}`);
+        };
 
-    
+        // Xử lý chọn sắp xếp
+        const handleSortSelect = (sortOption) => {
+            setSortBy(sortOption);
+            setIsDropdownOpenSort(false);
+            const params = new URLSearchParams();
+            if (selectedCategory) params.set('category', selectedCategory);
+            params.set('sort', sortOption);
+            navigate(`/search?${params.toString()}`);
+        };
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        if (searchInput.trim()) {
-            navigate(`/search?q=${encodeURIComponent(searchInput)}`);
-            setSearchInput('');
-        }
-    };
+        // Xử lý nhập và submit tìm kiếm
+        const handleSearchInput = (e) => {
+            setSearchQuery(e.target.value);
+        };
 
-    return (
-        <div className="home-header">
-            <a className="navbar-brand fs-4" href="/">
-                <img
-                    src="logo.png"
-                    alt="Logo"
-                    width="60"
-                    height="60"
-                    className="d-inline-block align-text-center me-2"
-                />
-                ONLINE AUCTION
-            </a>
-        <div className="filters-container">
-            
-            <div className="filter-search">
-                <input
-                type="text"
-                placeholder="Tên sản phẩm..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
-                />
-            </div>
-        
-            
-                <div className="filter-category custom-dropdown">
-                    <div
-                        className="dropdown-toggle"
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-                        <h3>Chuyên Mục</h3><span className="arrow">▼</span>
-                    </div>
+        // Xử lý submit tìm kiếm
+        const handleSearchSubmit = (e) => {
+            e.preventDefault();
+            if (searchQuery.trim()) {
+                navigate(`/search?q=${encodeURIComponent(searchQuery)}&sort=${sortBy}${selectedCategory ? '&category=' + selectedCategory : ''}`);
+            }
+        };
 
-                    {isDropdownOpen && (
-                        <div className="custom-dropdown-content">
-                            {categoryColumns.length > 0 ? (
-                                categoryColumns.map((column, colIndex) => (
-                                    <ul key={colIndex} className="genre-columns">
-                                        {/* Mục "Tất cả" luôn ở cột đầu tiên */}
-                                        {colIndex === 0 && (
-                                            <li 
-                                                onClick={() => handleCategorySelect("")}
-                                                className={selectedCategory === "" ? "selected" : ""}
-                                            >
-                                                <a href="#">Tất cả chuyên mục</a>
-                                            </li>
-                                        )}
+        return (
+            <header className="header">
+                <div className="header-container">
+                    {/* Logo */}
+                    <a className="header-logo" href="/">
+                        <span className="logo-icon">🏆</span>
+                        <span className="logo-text">Đấu Giá Online</span>
+                    </a>
 
-                                        {column.map(cat => (
-                                            <li 
-                                                key={cat.id} 
-                                                onClick={() => handleCategorySelect(String(cat.id))}
-                                                className={String(cat.id) === selectedCategory ? "selected" : ""}
-                                            >
-                                                <a href="#">{cat.name}</a>
-                                            </li>
+                    {/* Search Bar */}
+                    <form className="search-form" onSubmit={handleSearchSubmit}>
+                        <input
+                            type="text"
+                            placeholder="Tìm sản phẩm yêu thích..."
+                            value={searchQuery}
+
+                            // Là nó sẽ thay đổi trang khúc này
+                            onChange={handleSearchInput}
+                            className="search-input"
+                        />
+                        <button type="submit" className="search-btn">🔍 Tìm</button>
+                    </form>
+
+                    {/* Filters */}
+                    <div className="filters-bar">
+                        {/* Category Filter */}
+                        <div className="filter-dropdown">
+                            <button 
+                                className={`filter-btn ${selectedCategory ? 'active' : ''}`}
+                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                                <span>📁 Chuyên Mục</span>
+                                <span className="arrow">{isDropdownOpen ? '▲' : '▼'}</span>
+                            </button>
+                            {isDropdownOpen && (
+                                <div className="dropdown-menu">
+                                    <div className="dropdown-header">Chọn chuyên mục</div>
+                                    <ul className="dropdown-list">
+                                        <li 
+                                            className={selectedCategory === '' ? 'active' : ''}
+                                            onClick={() => {
+                                                setSelectedCategory('');
+                                                setIsDropdownOpen(false);
+                                                navigate('/search');
+                                            }}
+                                        >
+                                            Tất cả chuyên mục
+                                        </li>
+                                        {categoryColumns.map((column, colIndex) => (
+                                            column.map(cat => (
+                                                <li
+                                                    key={cat.id}
+                                                    className={String(cat.id) === selectedCategory ? 'active' : ''}
+                                                    onClick={() => handleCategorySelect(String(cat.id))}
+                                                >
+                                                    {cat.name}
+                                                </li>
+                                            ))
                                         ))}
                                     </ul>
-                                ))
-                            ) : (
-                                <div className="loading-message">Đang tải chuyên mục...</div>
+                                </div>
                             )}
                         </div>
-                    )}  
-                </div>
-            
-                <div className="filter-sort custom-dropdown">
-                    <div
-                        className="dropdown-toggle"
-                        onClick={() => setIsDropdownOpenSort(!isDropdownOpenSort)}>
-                        <h3>Sắp xếp</h3><span className="arrow">▼</span>
-                    </div>
-                    
-                    {isDropdownOpenSort && (
-                        <div className="custom-dropdown-content">
-                            <ul className ="genre-columns">
-                                <li onClick={() => handleSortSelect('newest')} className={sortBy === 'newest' ? 'selected' : ''}>
-                                    <a href="#">Mới nhất</a>
-                                </li>
-                                <li onClick={() => handleSortSelect('ending')} className={sortBy === 'ending' ? 'selected' : ''}>
-                                    <a href="#">Sắp kết thúc</a>
-                                </li>
-                                <li onClick={() => handleSortSelect('price_low')} className={sortBy === 'price_low' ? 'selected' : ''}>
-                                    <a href="#">Giá thấp đến cao</a>
-                                </li>
-                                <li onClick={() => handleSortSelect('price_high')} className={sortBy === 'price_high' ? 'selected' : ''}>
-                                    <a href="#">Giá cao đến thấp</a>
-                                </li>
-                            </ul>
+
+                        {/* Sort Filter */}
+                        <div className="filter-dropdown">
+                            <button 
+                                className={`filter-btn ${sortBy !== 'newest' ? 'active' : ''}`}
+                                onClick={() => setIsDropdownOpenSort(!isDropdownOpenSort)}>
+                                <span>📊 Sắp xếp</span>
+                                <span className="arrow">{isDropdownOpenSort ? '▲' : '▼'}</span>
+                            </button>
+                            {isDropdownOpenSort && (
+                                <div className="dropdown-menu">
+                                    <div className="dropdown-header">Sắp xếp theo</div>
+                                    <ul className="dropdown-list">
+                                        <li 
+                                            className={sortBy === 'newest' ? 'active' : ''}
+                                            onClick={() => {
+                                                handleSortSelect('newest');
+                                            }}
+                                        >
+                                            🆕 Mới nhất
+                                        </li>
+                                        <li 
+                                            className={sortBy === 'ending' ? 'active' : ''}
+                                            onClick={() => handleSortSelect('ending')}
+                                        >
+                                            ⏳ Sắp kết thúc
+                                        </li>
+                                        <li 
+                                            className={sortBy === 'price_low' ? 'active' : ''}
+                                            onClick={() => handleSortSelect('price_low')}
+                                        >
+                                            📈 Giá thấp đến cao
+                                        </li>
+                                        <li 
+                                            className={sortBy === 'price_high' ? 'active' : ''}
+                                            onClick={() => handleSortSelect('price_high')}
+                                        >
+                                            📉 Giá cao đến thấp
+                                        </li>
+                                    </ul>
+                                </div>
+                            )}
                         </div>
-                    )}  
+                    </div>
+
+                    {/* Login */}
+                    <a href="/login" className="header-login">
+                        🔐 Đăng nhập
+                    </a>
                 </div>
-
-        </div>
-
-        <div className="header-content">
-            <h1>Auction</h1>
-        </div>
-      </div>
-    )
+            </header>
+        );
 }

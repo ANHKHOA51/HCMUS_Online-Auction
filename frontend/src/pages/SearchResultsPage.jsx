@@ -1,25 +1,27 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
 import ProductsGrid from '../components/ProductsGrid';
-import { useProducts, useFilters } from '../hooks/useProduct';
+import { useProducts } from '../hooks/useProduct';
 import { useSearchResults } from '../hooks/useSearchResults';
 import './SearchResultsPage.css';
 
 const SearchResultsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { products, categories, loading, error } = useProducts();
+  
+  // Get URL params
+  const searchQuery = searchParams.get('q') || '';
+  const selectedCategory = searchParams.get('category') || '';
+  const sortBy = searchParams.get('sort') || 'newest';
 
-  const {
-    searchQuery,
-    setSearchQuery,
-    selectedCategory,
-    setSelectedCategory,
-    sortBy,
-    setSortBy,
-    filteredProducts,
-    handleClearFilters,
-  } = useFilters(products);
+  // Build query params for API
+  const queryParams = {
+    ...(searchQuery && { search: searchQuery }),
+    ...(selectedCategory && { category_id: selectedCategory }),
+    ...(sortBy && { sort: sortBy }),
+  };
+
+  // Fetch products with filters from API
+  const { products: allProducts, loading, error } = useProducts(queryParams);
 
   const {
     currentPage,
@@ -29,24 +31,7 @@ const SearchResultsPage = () => {
     goToPage,
     resetPagination,
     visiblePages,
-    initialSearch,
-    initialCategory,
-  } = useSearchResults(filteredProducts, searchParams, setSearchParams);
-
-  // Initialize filters from URL
-  useEffect(() => {
-    if (initialSearch) setSearchQuery(initialSearch);
-    if (initialCategory) setSelectedCategory(initialCategory);
-  }, []);
-
-  // Update URL when filters change
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set('q', searchQuery);
-    if (selectedCategory) params.set('category', selectedCategory);
-    setSearchParams(params);
-    resetPagination();
-  }, [searchQuery, selectedCategory]);
+  } = useSearchResults(allProducts, searchParams, setSearchParams);
 
   if (loading) {
     return (
@@ -65,7 +50,7 @@ const SearchResultsPage = () => {
       <div className="search-header">
         <div className="header-content">
           <h1>🔍 Kết Quả Tìm Kiếm</h1>
-          <p>Tìm thấy <strong>{filteredProducts.length}</strong> sản phẩm</p>
+          <p>Tìm thấy <strong>{allProducts.length}</strong> sản phẩm</p>
         </div>
       </div>
 
@@ -77,26 +62,14 @@ const SearchResultsPage = () => {
       )}
 
       <div className="search-container">
-        {/* Sidebar */}
-        <Sidebar
-          categories={categories}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          onClearFilters={handleClearFilters}
-        />
-
-        {/* Main Content */}
+        {/* Main Content - No Sidebar, all filters in Header */}
         <main className="search-results-section">
           <div className="results-info">
             <h2>
               {selectedCategory || searchQuery ? '📋 Kết quả' : '📦 Tất cả sản phẩm'}
             </h2>
             <p className="result-count">
-              Hiển thị {paginatedProducts.length > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + 12, filteredProducts.length)} trên {filteredProducts.length} sản phẩm
+              Hiển thị {paginatedProducts.length > 0 ? startIndex + 1 : 0}-{Math.min(startIndex + 12, allProducts.length)} trên {allProducts.length} sản phẩm
             </p>
           </div>
 
@@ -105,12 +78,15 @@ const SearchResultsPage = () => {
             products={paginatedProducts}
             searchQuery={searchQuery}
             selectedCategory={selectedCategory}
-            onClearFilters={handleClearFilters}
+            onClearFilters={() => {
+              setSearchParams({});
+              resetPagination();
+            }} 
           />
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="pagination">
+            <div className="pagination"> 
               <button
                 className="pagination-btn"
                 onClick={() => goToPage(currentPage - 1)}
