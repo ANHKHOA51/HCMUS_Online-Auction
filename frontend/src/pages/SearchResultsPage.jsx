@@ -46,13 +46,6 @@ const SearchResultsPage = () => {
 
   return (
     <div className="search-results-page">
-      {/* Header */}
-      <div className="search-header">
-        <div className="header-content">
-          <h1>🔍 Kết Quả Tìm Kiếm</h1>
-          <p>Tìm thấy <strong>{allProducts.length}</strong> sản phẩm</p>
-        </div>
-      </div>
 
       {/* Error Message */}
       {error && (

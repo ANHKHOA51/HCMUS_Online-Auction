@@ -22,7 +22,7 @@ export default function App() {
                 <Route element={<MainLayout />}>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/search" element={<SearchResultsPage />} />
-                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/products/:id" element={<ProductDetail />} />
                 </Route>
             </Routes>
         </BrowserRouter>

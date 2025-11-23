@@ -24,6 +24,14 @@
   gap: 20px;
 }
 
+.detail-below {
+    max-width: 1400px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
 /* Product Header */
 .product-header {
   background: white;

@@ -65,7 +65,6 @@ export default function Header() {
                 <div className="header-container">
                     {/* Logo */}
                     <a className="header-logo" href="/">
-                        <span className="logo-icon">🏆</span>
                         <span className="logo-text">Đấu Giá Online</span>
                     </a>
 
@@ -80,7 +79,7 @@ export default function Header() {
                             onChange={handleSearchInput}
                             className="search-input"
                         />
-                        <button type="submit" className="search-btn">🔍 Tìm</button>
+                        <button type="submit" className="search-btn">Tìm</button>
                     </form>
 
                     {/* Filters */}
@@ -89,36 +88,41 @@ export default function Header() {
                         <div className="filter-dropdown">
                             <button 
                                 className={`filter-btn ${selectedCategory ? 'active' : ''}`}
-                                onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-                                <span>📁 Chuyên Mục</span>
+                                onClick={() => {
+                                    setIsDropdownOpen(!isDropdownOpen);
+                                    if (!isDropdownOpen) setIsDropdownOpenSort(false);
+                                }}>
+                                <span>Chuyên Mục</span>
                                 <span className="arrow">{isDropdownOpen ? '▲' : '▼'}</span>
                             </button>
                             {isDropdownOpen && (
                                 <div className="dropdown-menu">
-                                    <div className="dropdown-header">Chọn chuyên mục</div>
-                                    <ul className="dropdown-list">
-                                        <li 
-                                            className={selectedCategory === '' ? 'active' : ''}
-                                            onClick={() => {
-                                                setSelectedCategory('');
-                                                setIsDropdownOpen(false);
-                                                navigate('/search');
-                                            }}
-                                        >
-                                            Tất cả chuyên mục
-                                        </li>
-                                        {categoryColumns.map((column, colIndex) => (
-                                            column.map(cat => (
-                                                <li
-                                                    key={cat.id}
-                                                    className={String(cat.id) === selectedCategory ? 'active' : ''}
-                                                    onClick={() => handleCategorySelect(String(cat.id))}
-                                                >
+                                    {categoryColumns.length > 0 ? (
+                                        categoryColumns.map((column, colIndex) => (
+                                            <ul key={colIndex} className="dropdown-list">
+                                                {colIndex === 0 && (
+                                                    <li
+                                                        className={selectedCategory === "" ?'active' : ''}
+                                                        onClick={() => handleCategorySelect("")}
+                                                    >
+                                                    Tất cả chuyên mục
+                                                    </li>
+
+                                                )}
+                                                {column.map(cat => (
+                                                    <li
+                                                        key={cat.id}
+                                                        className={String(cat.id) === selectedCategory ? 'active' : ''}
+                                                        onClick={() => handleCategorySelect(String(cat.id))}
+                                                    >
                                                     {cat.name}
-                                                </li>
-                                            ))
-                                        ))}
-                                    </ul>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        ))
+                                    ) : (
+                                        <div className="loading-message">Đang tải chuyên mục...</div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -127,13 +131,15 @@ export default function Header() {
                         <div className="filter-dropdown">
                             <button 
                                 className={`filter-btn ${sortBy !== 'newest' ? 'active' : ''}`}
-                                onClick={() => setIsDropdownOpenSort(!isDropdownOpenSort)}>
-                                <span>📊 Sắp xếp</span>
+                                onClick={() => {
+                                    setIsDropdownOpenSort(!isDropdownOpenSort);
+                                    if (!isDropdownOpenSort) setIsDropdownOpen(false);
+                                }}>
+                                <span>Sắp xếp</span>
                                 <span className="arrow">{isDropdownOpenSort ? '▲' : '▼'}</span>
                             </button>
                             {isDropdownOpenSort && (
                                 <div className="dropdown-menu">
-                                    <div className="dropdown-header">Sắp xếp theo</div>
                                     <ul className="dropdown-list">
                                         <li 
                                             className={sortBy === 'newest' ? 'active' : ''}
@@ -141,25 +147,25 @@ export default function Header() {
                                                 handleSortSelect('newest');
                                             }}
                                         >
-                                            🆕 Mới nhất
+                                            Mới nhất
                                         </li>
                                         <li 
                                             className={sortBy === 'ending' ? 'active' : ''}
                                             onClick={() => handleSortSelect('ending')}
                                         >
-                                            ⏳ Sắp kết thúc
+                                            Sắp kết thúc
                                         </li>
                                         <li 
                                             className={sortBy === 'price_low' ? 'active' : ''}
                                             onClick={() => handleSortSelect('price_low')}
                                         >
-                                            📈 Giá thấp đến cao
+                                            Giá thấp đến cao
                                         </li>
                                         <li 
                                             className={sortBy === 'price_high' ? 'active' : ''}
                                             onClick={() => handleSortSelect('price_high')}
                                         >
-                                            📉 Giá cao đến thấp
+                                            Giá cao đến thấp
                                         </li>
                                     </ul>
                                 </div>

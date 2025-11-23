@@ -4,11 +4,11 @@ import './ProductDetail.css';
 import ProductGallery from '../components/ProductGallery';
 import UserInfo from '../components/UserInfo';
 import QAHistory from '../components/QAHistory';
-import RelatedProducts from '../components/RelatedProducts';
 import { getRelativeTime, shouldShowRelativeTime, formatDate } from '../utils/timeUtil';
 import { formatPriceVN } from '../utils/formatCurrency';
 import { useProductDetail } from '../hooks/useProduct';
 import { useBidding } from '../hooks/useBidding';
+import ProductsGrid from '../components/ProductsGrid';
 
 const ProductDetail = () => {
   const navigate = useNavigate();
@@ -46,28 +46,16 @@ const ProductDetail = () => {
         <div className="detail-left">
           <ProductGallery images={product.images} />
 
-          {/* Product Description */}
-          <div className="product-description">
-            <h4 className="section-title">📋 Mô tả chi tiết sản phẩm</h4>
-            <div className="description-content">
-              <p>{product.description}</p>
-            </div>
-          </div>
-
-          {/* Q&A Section */}
-          <QAHistory faqs={faqs} />
-
-          {/* Related Products */}
-          <RelatedProducts products={relatedProducts} onProductClick={(id) => navigate(`/product/${id}`)} />
+          
         </div>
 
         {/* Right Section: Product Info and Bidding */}
         <div className="detail-right">
-          {/* Product Title */}
-          <div className="product-header">
-            <h2 className="product-title">{product.name}</h2>
-            <p className="product-category">📦 Điện thoại di động</p>
-          </div>
+
+                        <div className="product-header">
+                <h2 className="product-title">{product.name}</h2>
+                <p className="product-category">{product.category_name}</p>
+            </div>
 
           {/* Time Information */}
           <div className="time-info">
@@ -170,6 +158,21 @@ const ProductDetail = () => {
           )}
         </div>
       </div>
+        <div className ="detail-below">   
+
+            {/* Product Description */}
+            <div className="product-description">
+                <h4 className="section-title">📋 Mô tả chi tiết sản phẩm</h4>
+                <div className="description-content">
+                    <p>{product.description}</p>
+                </div>
+            </div>
+            {/* Q&A Section */}
+            <QAHistory faqs={faqs} />
+
+            {/* Related Products */}
+            <ProductsGrid products={relatedProducts} title={"Sản phẩm liên quan"}/>
+        </div>
     </div>
   );
 };

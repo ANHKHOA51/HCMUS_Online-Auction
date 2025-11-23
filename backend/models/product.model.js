@@ -2,7 +2,7 @@ import { db } from '../utils/db.js';
 
 const getAllProducts = async (queryParams) => {
   try {
-    console.log('📦 getAllProducts model called');
+    console.log('getAllProducts model called');
     const { category_id, sort = 'newest', search } = queryParams || {};
 
     let query = db('products as p')
@@ -55,7 +55,7 @@ const getAllProducts = async (queryParams) => {
     console.log('✓ Query result:', result.length, 'rows');
     return result;
   } catch (error) {
-    console.error('❌ Model error:', error.message);
+    console.error('Model error:', error.message);
     throw error;
   }
 };
@@ -63,7 +63,7 @@ const getAllProducts = async (queryParams) => {
 const getProductDetail = async (id) => {
   try {
     const product = await db('products as p')
-      .select('p.*', 'c.name as category_name', 'u.id as seller_id', 'u.full_name as seller_name', 'u.email as seller_email', 'u.phone as seller_phone', 'u.rating_positive', 'u.rating_negative', 'u.avatar_url as seller_avatar')
+      .select('p.*', 'c.name as category_name', 'u.id as seller_id', 'u.full_name as seller_name', 'u.email as seller_email', 'u.rating_positive', 'u.rating_negative', 'u.avatar_url as seller_avatar')
       .join('categories as c', 'p.category_id', 'c.id')
       .join('users as u', 'p.seller_id', 'u.id')
       .where('p.id', id)

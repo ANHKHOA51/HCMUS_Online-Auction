@@ -72,7 +72,6 @@ export const useProductDetail = (productId) => {
         setError(null);
 
         const result = await productService.getProductDetail(productId);
-
         if (!result.success) {
           throw new Error(result.error || 'Lỗi không xác định');
         }
@@ -83,7 +82,6 @@ export const useProductDetail = (productId) => {
           id: product.seller_id,
           full_name: product.seller_name,
           email: product.seller_email,
-          phone: product.seller_phone,
           avatar: product.seller_avatar,
           rating_positive: product.rating_positive,
           rating_negative: product.rating_negative,
