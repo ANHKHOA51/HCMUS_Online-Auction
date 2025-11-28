@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import authRouter from './routes/auth.routes.js';
-import productRouter from './routes/product.routes.js';
+import productRouter from './routes/product.route.js';
+import categoryRouter from './routes/category.route.js';
 
 const app = express();
 const PORT = 3000;
@@ -17,7 +18,6 @@ app.use(cors({
   allowedHeaders: ['Content-Type','Authorization']
 }));
 
-console.log('✓ CORS configured');
 
 // Log all requests
 app.use((req, res, next) => {
@@ -32,6 +32,8 @@ console.log('✓ Middleware configured');
 // register routes AFTER cors/json
 app.use('/api/auth', authRouter);
 app.use('/api/products', productRouter);
+app.use('/api/categories', categoryRouter);
+
 
 app.get('/', (req, res) => {
   console.log('✓ GET / called');

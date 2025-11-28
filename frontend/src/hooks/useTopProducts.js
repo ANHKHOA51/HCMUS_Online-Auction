@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { productService } from '../services/apiService';
+import { productService } from '../services/product';
 
 export const useTopProductsEndingSoon = () => {
   const [products, setProducts] = useState([]);
@@ -10,15 +10,10 @@ export const useTopProductsEndingSoon = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await productService.getProducts();
+        const result = await productService.getTopClosing();
         console.log("Danh sách sản phẩm nhận được:", result); // 👈 Log ở đây
-        if (result.success) {
-          // Sort by end_time, get top 5 soonest to end
-          const sorted = [...result.data]
-            .sort((a, b) => new Date(a.end_time) - new Date(b.end_time))
-            .slice(0, 5);
-          setProducts(sorted);
-        }
+        setProducts(result.data);
+        
       } catch (err) {
         console.error('Error fetching top ending soon products:', err);
         setError('Không thể tải sản phẩm');

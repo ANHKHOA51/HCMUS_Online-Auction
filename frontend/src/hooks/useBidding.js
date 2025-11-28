@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { formatPriceVN } from '../utils/formatCurrency';
-import { productService } from '../services/apiService';
+import { productService } from '../services/product';
 
 export const useBidding = (product) => {
   const [bidAmount, setBidAmount] = useState('');

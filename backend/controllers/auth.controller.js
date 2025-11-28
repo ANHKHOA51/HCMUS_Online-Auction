@@ -1,33 +1,88 @@
-import { UserModel } from '../models/user.model.js';
-import { hashPassword, comparePassword } from '../utils/password.js';
-import { generateToken } from '../utils/jwt.js';
+import { hashPassword } from '../utils/password.js';
+import { checkCaptcha } from '../utils/captcha.js';
+import userModel from '../models/user.model.js';
+import AuthService from '../services/auth.service.js';
 
 export const AuthController = {
-  async register(req, res) {
-    try {
-      const { username, email, password } = req.body;
-      const hashed = await hashPassword(password);
-      const user = await UserModel.create({ username, email, password: hashed });
-      res.status(201).json({ message: 'Register success', user });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  },
+    register: async (req, res) => {
+        const { firstname, lastname, username, email, password, captcha_key } = req.body;
+        
+            if (!firstname || !lastname || !username || !email || !password) {
+                return res.status(400).json({ message: "Not enough information" });
+            }
+        
+            const errors = {}
+        
+            const [check_captcha, check_username, check_email] = await Promise.all([
+                checkCaptcha(captcha_key),
+                userModel.existsByUsername(username),
+                userModel.existsByEmail(email),
+            ]);
+        
+            if (check_captcha) errors.captcha = check_captcha;
+            if (check_username) errors.username = "User đã tồn tại";
+            if (check_email) errors.email = "Email đã tồn tại";
+        
+            if (Object.keys(errors).length > 0) {
+                return res.status(400).json(errors);
+            }
+        
+            try {
+                const hashed_password = hashPassword(password)
+                await AuthService.add2Pending(req.body, hashed_password)
+        
+                return res.status(201).json({
+                    message: "Register successful",
+                    email: email
+                });
+        
+            } catch (error) {
+                console.error('Failed to send OTP email:', error);
+                return res.status(500).json({ message: "Failed to send OTP email" });
+            }
+    },
 
-  async login(req, res) {
-    try {
-      const { email, password } = req.body;
-      const user = await UserModel.findByEmail(email);
-      if (!user) return res.status(400).json({ error: 'User not found' });
+    postRegisterOTP: async (req, res) => {
+        const { email, otp } = req.body
+        try {
+            const rs = await AuthService.verifyOtp(email, otp)
+            if (rs.ok) {
+                return res.status(201).json({
+                    message: "Verify successful"
+                })
+            } else {
+                return res.status(401).json({
+                    message: rs.reason
+                })
+            }
+        } catch (err) {
+            console.log(err)
+            return res.status(500).json({
+                message: "Server error"
+            })
+        }    
+    },
 
-      const match = await comparePassword(password, user.password);
-      if (!match) return res.status(400).json({ error: 'Wrong password' });
-
-      const token = generateToken(user);
-      res.json({ message: 'Login success', token });
-    } catch (err) {
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  },
+    login: async(req, res) => {
+        const { identifier, password } = req.body
+        try {
+            const rs = await AuthService.signIn(identifier, password)
+            if (rs.ok) {
+                return res.status(201).json({
+                    message: "Sign in successful"
+                })
+            } else {
+                return res.status(401).json({
+                    message: "Invalid username/email or password"
+                })
+            }
+        } catch (err) {
+            console.log(err)
+            return res.status(500).json({
+                message: "Server error"
+            })
+        }
+    },
 };
+
+export default AuthController;
