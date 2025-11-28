@@ -13,7 +13,7 @@ export const useTopProductsEndingSoon = () => {
         const result = await productService.getTopClosing();
         console.log("Danh sách sản phẩm nhận được:", result); // 👈 Log ở đây
         setProducts(result.data);
-        
+
       } catch (err) {
         console.error('Error fetching top ending soon products:', err);
         setError('Không thể tải sản phẩm');
@@ -39,14 +39,9 @@ export const useTopProductsByBids = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await productService.getProducts();
+        const result = await productService.getTopBidding;
         if (result.success) {
-          // Sort by bid count (highest first), get top 5
-          const sorted = [...result.data]
-
-            .sort((a, b) => (b.bid_count || 0) - (a.bid_count || 0))
-            .slice(0, 5);
-          setProducts(sorted);
+          setProducts(result.data);
         }
       } catch (err) {
         console.error('Error fetching top bids products:', err);
@@ -74,10 +69,7 @@ export const useTopProductsByPrice = () => {
         const result = await productService.getProducts();
         if (result.success) {
           // Sort by current_price (highest first), get top 5
-          const sorted = [...result.data]
-            .sort((a, b) => (b.current_price || b.starting_price) - (a.current_price || a.starting_price))
-            .slice(0, 5);
-          setProducts(sorted);
+          setProducts(result.data);
         }
       } catch (err) {
         console.error('Error fetching top price products:', err);
