@@ -2,7 +2,7 @@
 // Frontend API Service - Centralized API calls
 // ============================================================================
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'http://localhost:3000';
 
 export const productService = {
   // Lấy danh sách sản phẩm

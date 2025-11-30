@@ -30,9 +30,9 @@ app.use(express.json());
 console.log('✓ Middleware configured');
 
 // register routes AFTER cors/json
-app.use('/api/auth', authRouter);
-app.use('/api/products', productRouter);
-app.use('/api/categories', categoryRouter);
+app.use('/auths', authRouter);
+app.use('/products', productRouter);
+app.use('/categories', categoryRouter);
 
 
 app.get('/', (req, res) => {
