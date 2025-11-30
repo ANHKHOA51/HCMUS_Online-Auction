@@ -95,7 +95,7 @@ export default function useOTP() {
         setError(null);
 
         try {
-            const res = await fetch("http://localhost:3000/register/otp", {
+            const res = await fetch("http://localhost:3000/auths/register/otp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, otp }),

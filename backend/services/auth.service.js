@@ -1,8 +1,9 @@
 import { generateOTP } from '../utils/otp.js';
-import {db} from '../configs/db.js';
+import {db} from '../utils/db.js';
 import { comparePassword } from '../utils/password.js';
 import { PendingRegistrationModel } from '../models/pending_registration.model.js'; 
 import UserModel from '../models/user.model.js';
+import { sendOtpMail } from '../utils/mail.js';
 
 
 export const AuthService = {
@@ -21,7 +22,10 @@ export const AuthService = {
                     expires_at: new Date(Date.now() + 10 * 60 * 1000)
             });
 
-            await sendOtpMail(data.email, otp)
+            // Skip email in development
+            if (process.env.NODE_ENV !== 'development') {
+                await sendOtpMail(data.email, otp)
+            }
         } catch (error) {
             throw error
         }

@@ -14,7 +14,7 @@ export const AuthController = {
             const errors = {}
         
             const [check_captcha, check_username, check_email] = await Promise.all([
-                checkCaptcha(captcha_key),
+                process.env.NODE_ENV === 'development' ? undefined : checkCaptcha(captcha_key),
                 userModel.existsByUsername(username),
                 userModel.existsByEmail(email),
             ]);
