@@ -26,9 +26,10 @@ export const AuthController = {
             if (Object.keys(errors).length > 0) {
                 return res.status(400).json(errors);
             }
+            console.log('Registering user:', { firstname, lastname, username, email });
         
             try {
-                const hashed_password = hashPassword(password)
+                const hashed_password = await hashPassword(password)
                 await AuthService.add2Pending(req.body, hashed_password)
         
                 return res.status(201).json({

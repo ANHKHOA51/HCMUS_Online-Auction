@@ -18,7 +18,7 @@ export const AuthService = {
                     username: data.username,
                     email: data.email,
                     password: hashed_password,
-                    otp,
+                    otp: otp,
                     expires_at: new Date(Date.now() + 10 * 60 * 1000)
             });
 
@@ -55,6 +55,15 @@ export const AuthService = {
 
             // tạo user và xóa pending trong transaction
             const insertedIds = await db.transaction(async (trx) => {
+                console.log('📝 Creating user with data:', {
+                    full_name: `${pending.firstname} ${pending.lastname}`,
+                    username: pending.username,
+                    email: pending.email,
+                    password_hash: pending.password ? `[${pending.password.substring(0, 20)}...]` : 'UNDEFINED',
+                    role: 1,
+                    address: pending.address
+                });
+                
                 const ids = await trx('users')
                     .insert({
                         full_name: `${pending.firstname} ${pending.lastname}`,
@@ -65,6 +74,7 @@ export const AuthService = {
                         address: pending.address
                     })
                     .returning('id'); // postgres trả mảng id
+                console.log('✅ User created with id:', ids);
                 await trx('pending_registrations').where({ email }).del();
                 return ids;
             });
