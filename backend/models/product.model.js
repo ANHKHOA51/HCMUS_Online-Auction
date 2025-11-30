@@ -120,8 +120,29 @@ export const ProductModel = {
     },
 
     findTopClosing: () => {
-        return db('products')
-        //.where('status', 0)
+        return db('products as p')
+        .select(
+                'p.id',
+                'p.name',
+                'p.description',
+                'p.starting_price',
+                'p.current_price',
+                'p.buy_now_price',
+                'p.images',
+                'p.start_time',
+                'p.end_time',
+                'p.status',
+                'p.category_id',
+                'p.seller_id',
+                'p.winner_id',
+                'p.created_at',
+                db.raw('u.full_name as seller_name'),
+                db.raw('w.full_name as winner_name'),
+                db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
+            )
+        .join('users as u', 'p.seller_id', 'u.id')
+        .leftJoin('users as w', 'p.winner_id', 'w.id')
+        //.where('status', 'active')
         //.where('end_time', '>', db.fn.now()) // Chưa hết hạn
         .orderBy('end_time', 'asc') // Thời gian kết thúc tăng dần (gần nhất lên đầu)
         .limit(5);
@@ -136,17 +157,56 @@ export const ProductModel = {
        ORDER BY bid_count DESC
        LIMIT 5
     */
-        return db('products')
-        .leftJoin('bids', 'products.id', 'bids.product_id')
-        .select('products.*')
-        .count('bids.id as bid_count')
-        .groupBy('products.id')
+        return db('products as p')
+        .select(
+            'p.id',
+            'p.name',
+            'p.description',
+            'p.starting_price',
+            'p.current_price',
+            'p.buy_now_price',
+            'p.images',
+            'p.start_time',
+            'p.end_time',
+            'p.status',
+            'p.category_id',
+            'p.seller_id',
+            'p.winner_id',
+            'p.created_at',
+            db.raw('u.full_name as seller_name'),
+            db.raw('w.full_name as winner_name'),
+            db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) AS bid_count')
+        )
+        .join('users as u', 'p.seller_id', 'u.id')
+        .leftJoin('users as w', 'p.winner_id', 'w.id')
         .orderBy('bid_count', 'desc')
         .limit(5);
+
     },
 
     findTopPricing: () => {
-        return db('products')
+        return db('products as p')
+        .select(
+                'p.id',
+                'p.name',
+                'p.description',
+                'p.starting_price',
+                'p.current_price',
+                'p.buy_now_price',
+                'p.images',
+                'p.start_time',
+                'p.end_time',
+                'p.status',
+                'p.category_id',
+                'p.seller_id',
+                'p.winner_id',
+                'p.created_at',
+                db.raw('u.full_name as seller_name'),
+                db.raw('w.full_name as winner_name'),
+                db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
+            )
+        .join('users as u', 'p.seller_id', 'u.id')
+        .leftJoin('users as w', 'p.winner_id', 'w.id')
         //.where('status', 'active')
         .orderBy('current_price', 'desc')
         .limit(5);

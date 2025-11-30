@@ -10,7 +10,7 @@ export const useTopProductsEndingSoon = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await productService.getTopBidding();
+        const result = await productService.getTopClosing();
         console.log("Danh sách sản phẩm nhận được:", result); // 👈 Log ở đây
         setProducts(result.data);
 
