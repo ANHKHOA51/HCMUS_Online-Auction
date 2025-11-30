@@ -22,10 +22,10 @@ export const AuthService = {
                     expires_at: new Date(Date.now() + 10 * 60 * 1000)
             });
 
-            // Skip email in development
-            if (process.env.NODE_ENV !== 'development') {
-                await sendOtpMail(data.email, otp)
-            }
+            // Send OTP email
+            await sendOtpMail(data.email, otp)
+            
+            return { otp: process.env.NODE_ENV === 'development' ? otp : undefined };
         } catch (error) {
             throw error
         }

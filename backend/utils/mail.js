@@ -11,7 +11,8 @@ const transporter = nodemailer.createTransport({
 
 export async function sendOtpMail(toEmail, otp) {
     try {
-        await transporter.sendMail({
+        console.log('📧 Sending OTP email to:', toEmail);
+        const result = await transporter.sendMail({
             from: "Online Auction",
             to: toEmail,
             subject: "Mã OTP xác thực của bạn",
@@ -23,8 +24,10 @@ export async function sendOtpMail(toEmail, otp) {
              <p>Nếu bạn không yêu cầu mã này, có thể bỏ qua email này.</p>
              <p>Trân trọng,<br/>Đội ngũ hỗ trợ Online Auction</p>`
         });
+        console.log('Email sent successfully:', result.response);
 
     } catch (error) {
+        console.error('Email send error:', error.message);
         throw error
     }
 }
