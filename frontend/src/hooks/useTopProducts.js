@@ -10,7 +10,7 @@ export const useTopProductsEndingSoon = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await productService.getTopClosing();
+        const result = await productService.getTopBidding();
         console.log("Danh sách sản phẩm nhận được:", result); // 👈 Log ở đây
         setProducts(result.data);
 
@@ -39,7 +39,7 @@ export const useTopProductsByBids = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await productService.getTopBidding;
+        const result = await productService.getTopBidding();
         if (result.success) {
           setProducts(result.data);
         }
@@ -66,7 +66,7 @@ export const useTopProductsByPrice = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const result = await productService.getProducts();
+        const result = await productService.getTopPricing();
         if (result.success) {
           // Sort by current_price (highest first), get top 5
           setProducts(result.data);

@@ -121,8 +121,8 @@ export const ProductModel = {
 
     findTopClosing: () => {
         return db('products')
-        .where('status', 0)
-        .where('end_time', '>', db.fn.now()) // Chưa hết hạn
+        //.where('status', 0)
+        //.where('end_time', '>', db.fn.now()) // Chưa hết hạn
         .orderBy('end_time', 'asc') // Thời gian kết thúc tăng dần (gần nhất lên đầu)
         .limit(5);
     },
@@ -147,7 +147,7 @@ export const ProductModel = {
 
     findTopPricing: () => {
         return db('products')
-        .where('status', 'active')
+        //.where('status', 'active')
         .orderBy('current_price', 'desc')
         .limit(5);
     }

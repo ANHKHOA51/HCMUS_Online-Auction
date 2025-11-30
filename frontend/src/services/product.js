@@ -44,21 +44,21 @@ export const productService = {
 
   // Lấy danh sách categories
     async getTopClosing() {
-        const response = await fetch(`${API_BASE_URL}/top/closing`);
+        const response = await fetch(`${API_BASE_URL}/products/top/closing`);
         if (!response.ok) throw new Error('Lỗi khi lấy danh sách sản phẩm sắp kết thúc');
         return response.json();
     },
 
     // Lấy danh sách sản phẩm được đấu giá nhiều nhất
     async getTopBidding() {
-        const response = await fetch(`${API_BASE_URL}/top/bidding`);
+        const response = await fetch(`${API_BASE_URL}/products/top/bidding`);
         if (!response.ok) throw new Error('Lỗi khi lấy danh sách sản phẩm được đấu giá nhiều nhất');
         return response.json();
     },
 
     async getTopPricing() {
-        const response = await fetch(`${API_BASE_URL}/top/bidding`);
-        if (!response.ok) throw new Error('Lỗi khi lấy danh sách sản phẩm được đấu giá nhiều nhất');
+        const response = await fetch(`${API_BASE_URL}/products/top/pricing`);
+        if (!response.ok) throw new Error('Lỗi khi lấy danh sách sản phẩm giá nhiều nhất');
         return response.json();
     },
 

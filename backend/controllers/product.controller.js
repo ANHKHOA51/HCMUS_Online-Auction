@@ -57,8 +57,8 @@ export const ProductController = {
     // Top sắp kết thúc
     topClosing: async (req, res) => {
         try {
-        const list = await productModel.findTopClosing();
-        res.json(list);
+        const rows = await productModel.findTopClosing();
+        res.json({ success: true, data: rows });;
         } catch (err) {
         res.status(500).json({ error: 'Lỗi server' });
         }
@@ -67,8 +67,8 @@ export const ProductController = {
     // Top nhiều người đấu giá
     topBidding: async (req, res) => {
         try {
-        const list = await productModel.findTopBidding();
-        res.json(list);
+        const rows = await productModel.findTopBidding();
+        res.json({ success: true, data: rows });
         } catch (err) {
         res.status(500).json({ error: 'Lỗi server' });
         }
@@ -77,8 +77,8 @@ export const ProductController = {
     // Top giá cao
     topPricing: async (req, res) => {
         try {
-        const list = await productModel.findTopPricing();
-        res.json(list);
+        const rows = await productModel.findTopPricing();
+        res.json({ success: true, data: rows });
         } catch (err) {
         res.status(500).json({ error: 'Lỗi server' });
         }
