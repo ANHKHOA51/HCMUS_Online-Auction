@@ -1,20 +1,20 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './ProductDetail.css';
-import ProductGallery from '../components/ProductGallery';
-import UserInfo from '../components/UserInfo';
-import QAHistory from '../components/QAHistory';
+import ProductGallery from './ProductGallery';
+import UserInfo from './UserInfo';
+import QAHistory from './QAHistory';
 import { getRelativeTime, shouldShowRelativeTime, formatDate } from '../utils/timeUtil';
 import { formatPriceVN } from '../utils/formatCurrency';
 import { useProductDetail } from '../hooks/useProduct';
 import { useBidding } from '../hooks/useBidding';
-import ProductsGrid from '../components/ProductsGrid';
+import ProductsGrid from './ProductsGrid';
 
 const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { product, seller, highestBidder, faqs, relatedProducts, loading, error } = useProductDetail(id);
-  
+
   const {
     bidAmount,
     setBidAmount,
@@ -46,16 +46,16 @@ const ProductDetail = () => {
         <div className="detail-left">
           <ProductGallery images={product.images} />
 
-          
+
         </div>
 
         {/* Right Section: Product Info and Bidding */}
         <div className="detail-right">
 
-                        <div className="product-header">
-                <h2 className="product-title">{product.name}</h2>
-                <p className="product-category">{product.category_name}</p>
-            </div>
+          <div className="product-header">
+            <h2 className="product-title">{product.name}</h2>
+            <p className="product-category">{product.category_name}</p>
+          </div>
 
           {/* Time Information */}
           <div className="time-info">
@@ -100,10 +100,10 @@ const ProductDetail = () => {
           {!isEnded && (
             <div className="bidding-form">
               <h5>🏆 Đặt giá</h5>
-              
+
               {bidError && <div className="bid-error">⚠️ {bidError}</div>}
               {bidSuccess && <div className="bid-success">✓ Thành công!</div>}
-              
+
               <div className="bid-input-group">
                 <input
                   type="number"
@@ -158,21 +158,21 @@ const ProductDetail = () => {
           )}
         </div>
       </div>
-        <div className ="detail-below">   
+      <div className="detail-below">
 
-            {/* Product Description */}
-            <div className="product-description">
-                <h4 className="section-title">📋 Mô tả chi tiết sản phẩm</h4>
-                <div className="description-content">
-                    <p>{product.description}</p>
-                </div>
-            </div>
-            {/* Q&A Section */}
-            <QAHistory faqs={faqs} />
-
-            {/* Related Products */}
-            <ProductsGrid products={relatedProducts} title={"Sản phẩm liên quan"}/>
+        {/* Product Description */}
+        <div className="product-description">
+          <h4 className="section-title">📋 Mô tả chi tiết sản phẩm</h4>
+          <div className="description-content">
+            <p>{product.description}</p>
+          </div>
         </div>
+        {/* Q&A Section */}
+        <QAHistory faqs={faqs} />
+
+        {/* Related Products */}
+        <ProductsGrid products={relatedProducts} title={"Sản phẩm liên quan"} />
+      </div>
     </div>
   );
 };

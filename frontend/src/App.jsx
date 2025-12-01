@@ -5,8 +5,8 @@ import HomePage from "./pages/HomePage";
 import LoginPage from './pages/LoginPage';
 import OtpPage from './pages/OtpPage';
 import RegisterPage from './pages/RegisterPage';
-import ProductDetail from './pages/ProductDetail';
-import SearchResultsPage from './pages/SearchResultsPage';
+import ProductDetailPage from './pages/ProductDetailPage';
+import SearchResultsPage from './components/SearchResults';
 import { Route, Routes, BrowserRouter } from "react-router-dom";
 
 export default function App() {
@@ -22,7 +22,7 @@ export default function App() {
                 <Route element={<MainLayout />}>
                     <Route path="/" element={<HomePage />} />
                     <Route path="/search" element={<SearchResultsPage />} />
-                    <Route path="/products/:id" element={<ProductDetail />} />
+                    <Route path="/products/:id" element={<ProductDetailPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
