@@ -19,10 +19,10 @@ const UserInfo = ({ user, role, isHighestBidder = false }) => {
         </div>
         <div className="user-details">
           <h5 className="user-name">{user.full_name || user.username}</h5>
-          <p className="user-role">{role === 'seller' ? '👤 Người bán' : '🏆 Người đặt giá cao nhất'}</p>
+          <p className="user-role">{role === 'seller' ? 'Người bán' : 'Người đặt giá cao nhất'}</p>
           <div className="user-rating">
             <span className="rating-badge">
-              ⭐ {getRatingStars(user.rating_positive, user.rating_negative)}
+               {getRatingStars(user.rating_positive, user.rating_negative)}
             </span>
           </div>
         </div>

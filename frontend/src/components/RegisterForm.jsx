@@ -1,6 +1,6 @@
 import ReCAPTCHA from "react-google-recaptcha"
 import "./style.css"
-import useRegister from "../hooks/auth/useRegister"
+import useRegister from "../hooks/auth/useRegister.js"
 
 
 export default function RegisterForm() {

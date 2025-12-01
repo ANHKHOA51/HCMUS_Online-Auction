@@ -1,4 +1,4 @@
-import useOTP from "../hooks/auth/useOTP";
+import useOTP from "../hooks/auth/useOTP.js";
 import { maskEmail } from "../utils/auth";
 
 export default function OtpInput() {

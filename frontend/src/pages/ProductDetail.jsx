@@ -1,110 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import './ProductDetail.css';
 import ProductGallery from '../components/ProductGallery';
 import UserInfo from '../components/UserInfo';
 import QAHistory from '../components/QAHistory';
-import RelatedProducts from '../components/RelatedProducts';
-import { formatPrice, getRelativeTime, shouldShowRelativeTime, formatDate } from '../utils/timeUtil';
+import { getRelativeTime, shouldShowRelativeTime, formatDate } from '../utils/timeUtil';
+import { formatPriceVN } from '../utils/formatCurrency';
+import { useProductDetail } from '../hooks/useProduct';
+import { useBidding } from '../hooks/useBidding';
+import ProductsGrid from '../components/ProductsGrid';
 
 const ProductDetail = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
-  const [seller, setSeller] = useState(null);
-  const [highestBidder, setHighestBidder] = useState(null);
-  const [faqs, setFaqs] = useState([]);
-  const [relatedProducts, setRelatedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [bidAmount, setBidAmount] = useState('');
-  const [isPlacingBid, setIsPlacingBid] = useState(false);
-
-  useEffect(() => {
-    fetchProductDetails();
-  }, [id]);
-
-  const fetchProductDetails = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Fetch từ backend API
-      const response = await fetch(`http://localhost:3000/api/products/${id}`);
-      
-      if (!response.ok) {
-        throw new Error('Không thể tải sản phẩm');
-      }
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'Lỗi không xác định');
-      }
-
-      const { product, highestBidder, faqs, relatedProducts } = result.data;
-
-      // Chuẩn bị seller info từ product data
-      const sellerInfo = {
-        id: product.seller_id,
-        full_name: product.seller_name,
-        email: product.seller_email,
-        phone: product.seller_phone,
-        avatar: product.seller_avatar,
-        rating_positive: product.rating_positive,
-        rating_negative: product.rating_negative,
-      };
-
-      setProduct(product);
-      setSeller(sellerInfo);
-      setHighestBidder(highestBidder);
-      setFaqs(faqs || []);
-      setRelatedProducts(relatedProducts || []);
-    } catch (err) {
-      console.error('Error fetching product details:', err);
-      setError(err.message || 'Không thể tải thông tin sản phẩm');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePlaceBid = async () => {
-    if (!bidAmount || parseFloat(bidAmount) <= 0) {
-      alert('Vui lòng nhập số tiền hợp lệ');
-      return;
-    }
-
-    if (parseFloat(bidAmount) <= product.current_price) {
-      alert(`Giá đặt phải cao hơn giá hiện tại: ${formatPrice(product.current_price)}`);
-      return;
-    }
-
-    try {
-      setIsPlacingBid(true);
-      // Mock API call
-      console.log('Placing bid:', bidAmount);
-      alert('Đặt giá thành công!');
-      setBidAmount('');
-      // Refresh product data
-      fetchProductDetails();
-    } catch (err) {
-      alert('Lỗi khi đặt giá');
-    } finally {
-      setIsPlacingBid(false);
-    }
-  };
-
-  const handleBuyNow = async () => {
-    try {
-      // Mock API call
-      console.log('Buying now');
-      alert('Mua ngay thành công!');
-      // Redirect to order page or show confirmation
-    } catch (err) {
-      alert('Lỗi khi mua ngay');
-    }
-  };
+  const { product, seller, highestBidder, faqs, relatedProducts, loading, error } = useProductDetail(id);
+  
+  const {
+    bidAmount,
+    setBidAmount,
+    isPlacingBid,
+    bidError,
+    bidSuccess,
+    handlePlaceBid,
+    handleBuyNow,
+  } = useBidding(product);
 
   if (loading) {
     return <div className="loading">Đang tải...</div>;
@@ -127,28 +46,16 @@ const ProductDetail = () => {
         <div className="detail-left">
           <ProductGallery images={product.images} />
 
-          {/* Product Description */}
-          <div className="product-description">
-            <h4 className="section-title">📋 Mô tả chi tiết sản phẩm</h4>
-            <div className="description-content">
-              <p>{product.description}</p>
-            </div>
-          </div>
-
-          {/* Q&A Section */}
-          <QAHistory faqs={faqs} />
-
-          {/* Related Products */}
-          <RelatedProducts products={relatedProducts} onProductClick={(id) => navigate(`/product/${id}`)} />
+          
         </div>
 
         {/* Right Section: Product Info and Bidding */}
         <div className="detail-right">
-          {/* Product Title */}
-          <div className="product-header">
-            <h2 className="product-title">{product.name}</h2>
-            <p className="product-category">📦 Điện thoại di động</p>
-          </div>
+
+                        <div className="product-header">
+                <h2 className="product-title">{product.name}</h2>
+                <p className="product-category">{product.category_name}</p>
+            </div>
 
           {/* Time Information */}
           <div className="time-info">
@@ -173,18 +80,18 @@ const ProductDetail = () => {
           <div className="price-section">
             <div className="price-item current">
               <span className="price-label">Giá hiện tại:</span>
-              <span className="price-value">{formatPrice(product.current_price || product.starting_price)}</span>
+              <span className="price-value">{formatPriceVN(product.current_price || product.starting_price)}</span>
             </div>
             {product.buy_now_price && (
               <div className="price-item buy-now">
                 <span className="price-label">Giá mua ngay:</span>
-                <span className="price-value">{formatPrice(product.buy_now_price)}</span>
+                <span className="price-value">{formatPriceVN(product.buy_now_price)}</span>
               </div>
             )}
             {product.starting_price && (
               <div className="price-item starting">
                 <span className="price-label">Giá khởi điểm:</span>
-                <span className="price-value">{formatPrice(product.starting_price)}</span>
+                <span className="price-value">{formatPriceVN(product.starting_price)}</span>
               </div>
             )}
           </div>
@@ -193,12 +100,16 @@ const ProductDetail = () => {
           {!isEnded && (
             <div className="bidding-form">
               <h5>🏆 Đặt giá</h5>
+              
+              {bidError && <div className="bid-error">⚠️ {bidError}</div>}
+              {bidSuccess && <div className="bid-success">✓ Thành công!</div>}
+              
               <div className="bid-input-group">
                 <input
                   type="number"
                   value={bidAmount}
                   onChange={(e) => setBidAmount(e.target.value)}
-                  placeholder={`Tối thiểu: ${formatPrice(product.current_price + (product.step_price || 100000))}`}
+                  placeholder={`Tối thiểu: ${formatPriceVN(product.current_price + (product.step_price || 100000))}`}
                   className="bid-input"
                   disabled={isPlacingBid}
                 />
@@ -247,6 +158,21 @@ const ProductDetail = () => {
           )}
         </div>
       </div>
+        <div className ="detail-below">   
+
+            {/* Product Description */}
+            <div className="product-description">
+                <h4 className="section-title">📋 Mô tả chi tiết sản phẩm</h4>
+                <div className="description-content">
+                    <p>{product.description}</p>
+                </div>
+            </div>
+            {/* Q&A Section */}
+            <QAHistory faqs={faqs} />
+
+            {/* Related Products */}
+            <ProductsGrid products={relatedProducts} title={"Sản phẩm liên quan"}/>
+        </div>
     </div>
   );
 };

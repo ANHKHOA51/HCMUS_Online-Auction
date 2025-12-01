@@ -1,4 +1,4 @@
-import useLogin from "../hooks/auth/useLogin"
+import useLogin from "../hooks/auth/useLogin.js"
 import "./style.css"
 
 export default function LoginForm() {

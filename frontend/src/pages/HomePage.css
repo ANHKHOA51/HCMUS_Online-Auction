@@ -3,377 +3,101 @@
   min-height: 100vh;
 }
 
-/* Header */
-.home-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px 20px;
-    height: 30px;
-    text-align: center;
-}
-
-.header-content h1 {
-  font-size: 48px;
-  margin: 0 0 10px;
-  font-weight: 700;
-}
-
-/* Error Banner */
-.error-banner {
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
-  padding: 12px 20px;
-  margin: 20px auto;
-  max-width: 1400px;
-  border-radius: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.error-banner button {
-  background: none;
-  border: none;
-  color: #721c24;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 0;
-}
-
-/* Container */
-.home-container {
-  max-width: 1400px;
-  margin: 30px auto;
-  padding: 0 15px;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 30px;
-}
-
-/* Sidebar */
-.sidebar {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: fit-content;
-  position: sticky;
-  top: 20px;
-}
-
-
-.search-input,
-.category-select,
-.sort-select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  box-sizing: border-box;
-  transition: border-color 0.3s;
-}
-
-.search-input:focus,
-.category-select:focus,
-.sort-select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.clear-filters-btn {
-  width: 100%;
-  padding: 12px;
-  background: #667eea;
+/* Hero Banner */
+.home-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.clear-filters-btn:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
-}
-
-/* Products Section */
-.products-section {
-  min-height: 400px;
-}
-
-.results-header {
-  margin-bottom: 30px;
-}
-
-.results-header h2 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #333;
-  margin: 0 0 8px;
-}
-
-.result-count {
-  color: #666;
-  font-size: 14px;
-  margin: 0;
-}
-
-/* Products Grid */
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-/* No Products */
-.no-products {
-  background: white;
-  border-radius: 8px;
   padding: 60px 20px;
   text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
 }
 
-.no-products-icon {
-  font-size: 64px;
-  margin-bottom: 20px;
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-.no-products h3 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 10px;
+/* Main Content */
+.home-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 15px;
 }
 
-.no-products p {
-  color: #666;
-  font-size: 16px;
-  margin: 0 0 20px;
-}
-
-.reset-btn {
-  padding: 12px 24px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.reset-btn:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-}
-
-/* Loading */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 80vh;
-  color: #666;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #e0e0e0;
-  border-top: 4px solid #667eea;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 20px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 1024px) {
-  .home-container {
-    grid-template-columns: 1fr;
+  .home-hero {
+    padding: 50px 15px;
   }
 
-  .sidebar {
-    position: static;
+  .hero-content h1 {
+    font-size: 42px;
   }
 
-  .header-content h1 {
-    font-size: 36px;
+  .hero-content p {
+    font-size: 18px;
+  }
+
+  .hero-search-btn {
+    padding: 14px 32px;
+    font-size: 16px;
+  }
+
+  .home-content {
+    padding: 30px 10px;
   }
 }
 
 @media (max-width: 768px) {
-  .home-container {
-    padding: 0 10px;
+  .home-hero {
+    padding: 40px 15px;
   }
 
-  .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
+  .hero-content h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
   }
 
-  .header-content h1 {
-    font-size: 28px;
+  .hero-content p {
+    font-size: 16px;
+    margin-bottom: 20px;
   }
 
-  .header-content p {
-    font-size: 14px;
-  }
-
-  .results-header h2 {
-    font-size: 20px;
-  }
-
-  .sidebar {
-    padding: 15px;
-  }
-
-  .filter-section {
-    margin-bottom: 15px;
-    padding-bottom: 15px;
+  .hero-search-btn {
+    padding: 12px 28px;
+    font-size: 16px;
   }
 }
 
 @media (max-width: 480px) {
-  .home-header {
-    padding: 40px 15px;
+  .home-hero {
+    padding: 30px 10px;
   }
 
-  .header-content h1 {
+  .hero-content h1 {
     font-size: 24px;
+    margin-bottom: 8px;
   }
 
-  .home-container {
-    gap: 15px;
-  }
-
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-  }
-}
-
-.filter-search{
-    display: flex;
-    align-items: center;
-    background-color: var(--search-bg);
-    border-radius: 8px;
-    padding: 5px 15px;
-    flex-grow: 0; /* Không cho chiếm hết không gian */
-    width: 300px; /* Chiều rộng thanh tìm kiếm */
-    margin-right: 30px;
-}
-
-
-.filters-container {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    align-items: center;
-}
-
-/*DROPDOWN MEGA MENU*/
-.custom-dropdown {
-    position: relative; /* Quan trọng: làm điểm neo cho dropdown content */
-    display: inline-block;
-}
-
-.custom-dropdown h3 {
-    color: var(--text-color);
-    margin-bottom: 5px;
-}
-
-.custom-dropdown-content {
-    /* Thiết lập vị trí và kích thước */
-    position: absolute;
-    top: 100%; /* Đặt ngay dưới nút bấm */
-    left: 0;
-    margin-top: 5px; /* Khoảng cách giữa nút và menu */
-    
-    /* Kiểu dáng */
-    width: max-content;
-    background-color: black;
-    border: 1px solid var(--border-color);
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
-    z-index: 20; /* Cao hơn các thành phần khác */
-    padding: 20px 10px; 
-    
-    /* Bố cục nhiều cột dùng Flexbox */
-    display: flex;
-    justify-content: flex-start; /* Căn cột từ trái qua */
-    gap: 50px; /* Khoảng cách giữa các cột */
-}
-
-.genre-columns {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    /* Đảm bảo mỗi cột có độ rộng bằng nhau */
-}
-
-.genre-columns li {
-    margin-bottom: 3px;
-    cursor: pointer;
-}
-
-.genre-columns li a {
-    color: var(--text-color);
-    text-decoration: none;
-    padding: 4px 8px;
-    display: block;
+  .hero-content p {
     font-size: 14px;
-    border-radius: 4px;
-    transition: background-color 0.2s, color 0.2s;
-}
+    margin-bottom: 15px;
+  }
 
+  .hero-search-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
 
-.genre-columns li a:hover,
-.genre-columns li.selected a { /* Mục đang chọn sẽ có kiểu dáng khác */
-    background-color: var(--search-bg); 
-    color: var(--primary-color);
-    font-weight: bold;
-}
-
-.dropdown-toggle {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    padding: 10px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background-color: var(--bg-color);
-}
-
-.dropdown-toggle h3 {
-    margin: 5px;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.dropdown-toggle .arrow {
-    margin-left: 10px;
-    font-size: 12px;
-    color: var(--text-color);
-}
-
-.dropdown-toggle:hover {
-    border-color: var(--primary-color);
+  .home-content {
+    padding: 20px 10px;
+  }
 }

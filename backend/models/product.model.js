@@ -1,172 +1,217 @@
-import pool from '../config/db.js';
+import { db } from '../utils/db.js';
 
-const getAllProducts = async (queryParams) => {
-  const { category_id, sort = 'newest', search } = queryParams || {};
+export const ProductModel = {
+    getAllProducts: async (queryParams) => {
+        try {
+            console.log('getAllProducts model called');
+            const { category_id, sort = 'newest', search } = queryParams || {};
 
-  let query = `
-    SELECT
-      p.id,
-      p.name,
-      p.description,
-      p.starting_price,
-      p.current_price,
-      p.buy_now_price,
-      p.images,
-      p.start_time,
-      p.end_time,
-      p.status,
-      p.category_id,
-      p.seller_id,
-      p.created_at,
-      u.full_name as seller_name
-    FROM products p
-    JOIN users u ON p.seller_id = u.id
-    WHERE p.status = 'active'
-  `;
+            let query = db('products as p')
+                .select(
+                    'p.id',
+                    'p.name',
+                    'p.description',
+                    'p.starting_price',
+                    'p.current_price',
+                    'p.buy_now_price',
+                    'p.images',
+                    'p.start_time',
+                    'p.end_time',
+                    'p.status',
+                    'p.category_id',
+                    'p.seller_id',
+                    'p.winner_id',
+                    'p.created_at',
+                    db.raw('u.full_name as seller_name'),
+                    db.raw('w.full_name as winner_name'),
+                    db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
+                )
+                .join('users as u', 'p.seller_id', 'u.id')
+                .leftJoin('users as w', 'p.winner_id', 'w.id')
+                .where('p.status', 'active');
 
-  const params = [];
+            if (category_id) {
+                query = query.where('p.category_id', category_id);
+            }
 
-  if (category_id) {
-    query += ` AND p.category_id = $${params.length + 1}`;
-    params.push(category_id);
-  }
+            if (search) {
+                query = query.where('p.name', 'ilike', `%${search}%`);
+            }
 
-  if (search) {
-    query += ` AND p.name ILIKE $${params.length + 1}`;
-    params.push(`%${search}%`);
-  }
+            if (sort === 'newest') {
+                query = query.orderBy('p.created_at', 'desc');
+            } else if (sort === 'ending') {
+                query = query.orderBy('p.end_time', 'asc');
+            } else if (sort === 'price_low') {
+                query = query.orderBy('p.current_price', 'asc');
+            } else if (sort === 'price_high') {
+                query = query.orderBy('p.current_price', 'desc');
+            }
 
-  if (sort === 'newest') {
-    query += ` ORDER BY p.created_at DESC`;
-  } else if (sort === 'ending') {
-    query += ` ORDER BY p.end_time ASC`;
-  } else if (sort === 'price_low') {
-    query += ` ORDER BY p.current_price ASC`;
-  } else if (sort === 'price_high') {
-    query += ` ORDER BY p.current_price DESC`;
-  }
+            query = query.limit(50).timeout(5000);
 
-  query += ` LIMIT 50`;
+            console.log('📝 Query:', query.toString());
+            console.log('⏳ Executing query...');
+            const result = await query;
+            console.log('✓ Query result:', result.length, 'rows');
+            return result;
+        } catch (error) {
+            console.error('Model error:', error.message);
+            throw error;
+        }
+    },
 
-  const result = await pool.query(query, params);
-  return result.rows;
-};
+    getProductDetail: async (id) => {
+        try {
+            const product = await db('products as p')
+                .select('p.*', 'c.name as category_name', 'u.id as seller_id', 'u.full_name as seller_name', 'u.email as seller_email', 'u.rating_positive', 'u.rating_negative', 'u.avatar_url as seller_avatar')
+                .join('categories as c', 'p.category_id', 'c.id')
+                .join('users as u', 'p.seller_id', 'u.id')
+                .where('p.id', id)
+                .first();
 
-const getProductDetail = async (id) => {
-  const productQuery = `
-    SELECT
-      p.*,
-      c.name as category_name,
-      u.id as seller_id,
-      u.full_name as seller_name,
-      u.email as seller_email,
-      u.phone as seller_phone,
-      u.rating_positive,
-      u.rating_negative,
-      u.avatar_url as seller_avatar
-    FROM products p
-    JOIN categories c ON p.category_id = c.id
-    JOIN users u ON p.seller_id = u.id
-    WHERE p.id = $1
-  `;
+            if (!product) {
+                return { product: null };
+            }
 
-  const productResult = await pool.query(productQuery, [id]);
+            // Get highest bidder
+            let highestBidder = null;
+            if (product.winner_id) {
+                highestBidder = await db('users').where('id', product.winner_id).first();
+            }
 
-  if (productResult.rows.length === 0) {
-    return { product: null };
-  }
+            // Get Q&A
+            const faqs = await db('questions_answers as qa')
+                .select('qa.id', 'qa.question', 'qa.answer', 'qa.created_at', 'qa.answered_at', 'u1.full_name as user_name', 'u2.full_name as seller_name')
+                .join('users as u1', 'qa.user_id', 'u1.id')
+                .leftJoin('users as u2', 'qa.answered_by', 'u2.id')
+                .where('qa.product_id', id)
+                .orderBy('qa.created_at', 'desc');
 
-  const product = productResult.rows[0];
+            // Get related products
+            const relatedProducts = await db('products')
+                .select('id', 'name', 'current_price', 'starting_price', 'buy_now_price', 'images', 'end_time')
+                .where('category_id', product.category_id)
+                .whereNot('id', id)
+                .where('status', 'active')
+                .orderBy('created_at', 'desc')
+                .limit(5);
 
-  // Lấy thông tin người đặt giá cao nhất
-  let highestBidder = null;
-  if (product.winner_id) {
-    const bidderQuery = `
-      SELECT id, full_name, email, phone, rating_positive, rating_negative, avatar_url
-      FROM users
-      WHERE id = $1
-    `;
-    const bidderResult = await pool.query(bidderQuery, [product.winner_id]);
-    if (bidderResult.rows.length > 0) {
-      highestBidder = bidderResult.rows[0];
+            return {
+                product,
+                highestBidder,
+                faqs,
+                relatedProducts
+            };
+        } catch (error) {
+            console.error('Error in getProductDetail:', error);
+            throw error;
+        }
+    },
+
+    getProductBids: async (id) => {
+        const bids = await db('bids as b')
+            .select('b.id', 'b.bid_amount', 'b.bid_time', 'u.id as bidder_id', 'u.full_name as bidder_name', 'u.username')
+            .join('users as u', 'b.bidder_id', 'u.id')
+            .where('b.product_id', id)
+            .orderBy('b.bid_time', 'desc');
+
+        return bids;
+    },
+
+    findTopClosing: () => {
+        return db('products as p')
+            .select(
+                'p.id',
+                'p.name',
+                'p.description',
+                'p.starting_price',
+                'p.current_price',
+                'p.buy_now_price',
+                'p.images',
+                'p.start_time',
+                'p.end_time',
+                'p.status',
+                'p.category_id',
+                'p.seller_id',
+                'p.winner_id',
+                'p.created_at',
+                db.raw('u.full_name as seller_name'),
+                db.raw('w.full_name as winner_name'),
+                db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
+            )
+            .join('users as u', 'p.seller_id', 'u.id')
+            .leftJoin('users as w', 'p.winner_id', 'w.id')
+            //.where('status', 'active')
+            //.where('end_time', '>', db.fn.now()) // Chưa hết hạn
+            .orderBy('end_time', 'asc') // Thời gian kết thúc tăng dần (gần nhất lên đầu)
+            .limit(5);
+    },
+
+    findTopBidding: () => {
+        /* SQL Tương đương:
+           SELECT p.*, COUNT(b.id) as bid_count 
+           FROM products p 
+           LEFT JOIN bids b ON p.id = b.product_id
+           GROUP BY p.id
+           ORDER BY bid_count DESC
+           LIMIT 5
+        */
+        return db('products as p')
+            .select(
+                'p.id',
+                'p.name',
+                'p.description',
+                'p.starting_price',
+                'p.current_price',
+                'p.buy_now_price',
+                'p.images',
+                'p.start_time',
+                'p.end_time',
+                'p.status',
+                'p.category_id',
+                'p.seller_id',
+                'p.winner_id',
+                'p.created_at',
+                db.raw('u.full_name as seller_name'),
+                db.raw('w.full_name as winner_name'),
+                db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) AS bid_count')
+            )
+            .join('users as u', 'p.seller_id', 'u.id')
+            .leftJoin('users as w', 'p.winner_id', 'w.id')
+            .orderBy('bid_count', 'desc')
+            .limit(5);
+
+    },
+
+    findTopPricing: () => {
+        return db('products as p')
+            .select(
+                'p.id',
+                'p.name',
+                'p.description',
+                'p.starting_price',
+                'p.current_price',
+                'p.buy_now_price',
+                'p.images',
+                'p.start_time',
+                'p.end_time',
+                'p.status',
+                'p.category_id',
+                'p.seller_id',
+                'p.winner_id',
+                'p.created_at',
+                db.raw('u.full_name as seller_name'),
+                db.raw('w.full_name as winner_name'),
+                db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
+            )
+            .join('users as u', 'p.seller_id', 'u.id')
+            .leftJoin('users as w', 'p.winner_id', 'w.id')
+            //.where('status', 'active')
+            .orderBy('current_price', 'desc')
+            .limit(5);
     }
-  }
 
-  // Lấy lịch sử Q&A
-  const qaQuery = `
-    SELECT
-      qa.id,
-      qa.question,
-      qa.answer,
-      qa.created_at,
-      qa.answered_at,
-      u1.full_name as user_name,
-      u2.full_name as seller_name
-    FROM questions_answers qa
-    JOIN users u1 ON qa.user_id = u1.id
-    LEFT JOIN users u2 ON qa.answered_by = u2.id
-    WHERE qa.product_id = $1
-    ORDER BY qa.created_at DESC
-  `;
-  const qaResult = await pool.query(qaQuery, [id]);
-
-  // Lấy 5 sản phẩm cùng category
-  const relatedQuery = `
-    SELECT
-      id,
-      name,
-      current_price,
-      starting_price,
-      buy_now_price,
-      images,
-      end_time
-    FROM products
-    WHERE category_id = $1 AND id != $2 AND status = 'active'
-    ORDER BY created_at DESC
-    LIMIT 5
-  `;
-  const relatedResult = await pool.query(relatedQuery, [product.category_id, id]);
-
-  return {
-    product,
-    highestBidder,
-    faqs: qaResult.rows,
-    relatedProducts: relatedResult.rows
-  };
 };
 
-const getProductBids = async (id) => {
-  const query = `
-    SELECT
-      b.id,
-      b.bid_amount,
-      b.bid_time,
-      u.id as bidder_id,
-      u.full_name as bidder_name,
-      u.username
-    FROM bids b
-    JOIN users u ON b.bidder_id = u.id
-    WHERE b.product_id = $1
-    ORDER BY b.bid_time DESC
-  `;
-
-  const result = await pool.query(query, [id]);
-  return result.rows;
-};
-
-const getAllCategories = async () => {
-  const query = `
-    SELECT id, name, description
-    FROM categories
-    ORDER BY name
-  `;
-  const result = await pool.query(query);
-  return result.rows;
-};
-
-export default {
-  getAllProducts,
-  getProductDetail,
-  getProductBids,
-  getAllCategories
-};
+export default ProductModel;
