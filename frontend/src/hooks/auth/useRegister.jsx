@@ -107,7 +107,6 @@ export default function useRegister() {
             }))
 
             if (response.ok) {
-                setFormData(initData)
                 sessionStorage.setItem('VerifyingEmail', formData.email)
                 navigate('/register/otp')
             } else {

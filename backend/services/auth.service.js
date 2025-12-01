@@ -43,20 +43,17 @@ export async function checkCaptcha(captcha) {
     }
 }
 
-export async function checkExistedUser(user) {
-    const isUserExisted = await db('users')
-        .where({ username: user })
-        .first()
+export async function checkExistedUserEmail(username, email) {
+    const rows = await db('users')
+        .where(function () {
+            this.where('username', username).orWhere('email', email)
+        })
+        .select('username', 'email');
 
-    return !!isUserExisted
-}
-
-export async function checkExistedEmail(mail) {
-    const isExistedEmail = await db('users')
-        .where({ email: mail })
-        .first()
-
-    return !!isExistedEmail
+    return {
+        username: rows.some(r => r.username === username),
+        email: rows.some(r => r.email === email)
+    };
 }
 
 export function generateOTP(length = 6) {
@@ -66,7 +63,7 @@ export function generateOTP(length = 6) {
 }
 
 const SALT_ROUNDS = 10
-export function hashPassword(password) {
+export async function hashPassword(password) {
     return bcrypt.hashSync(password, SALT_ROUNDS)
 }
 
@@ -147,14 +144,14 @@ export async function verifyOtp(email, otp) {
 export async function sendOtpMail(toEmail, otp) {
     try {
         await transporter.sendMail({
-            from: "Online Auction",
+            from: "Online Auction <anhkhoanguyen11012022@gmail.com>",
             to: toEmail,
             subject: "Mã OTP xác thực của bạn",
-            text: `Mã OTP của bạn là ${otp}. Hết hạn trong 5 phút.`,
+            text: `Mã OTP của bạn là ${otp}. Hết hạn trong 10 phút.`,
             html: `<p>Xin chào,</p>
              <p>Bạn vừa yêu cầu mã OTP để xác thực. Mã của bạn là:</p>
              <h2 style="color:#0d6efd;">${otp}</h2>
-             <p>Mã sẽ hết hạn trong <strong>5 phút</strong>.</p>
+             <p>Mã sẽ hết hạn trong <strong>10 phút</strong>.</p>
              <p>Nếu bạn không yêu cầu mã này, có thể bỏ qua email này.</p>
              <p>Trân trọng,<br/>Đội ngũ hỗ trợ Online Auction</p>`
         });

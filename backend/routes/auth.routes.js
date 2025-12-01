@@ -1,5 +1,5 @@
 import express from 'express';
-import { checkCaptcha, checkExistedUser, checkExistedEmail, generateOTP, sendOtpMail, hashPassword, add2Pending, signIn } from '../services/auth.service.js'
+import { checkCaptcha, checkExistedUserEmail, hashPassword, add2Pending, signIn } from '../services/auth.service.js'
 import { verifyOtp } from '../services/auth.service.js';
 import { db } from '../utils/db.js';
 
@@ -7,31 +7,33 @@ const router = express.Router();
 
 router.post("/register", async (req, res) => {
     const { firstname, lastname, address, username, email, password, captcha_key } = req.body;
-
+    console.log("here1")
     if (!firstname || !lastname || !username || !email || !password) {
         return res.status(400).json({ message: "Not enough information" });
     }
-
+    console.log("here2")
     const errors = {}
 
-    const [check_captcha, check_username, check_email] = await Promise.all([
+    const [captchaResult, exists] = await Promise.all([
         checkCaptcha(captcha_key),
-        checkExistedUser(username),
-        checkExistedEmail(email)
+        checkExistedUserEmail(username, email)
     ]);
 
-    if (check_captcha) errors.captcha = check_captcha;
-    if (check_username) errors.username = "User đã tồn tại";
-    if (check_email) errors.email = "Email đã tồn tại";
+    console.log("here3")
+
+    if (captchaResult) errors.captcha = captchaResult;
+    if (exists.username) errors.username = "User đã tồn tại";
+    if (exists.email) errors.email = "Email đã tồn tại";
 
     if (Object.keys(errors).length > 0) {
         return res.status(400).json(errors);
     }
-
+    console.log("here4")
     try {
-        const hashed_password = hashPassword(password)
+        const hashed_password = await hashPassword(password)
         await add2Pending(firstname, lastname, address, username, email, hashed_password)
 
+        console.log("here")
         return res.status(201).json({
             message: "Register successful",
             email: email
