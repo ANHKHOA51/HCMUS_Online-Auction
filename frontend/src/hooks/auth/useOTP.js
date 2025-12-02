@@ -106,7 +106,7 @@ export default function useOTP() {
             if (!res.ok) throw new Error(data.error || "Verify failed");
 
             setMessage("Xác thực thành công!");
-            navigate('/register')
+            navigate('/login')
         } catch (err) {
             setError(err.message);
             setValues(Array(LEN).fill(""));

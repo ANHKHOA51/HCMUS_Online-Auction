@@ -1,4 +1,4 @@
-import { db } from "../configs/db.js";
+import { db } from "../utils/db.js";
 
 export const UserModel = {
     findByUsernameOrEmail: async (identifier) => {

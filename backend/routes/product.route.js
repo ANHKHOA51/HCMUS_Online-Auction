@@ -1,17 +1,93 @@
 import express from 'express';
-import productController from '../controllers/product.controller.js';
+import productModel from '../models/product.model.js';
 
 const router = express.Router();
 
 
-router.get('/top/closing', productController.topClosing);
-router.get('/top/bidding', productController.topBidding);
-router.get('/top/pricing', productController.topPricing);
+// router.get('/top/closing', productController.topClosing);
+// router.get('/top/bidding', productController.topBidding);
+// router.get('/top/pricing', productController.topPricing);
 
 
-// Product routes (specific routes FIRST)
-router.get('/', productController.getAllProducts);
-router.get('/:id', productController.getProductDetail);
-router.get('/:id/bids', productController.getProductBids);
+// // Product routes (specific routes FIRST)
+// router.get('/', productController.getAllProducts);
+// router.get('/:id', productController.getProductDetail);
+// router.get('/:id/bids', productController.getProductBids);
+
+router.get('/top/closing', async (req, res) => {
+    try {
+        const rows = await productModel.findTopClosing();
+        res.json({ success: true, data: rows });;
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+router.get('/top/bidding', async (req, res) => {
+    try {
+        const rows = await productModel.findTopBidding();
+        res.json({ success: true, data: rows });
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+router.get('/top/pricing', async (req, res) => {
+    try {
+        const rows = await productModel.findTopPricing();
+        res.json({ success: true, data: rows });
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi server' });
+    }
+});
+
+router.get('/', async (req, res) => {
+    try {
+        console.log('getAllProducts called with query:', req.query);
+        // truyền nguyên req.query vào service để giữ nguyên behavior
+        const rows = await productModel.getAllProducts(req.query);
+        console.log('Found', rows.length, 'products');
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching products:', error.message);
+        console.error('Stack:', error.stack);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = await productModel.getProductDetail(id);
+
+        if (!data.product) {
+            return res.status(404).json({ success: false, error: 'Product not found' });
+        }
+
+        res.json({
+            success: true,
+            data: {
+                product: data.product,
+                highestBidder: data.highestBidder,
+                faqs: data.faqs,
+                relatedProducts: data.relatedProducts
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching product details:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+router.get('/:id/bids', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const rows = await productModel.getProductBids(id);
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching bids:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
 
 export default router;

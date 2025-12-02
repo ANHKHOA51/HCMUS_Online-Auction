@@ -7,13 +7,13 @@
 }
 
 .header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 70px;
-    margin: 0 auto;
-    padding: 12px 20px;
-    gap: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  gap: 20px;
 }
 
 /* Logo */
@@ -47,14 +47,15 @@
 }
 
 .search-input {
-    width: 100%;
-    padding: 10px 40px 10px 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    background-color: #f8fafc;
-    font-size: 14px;
-    outline: none;
-    transition: all 0.3s ease;
+  color: black;
+  width: 100%;
+  padding: 10px 40px 10px 15px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
 }
 
 .search-input:focus {
@@ -66,7 +67,7 @@
 }
 
 .search-btn {
-    max-width: 200px;
+  max-width: 200px;
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -122,37 +123,39 @@
 
 /* Dropdown Menu */
 .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    width: max-content;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  width: max-content;
 
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    margin-top: 5px;
-    min-width: 200px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    z-index: 20;
-    overflow: hidden;
-    padding: 20px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  margin-top: 5px;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  overflow: hidden;
+  padding: 20px 10px;
 
-    display: flex;
-    justify-content: flex-start; /* Căn cột từ trái qua */
-    gap: 50px; /* Khoảng cách giữa các cột */
+  display: flex;
+  justify-content: flex-start;
+  /* Căn cột từ trái qua */
+  gap: 50px;
+  /* Khoảng cách giữa các cột */
 }
 
 
 .genre-columns {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    /* Đảm bảo mỗi cột có độ rộng bằng nhau */
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  /* Đảm bảo mỗi cột có độ rộng bằng nhau */
 }
 
 .genre-columns li {
-    margin-bottom: 3px;
-    cursor: pointer;
+  margin-bottom: 3px;
+  cursor: pointer;
 }
 
 .dropdown-header {

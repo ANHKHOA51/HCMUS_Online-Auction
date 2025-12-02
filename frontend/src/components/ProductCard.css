@@ -1,28 +1,33 @@
 /* --- CẤU TRÚC KHUNG THẺ --- */
 .product-card-wrapper {
   background: #ffffff;
-  border-radius: 12px; /* Bo tròn mềm mại hơn */
+  border-radius: 12px;
+  /* Bo tròn mềm mại hơn */
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 1px solid #f0f0f0; /* Viền rất mờ */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02); /* Bóng đổ mặc định rất nhẹ */
+  border: 1px solid #f0f0f0;
+  /* Viền rất mờ */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  /* Bóng đổ mặc định rất nhẹ */
   position: relative;
 }
 
 .product-card-wrapper:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12); /* Nổi lên khi hover */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  /* Nổi lên khi hover */
   border-color: transparent;
 }
 
 /* --- ẢNH SẢN PHẨM --- */
 .product-card-image {
   width: 100%;
-  aspect-ratio: 4/3; /* Tỉ lệ chuẩn ảnh thẻ */
+  aspect-ratio: 4/3;
+  /* Tỉ lệ chuẩn ảnh thẻ */
   background: #f8f9fa;
   position: relative;
   overflow: hidden;
@@ -55,12 +60,17 @@
   font-size: 0.75rem;
   font-weight: 700;
   color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(4px);
 }
 
-.status-badge.hot { background: linear-gradient(45deg, #ff6b6b, #ee5253); }
-.status-badge.new { background: linear-gradient(45deg, #48dbfb, #0abde3); }
+.status-badge.hot {
+  background: linear-gradient(45deg, #ff6b6b, #ee5253);
+}
+
+.status-badge.new {
+  background: linear-gradient(45deg, #48dbfb, #0abde3);
+}
 
 /* --- BODY CARD --- */
 .product-card-body {
@@ -68,7 +78,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Khoảng cách đều giữa các thành phần */
+  gap: 10px;
+  /* Khoảng cách đều giữa các thành phần */
 }
 
 /* Tên sản phẩm */
@@ -83,7 +94,8 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.4;
-  min-height: 2.8em; /* Giữ chỗ cho 2 dòng */
+  min-height: 2.8em;
+  /* Giữ chỗ cho 2 dòng */
 }
 
 /* --- KHU VỰC GIÁ --- */
@@ -91,8 +103,10 @@
 /* --- KHU VỰC GIÁ (Xếp dọc - An toàn tuyệt đối) --- */
 .product-pricing {
   display: flex;
-  flex-direction: column; /* Xếp 2 dòng giá theo chiều dọc */
-  gap: 6px; /* Khoảng cách giữa dòng Giá hiện tại và Giá mua ngay */
+  flex-direction: column;
+  /* Xếp 2 dòng giá theo chiều dọc */
+  gap: 6px;
+  /* Khoảng cách giữa dòng Giá hiện tại và Giá mua ngay */
   padding-bottom: 8px;
   border-bottom: 1px dashed #e0e0e0;
   margin-bottom: 8px;
@@ -100,9 +114,12 @@
 
 .price-group {
   display: flex;
-  flex-direction: row; /* Label và Giá nằm cùng 1 hàng ngang */
-  align-items: center; /* Căn giữa theo chiều dọc */
-  justify-content: space-between; /* Label bên trái, Giá bên phải */
+  flex-direction: row;
+  /* Label và Giá nằm cùng 1 hàng ngang */
+  align-items: center;
+  /* Căn giữa theo chiều dọc */
+  justify-content: space-between;
+  /* Label bên trái, Giá bên phải */
   width: 100%;
 }
 
@@ -116,14 +133,16 @@
 .price-group.main-price .value.highlight {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #d63031; /* Đỏ đậm */
+  color: #d63031;
+  /* Đỏ đậm */
 }
 
 /* Giá mua ngay */
 .price-group.buy-now .value.secondary {
   font-size: 0.9rem;
   font-weight: 600;
-  color: #00b894; /* Xanh mint */
+  color: #00b894;
+  /* Xanh mint */
   background-color: #e2fcf3;
   padding: 2px 8px;
   border-radius: 4px;
@@ -133,11 +152,12 @@
 /* Nếu màn hình quá nhỏ, cho rớt dòng để không bị vỡ giao diện */
 @media (max-width: 350px) {
   .product-pricing {
-    flex-direction: column; /* Chuyển thành dọc */
+    flex-direction: column;
+    /* Chuyển thành dọc */
     align-items: flex-start;
     gap: 6px;
   }
-  
+
   .price-group.buy-now {
     align-items: flex-start;
     text-align: left;
@@ -162,13 +182,26 @@
   color: #636e72;
 }
 
-.stat-row .icon { font-size: 0.9rem; width: 18px; text-align: center; }
-.stat-row .text.winner b { color: #e67e22; } /* Màu cam cho winner */
-.stat-row .muted { font-style: italic; color: #b2bec3; }
+.stat-row .icon {
+  font-size: 0.9rem;
+  width: 18px;
+  text-align: center;
+}
+
+.stat-row .text.winner b {
+  color: #e67e22;
+}
+
+/* Màu cam cho winner */
+.stat-row .muted {
+  font-style: italic;
+  color: #b2bec3;
+}
 
 /* --- FOOTER META (THỜI GIAN) --- */
 .product-footer-meta {
-  margin-top: auto; /* Đẩy xuống dưới cùng */
+  margin-top: auto;
+  /* Đẩy xuống dưới cùng */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -205,16 +238,21 @@
   }
 
   .product-card-image {
-    width: 130px; /* Cố định chiều rộng ảnh trên mobile */
+    width: 130px;
+    /* Cố định chiều rộng ảnh trên mobile */
     aspect-ratio: auto;
     flex-shrink: 0;
   }
-  
+
   .card-badges {
-    top: 5px; left: 5px;
+    top: 5px;
+    left: 5px;
   }
-  
-  .status-badge { padding: 2px 6px; font-size: 0.65rem; }
+
+  .status-badge {
+    padding: 2px 6px;
+    font-size: 0.65rem;
+  }
 
   .product-card-body {
     padding: 10px;
@@ -228,12 +266,17 @@
     border: none;
     padding-bottom: 0;
   }
-  
-  .price-group.buy-now { text-align: left; display: none; /* Ẩn giá mua ngay nếu chật quá */ }
+
+  .price-group.buy-now {
+    text-align: left;
+    display: none;
+    /* Ẩn giá mua ngay nếu chật quá */
+  }
 
   .product-stats-box {
-    display: none; /* Ẩn thống kê chi tiết trên mobile để gọn */
+    display: none;
+    /* Ẩn thống kê chi tiết trên mobile để gọn */
   }
-  
+
   /* Thay vào đó hiện số bid đơn giản hơn nếu cần thiết kế mobile riêng */
 }
