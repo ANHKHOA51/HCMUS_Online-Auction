@@ -34,8 +34,15 @@ export const ProductModel = {
             query = query.where('p.category_id', category_id);
             }
 
+            let hasSearch = false;
             if (search) {
-            query = query.where('p.name', 'ilike', `%${search}%`);
+            // Full text search using PostgreSQL tsvector with simple tokenizer
+            query = query.whereRaw(
+                `p.search_vector @@ plainto_tsquery('simple', ?)`,
+                [search]
+            )
+            .select(db.raw(`ts_rank(p.search_vector, plainto_tsquery('simple', ?)) as relevance`, [search]));
+            hasSearch = true;
             }
 
             if (sort === 'newest') {
@@ -46,6 +53,9 @@ export const ProductModel = {
             query = query.orderBy('p.current_price', 'asc');
             } else if (sort === 'price_high') {
             query = query.orderBy('p.current_price', 'desc');
+            } else if (hasSearch) {
+            // Nếu có search mà không có sort, mặc định sort theo relevance
+            query = query.orderBy('relevance', 'desc');
             }
 
             query = query.limit(50).timeout(5000);
