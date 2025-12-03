@@ -1,9 +1,5 @@
 import express from 'express';
-import { hashPassword } from '../utils/password.js';
-import { checkCaptcha } from '../utils/captcha.js';
-import userModel from '../models/user.model.js';
 import AuthService from '../services/auth.service.js';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 const router = express.Router();
 
 // router.post("/register", authController.register);
@@ -17,17 +13,7 @@ router.post("/register", async (req, res) => {
         return res.status(400).json({ message: "Not enough information" });
     }
 
-    const errors = {}
-
-    const [check_captcha, check_username, check_email] = await Promise.all([
-        process.env.NODE_ENV === 'development' ? undefined : checkCaptcha(captcha_key),
-        userModel.existsByUsername(username),
-        userModel.existsByEmail(email),
-    ]);
-
-    if (check_captcha) errors.captcha = check_captcha;
-    if (check_username) errors.username = "User đã tồn tại";
-    if (check_email) errors.email = "Email đã tồn tại";
+    const errors = await AuthService.checkExisted(username, email, captcha_key)
 
     if (Object.keys(errors).length > 0) {
         return res.status(400).json(errors);
@@ -35,8 +21,8 @@ router.post("/register", async (req, res) => {
     console.log('Registering user:', { firstname, lastname, username, email });
 
     try {
-        const hashed_password = await hashPassword(password)
-        await AuthService.add2Pending({ firstname, lastname, username, email, hashed_password })
+        
+        await AuthService.add2Pending({ firstname, lastname, username, email, password })
 
         return res.status(201).json({
             message: "Register successful",

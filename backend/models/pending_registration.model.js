@@ -9,7 +9,7 @@ export const PendingRegistrationModel = {
     },
 
     findValid: async (email, otp) => {
-        return await db("pending_registrations")
+        return db("pending_registrations")
             .where({ email, otp })
             .andWhere("expires_at", ">", new Date())
             .first();

@@ -8,8 +8,24 @@ import { sendOtpMail } from '../utils/mail.js';
 import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
 
 export const AuthService = {
+    checkExisted: async (username, email, captcha_key) => {
+        const errors = {}
+
+        const [check_captcha, exists] = await Promise.all([
+            process.env.NODE_ENV === 'development' ? undefined : checkCaptcha(captcha_key),
+            UserModel.checkExistedUserEmail(username, email)
+        ]);
+
+        if (check_captcha) errors.captcha = check_captcha;
+        if (exists.username) errors.username = "User đã tồn tại";
+        if (exists.email) errors.email = "Email đã tồn tại";
+
+        return errors;
+    },
+
     add2Pending: async (data) => {
         try {
+            const hashed_password = await hashPassword(data.password)
             const otp = generateOTP()
 
             await PendingRegistrationModel.insertOrUpdate({
@@ -18,7 +34,7 @@ export const AuthService = {
                 address: data.address,
                 username: data.username,
                 email: data.email,
-                password: data.hashed_password,
+                password: hashed_password,
                 otp: otp,
                 expires_at: new Date(Date.now() + 10 * 60 * 1000)
             });
