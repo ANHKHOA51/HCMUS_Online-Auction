@@ -25,15 +25,46 @@ export async function loginReq(formData) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData),
+            credentials: "include"
         });
+
+        const data = await response.json();
 
         return {
             ok: response.ok,
-            body: response.message
+            data: data,
+            message: data.message
         }
 
     } catch (error) {
         console.error("Lỗi kết nối:", error);
+        return {
+            ok: false,
+            message: "Lỗi kết nối đến server"
+        }
+    }
+}
+
+export async function refreshReq() {
+    try {
+        const response = await fetch("http://localhost:3000/auths/refresh", {
+            method: "POST",
+            credentials: "include"
+        });
+
+        const data = await response.json()
+        return {
+            ok: response.ok,
+            data: data,
+            message: data.message
+        }
+
+    } catch (error) {
+        console.error("Lỗi kết nối:", error);
+        return {
+            ok: false,
+            message: "Lỗi kết nối đến server"
+        }
     }
 }

@@ -8,23 +8,26 @@ import RegisterPage from './pages/RegisterPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import SearchResultsPage from './components/SearchResults';
 import { Route, Routes, BrowserRouter } from "react-router-dom";
+import { AuthProvider } from './contexts/AuthContext';
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route element={<AuthLayout />}>
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/register/otp" element={<OtpPage />} />
-                </Route>
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route element={<AuthLayout />}>
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/register/otp" element={<OtpPage />} />
+                    </Route>
 
-                <Route element={<MainLayout />}>
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/search" element={<SearchResultsPage />} />
-                    <Route path="/products/:id" element={<ProductDetailPage />} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
+                    <Route element={<MainLayout />}>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/search" element={<SearchResultsPage />} />
+                        <Route path="/products/:id" element={<ProductDetailPage />} />
+                    </Route>
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
     )
 }

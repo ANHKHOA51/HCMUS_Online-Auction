@@ -97,7 +97,7 @@ export default function RegisterForm() {
                     </div>)}
                 </div>
 
-                <button type="submit" className="mt-2 btn btn-primary w-100"
+                <button type="submit" className="default-button mt-2 w-100"
                     disabled={isLoading}
                     aria-busy={isLoading}>
                     {isLoading ? "Registering..." : "Register"}

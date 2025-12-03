@@ -1,8 +1,8 @@
 import { db } from "../utils/db.js";
 
 export const UserModel = {
-    findByUsernameOrEmail: async (identifier) => {
-        return await db("users")
+    findByUsernameOrEmail: (identifier) => {
+        return db("users")
             .where("username", identifier)
             .orWhere("email", identifier)
             .first();
