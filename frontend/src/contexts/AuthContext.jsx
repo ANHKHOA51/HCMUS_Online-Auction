@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { loginReq, refreshReq } from "../services/authentication";
+import { loginReq, refreshReq, logoutReq } from "../services/authentication";
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -32,11 +32,14 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
-        setCur_user(null)
-        localStorage.removeItem('user')
-        setAccessToken(null)
-        localStorage.removeItem('accessToken')
+    const logout = async () => {
+        const rs = await logoutReq()
+        if (rs.ok) {
+            setCur_user(null)
+            localStorage.removeItem('user')
+            setAccessToken(null)
+            localStorage.removeItem('accessToken')
+        }
     }
 
     const refreshToken = async () => {

@@ -68,3 +68,26 @@ export async function refreshReq() {
         }
     }
 }
+
+export async function logoutReq() {
+    try {
+        const response = await fetch("http://localhost:3000/auths/logout", {
+            method: "POST",
+            credentials: "include"
+        });
+
+        const data = await response.json()
+        return {
+            ok: response.ok,
+            data: data,
+            message: data.message
+        }
+
+    } catch (error) {
+        console.error("Lỗi kết nối:", error);
+        return {
+            ok: false,
+            message: "Lỗi kết nối đến server"
+        }
+    }
+}
