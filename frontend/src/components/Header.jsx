@@ -1,6 +1,7 @@
 import './Header.css'
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import useClickOutside from '../hooks/useClickOutside';
 import { useProducts, useFilters } from '../hooks/useProduct';
 import { useAuth } from '../contexts/AuthContext.jsx';
 
@@ -22,6 +23,12 @@ export default function Header() {
 	} = useFilters([]);
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const [isDropdownOpenSort, setIsDropdownOpenSort] = useState(false);
+
+	const categoryDropdownRef = useRef(null);
+	const sortDropdownRef = useRef(null);
+
+	useClickOutside(categoryDropdownRef, () => setIsDropdownOpen(false));
+	useClickOutside(sortDropdownRef, () => setIsDropdownOpenSort(false));
 	const { cur_user, logout } = useAuth();
 	console.log(cur_user);
 
@@ -93,7 +100,7 @@ export default function Header() {
 				{/* Filters */}
 				<div className="filters-bar">
 					{/* Category Filter */}
-					<div className="filter-dropdown">
+					<div className="filter-dropdown" ref={categoryDropdownRef}>
 						<button
 							className={`filter-btn ${selectedCategory ? 'active' : ''}`}
 							onClick={() => {
@@ -136,7 +143,7 @@ export default function Header() {
 					</div>
 
 					{/* Sort Filter */}
-					<div className="filter-dropdown">
+					<div className="filter-dropdown" ref={sortDropdownRef}>
 						<button
 							className={`filter-btn ${sortBy !== 'newest' ? 'active' : ''}`}
 							onClick={() => {

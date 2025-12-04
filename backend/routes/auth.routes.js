@@ -1,6 +1,5 @@
 import express from 'express';
 import AuthService from '../services/auth.service.js';
-import { verifyRefreshToken } from '../utils/jwt.js';
 const router = express.Router();
 
 // router.post("/register", authController.register);

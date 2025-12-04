@@ -6,20 +6,20 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
     const [cur_user, setCur_user] = useState(
-        JSON.parse(localStorage.getItem('user')) || null
+        JSON.parse(sessionStorage.getItem('user')) || null
     );
 
     const [accessToken, setAccessToken] = useState(
-        localStorage.getItem('accessToken') || null
+        sessionStorage.getItem('accessToken') || null
     );
 
     const login = async (formData) => {
         const rs = await loginReq(formData)
         if (rs.ok) {
             setCur_user(rs.data.user)
-            localStorage.setItem('user', JSON.stringify(rs.data.user))
+            sessionStorage.setItem('user', JSON.stringify(rs.data.user))
             setAccessToken(rs.data.accessToken)
-            localStorage.setItem('accessToken', rs.data.accessToken)
+            sessionStorage.setItem('accessToken', rs.data.accessToken)
             console.log(cur_user)
             return {
                 ok: true
@@ -36,9 +36,9 @@ export const AuthProvider = ({ children }) => {
         const rs = await logoutReq()
         if (rs.ok) {
             setCur_user(null)
-            localStorage.removeItem('user')
+            sessionStorage.removeItem('user')
             setAccessToken(null)
-            localStorage.removeItem('accessToken')
+            sessionStorage.removeItem('accessToken')
         }
     }
 
@@ -47,8 +47,7 @@ export const AuthProvider = ({ children }) => {
 
         if (!res.ok) return;
 
-        const data = await res.json();
-        setAccessToken(data.accessToken);
+        setAccessToken(res.data.accessToken);
     };
 
     useEffect(() => {

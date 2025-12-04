@@ -5,7 +5,7 @@ import { PendingRegistrationModel } from '../models/pending_registration.model.j
 import UserModel from '../models/user.model.js';
 import RefreshTokenModel from '../models/refresh_tokens.model.js';
 import { sendOtpMail } from '../utils/mail.js';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt.js';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
 
 export const AuthService = {
     checkExisted: async (username, email, captcha_key) => {
@@ -153,16 +153,6 @@ export const AuthService = {
             return { ok: true };
         } catch (error) {
             console.error('resendOtp error:', error);
-            throw error;
-        }
-    },
-
-    signOut: async (refreshToken) => {
-        try {
-            await RefreshTokenModel.deleteToken(refreshToken);
-            return { ok: true };
-        } catch (error) {
-            console.error('signOut error:', error);
             throw error;
         }
     },
