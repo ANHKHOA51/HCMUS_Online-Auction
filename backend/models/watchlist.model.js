@@ -1,6 +1,7 @@
-const db = require('../utils/db');
+import { db } from '../utils/db.js';
 
-module.exports = {
+
+const WatchlistModel = {
   // Kiểm tra xem user đã thích món này chưa?
   hasWatched: (userId, productId) => {
     return db('watch_lists')
@@ -24,5 +25,17 @@ module.exports = {
   getListProductIds: async (userId) => {
     const list = await db('watch_lists').where('user_id', userId).select('product_id');
     return list.map(item => item.product_id); // Trả về mảng [1, 5, 9]
-  }
+  },
+
+  // Lấy danh sách ID sản phẩm trong watchlist của user
+  getIdsByUser: async (userId) => {
+    const list = await db('watch_lists')
+      .where('user_id', userId)
+      .select('product_id');
+
+    return list.map(item => item.product_id);
+  },
+  
 };
+
+export default WatchlistModel;

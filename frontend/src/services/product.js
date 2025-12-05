@@ -76,7 +76,7 @@ export const productService = {
     return response.json();
     },
 
-  // Mua ngay
+    // Mua ngay
     async buyNow(productId, token) {
         const response = await fetch(`${API_BASE_URL}/products/${productId}/buy-now`, {
             method: 'POST',
