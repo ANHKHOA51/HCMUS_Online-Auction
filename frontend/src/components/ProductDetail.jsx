@@ -15,6 +15,18 @@ const ProductDetail = () => {
   const { id } = useParams();
   const { product, seller, highestBidder, faqs, relatedProducts, loading, error } = useProductDetail(id);
 
+  let images = [];
+  if (product?.images && Array.isArray(product.images)) {
+    product.images.forEach((image) => {
+      if (typeof image === 'string') {
+        if (image.startsWith('https://') || image.startsWith('http://')) {
+          images.push(image);
+        } else {
+          images.push(`http://localhost:3000/static/images/products/${product.id}/${image}`);
+        }
+      }
+    });
+  }
   const {
     bidAmount,
     setBidAmount,
@@ -44,7 +56,7 @@ const ProductDetail = () => {
       <div className="detail-container">
         {/* Left Section: Images and Description */}
         <div className="detail-left">
-          <ProductGallery images={product.images} />
+          <ProductGallery images={images} />
 
 
         </div>
@@ -163,9 +175,9 @@ const ProductDetail = () => {
         {/* Product Description */}
         <div className="product-description">
           <h4 className="section-title">📋 Mô tả chi tiết sản phẩm</h4>
-          <div className="description-content">
-            <p>{product.description}</p>
-          </div>
+          <div className="description-content"
+            dangerouslySetInnerHTML={{ __html: product.description }}
+          />
         </div>
         {/* Q&A Section */}
         <QAHistory faqs={faqs} />

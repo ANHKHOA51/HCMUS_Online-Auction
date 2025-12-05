@@ -1,18 +1,11 @@
 import express from 'express';
 import productModel from '../models/product.model.js';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 const router = express.Router();
-
-
-// router.get('/top/closing', productController.topClosing);
-// router.get('/top/bidding', productController.topBidding);
-// router.get('/top/pricing', productController.topPricing);
-
-
-// // Product routes (specific routes FIRST)
-// router.get('/', productController.getAllProducts);
-// router.get('/:id', productController.getProductDetail);
-// router.get('/:id/bids', productController.getProductBids);
 
 router.get('/top/closing', async (req, res) => {
     try {
@@ -89,5 +82,56 @@ router.get('/:id/bids', async (req, res) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
+router.post('/add', authMiddleware, async (req, res) => {
+    try {
+        const body = req.body;
+        body.seller_id = req.user.id;
+        console.log(body)
+        const result = await productModel.addProduct(body);
+        console.log(result)
+        const dirpath = path.join('static', 'images', 'products', result[0].id.toString());
+        if (!fs.existsSync(dirpath)) {
+            fs.mkdirSync(dirpath, { recursive: true });
+        }
+
+        if (req.body.images) {
+            req.body.images.forEach(function (item, idx) {
+                const oldpath = path.join('static', 'temp', item);
+                // let newfilename, thumbfilename;
+                // if (idx === 0) {
+                //     newfilename = 'main.jpg';
+                //     thumbfilename = 'main_thumbs.jpg';
+                // } else {
+                //     newfilename = `${idx}.jpg`;
+                //     thumbfilename = `${idx}_thumbs.jpg`;
+                // }
+
+                const newpath = path.join(dirpath, item);
+                fs.copyFileSync(oldpath, newpath);
+                fs.unlinkSync(oldpath);
+            });
+        }
+        res.status(201).json({ success: true, data: result });
+    } catch (error) {
+        console.error('Error adding product:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'static/temp/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+
+const upload = multer({ storage: storage });
+
+router.post('/upload', authMiddleware, upload.array('photos', 12), async (req, res) => {
+    res.json({ success: true, files: req.files });
+})
 
 export default router;

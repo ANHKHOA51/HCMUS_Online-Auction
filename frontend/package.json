@@ -10,8 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@uppy/core": "^5.2.0",
+    "@uppy/react": "^5.1.1",
+    "@uppy/xhr-upload": "^5.1.0",
     "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
+    "quill": "^2.0.3",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.1.1",

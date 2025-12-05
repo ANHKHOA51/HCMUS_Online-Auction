@@ -43,6 +43,8 @@ export const AuthProvider = ({ children }) => {
     }
 
     const refreshToken = async () => {
+        if (!cur_user) return;
+        
         const res = await refreshReq();
 
         if (!res.ok) return;

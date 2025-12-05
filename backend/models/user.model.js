@@ -1,4 +1,5 @@
 import { db } from "../utils/db.js";
+import { verifyAccessToken } from "../utils/jwt.js";
 
 export const UserModel = {
     checkExistedUserEmail: async (username, email) => {
@@ -16,6 +17,14 @@ export const UserModel = {
             .where("username", identifier)
             .orWhere("email", identifier)
             .first();
+    },
+
+    findByToken: async (token) => {
+        const decodedToken = verifyAccessToken(token);
+        const user = await db("users")
+            .where("id", decodedToken.id)
+            .first();
+        return user;
     },
 
     insert: async (userData, trx = db) => {

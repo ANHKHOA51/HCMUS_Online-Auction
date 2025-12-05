@@ -157,3 +157,5 @@ test.js
 
 .env
 api.test.http
+
+/backend/static/temp/**

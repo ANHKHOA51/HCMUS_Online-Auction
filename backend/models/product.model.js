@@ -208,7 +208,17 @@ export const ProductModel = {
             //.where('status', 'active')
             .orderBy('current_price', 'desc')
             .limit(5);
-    }
+    },
+
+    addProduct: async (productData) => {
+        try {
+            return db('products').insert(productData).returning('id');
+            
+        } catch (error) {
+            console.error('Error adding product:', error);
+            throw error;
+        }
+    },
 
 };
 

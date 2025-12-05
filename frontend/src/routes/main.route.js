@@ -7,6 +7,7 @@ import AuthLayout from "../layouts/AuthLayout";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import OtpPage from "../pages/OtpPage";
+import AddProductPage from "../pages/AddProductPage";
 
 const router = createBrowserRouter([
     {
@@ -15,7 +16,8 @@ const router = createBrowserRouter([
         children: [
             { index: true, Component: HomePage },
             { path: "search", Component: SearchResultsPage },
-            { path: "products/:id", Component: ProductDetailPage }
+            { path: "products/:id", Component: ProductDetailPage },
+            { path: "products/add-product", Component: AddProductPage }
         ]
     },
 

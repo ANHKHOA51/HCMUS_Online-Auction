@@ -86,6 +86,19 @@ export const productService = {
         });
         if (!response.ok) throw new Error('Lỗi khi mua ngay');
         return response.json();
+    },
+
+    async addProduct(formData, token) {
+        const response = await fetch(`${API_BASE_URL}/products/add`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(formData)
+        });
+        if (!response.ok) throw new Error('Lỗi khi thêm sản phẩm');
+        return response.json();
     }
 };
 

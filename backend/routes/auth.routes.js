@@ -2,10 +2,6 @@ import express from 'express';
 import AuthService from '../services/auth.service.js';
 const router = express.Router();
 
-// router.post("/register", authController.register);
-// router.post("/register/otp", authController.postRegisterOTP);
-// router.post("/login", authController.login);
-
 router.post("/register", async (req, res) => {
     const { firstname, lastname, username, email, password, captcha_key } = req.body;
 
@@ -132,12 +128,6 @@ router.post("/refresh", async (req, res) => {
 
             res.status(201).json({
                 message: "Refresh successful",
-                user: {
-                    id: rs.user.id,
-                    username: rs.user.username,
-                    email: rs.user.email,
-                    role: rs.user.role
-                },
                 accessToken: rs.accessToken,
             })
         } else {

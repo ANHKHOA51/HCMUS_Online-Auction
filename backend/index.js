@@ -21,6 +21,8 @@ app.use(cors({
 
 app.use(cookieParser());
 
+app.use('/static', express.static('static'));
+
 // Log all requests
 app.use((req, res, next) => {
   console.log(`📨 \x1b[32m${req.method} \x1b[36m${req.path}\x1b[0m`);
