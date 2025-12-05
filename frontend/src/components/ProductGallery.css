@@ -1,71 +1,116 @@
-.product-gallery {
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+:root {
+  --pg-bg: #fffffe;           /* Nền chính */
+  --pg-stroke: #1f1235;       /* Màu viền đậm */
+  --pg-highlight: #3da9fc;    /* Màu active/highlight (Xanh dương) */
+  --pg-secondary: #90b4ce;    /* Màu phụ */
+  --pg-tertiary: #ef4565;     /* Màu nhấn (Đỏ hồng) */
+  --pg-card-bg: #ffffff;      /* Nền card */
 }
 
+.product-gallery {
+  /* Box style */
+  background: var(--pg-card-bg);
+  border: 3px solid var(--pg-stroke);
+  border-radius: 16px;
+  overflow: hidden;
+  /* Bóng đổ cứng (Hard shadow) đặc trưng của style này */
+  box-shadow: 6px 6px 0px rgba(31, 18, 53, 0.15); 
+  
+  width: 100%;
+  margin: 0 auto; /* Căn giữa */
+  display: flex;
+  flex-direction: column;
+}
+
+/* KHUNG ẢNH CHÍNH */
 .main-image-container {
   width: 100%;
-  aspect-ratio: 1;
-  background: #f5f5f5;
+  aspect-ratio: 4/3; /* Tỉ lệ 4:3 nhìn cân đối hơn 1:1 */
+  background: #f4f6f8; /* Nền xám nhẹ giữ chỗ */
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  border-bottom: 3px solid var(--pg-stroke); /* Ngăn cách với thumbnail */
+  position: relative;
 }
 
 .main-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
+  object-fit: contain; /* Đổi thành contain để thấy toàn bộ sản phẩm */
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.main-image:hover {
-  transform: scale(1.05);
+/* Hiệu ứng zoom nhẹ khi hover ảnh chính */
+.main-image-container:hover .main-image {
+  transform: scale(1.08);
 }
 
+/* KHUNG THUMBNAIL */
 .thumbnail-container {
   display: flex;
-  gap: 10px;
-  padding: 12px;
-  background: #f9f9f9;
+  gap: 12px;
+  padding: 16px;
+  background: var(--pg-bg);
   overflow-x: auto;
-  border-top: 1px solid #e0e0e0;
+  /* Ẩn thanh cuộn nhưng vẫn cuộn được */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE/Edge */
+}
+.thumbnail-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
+/* THUMBNAIL ITEM */
 .thumbnail {
   flex-shrink: 0;
-  width: 80px;
-  height: 80px;
-  border: 2px solid #ddd;
-  border-radius: 4px;
+  width: 64px; /* Nhỏ gọn hơn */
+  height: 64px;
+  border: 2px solid var(--pg-stroke); /* Viền mặc định */
+  border-radius: 10px; /* Bo tròn nhiều hơn */
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  opacity: 0.7; /* Mờ nhẹ khi chưa chọn */
+  background: white;
 }
 
 .thumbnail img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
+/* Trạng thái Hover */
 .thumbnail:hover {
-  border-color: #007bff;
+  transform: translateY(-3px); /* Nhảy lên nhẹ */
+  opacity: 1;
+  border-color: var(--pg-stroke);
+  box-shadow: 2px 2px 0px var(--pg-stroke); /* Bóng cứng nhỏ */
+}
+
+/* Trạng thái Active (Đang chọn) */
+.thumbnail.active {
+  opacity: 1;
+  border-color: var(--pg-highlight); /* Đổi màu viền khi active */
+  box-shadow: 0 0 0 2px var(--pg-highlight) inset; /* Viền trong đậm hơn */
   transform: scale(1.05);
 }
 
-.thumbnail.active {
-  border-color: #007bff;
-  background: #e7f3ff;
-}
-
-@media (max-width: 768px) {
+/* Responsive cho mobile */
+@media (max-width: 480px) {
+  .product-gallery {
+    border-width: 2px;
+    box-shadow: 4px 4px 0px rgba(31, 18, 53, 0.1);
+  }
+  .main-image-container {
+    border-bottom-width: 2px;
+  }
   .thumbnail {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
   }
 }

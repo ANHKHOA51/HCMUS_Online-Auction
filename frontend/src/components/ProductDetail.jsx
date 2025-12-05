@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import './ProductDetail.css';
 import ProductGallery from './ProductGallery';
 import UserInfo from './UserInfo';
-import QAHistory from './QAHistory';
+import ProductTabs from './ProductTab'; // Import component mới
 import { getRelativeTime, shouldShowRelativeTime, formatDate } from '../utils/timeUtil';
 import { formatPriceVN } from '../utils/formatCurrency';
 import { useProductDetail } from '../hooks/useProduct';
@@ -25,153 +25,133 @@ const ProductDetail = () => {
     handleBuyNow,
   } = useBidding(product);
 
-  if (loading) {
-    return <div className="loading">Đang tải...</div>;
-  }
-
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
-
-  if (!product) {
-    return <div className="error">Sản phẩm không tồn tại</div>;
-  }
+  if (loading) return <div className="loading">Đang tải...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!product) return <div className="error">Sản phẩm không tồn tại</div>;
 
   const isEnded = new Date(product.end_time) < new Date();
 
   return (
     <div className="product-detail-page">
       <div className="detail-container">
-        {/* Left Section: Images and Description */}
+        
+        {/* --- LEFT COLUMN --- */}
         <div className="detail-left">
+          
+          {/* 1. Gallery (Đã được CSS chỉnh to ra) */}
           <ProductGallery images={product.images} />
 
+          {/* 2. Tabs: Mô tả, Hỏi đáp, Vận chuyển */}
+          <ProductTabs product={product} faqs={faqs} />
 
         </div>
 
-        {/* Right Section: Product Info and Bidding */}
+        {/* --- RIGHT COLUMN (SIDEBAR - Cố định chiều cao, scrollable) --- */}
         <div className="detail-right">
 
-          <div className="product-header">
-            <h2 className="product-title">{product.name}</h2>
-            <p className="product-category">{product.category_name}</p>
-          </div>
-
-          {/* Time Information */}
-          <div className="time-info">
-            <div className="time-item">
-              <span className="time-label">📅 Thời điểm đăng:</span>
-              <span className="time-value">{formatDate(product.start_time)}</span>
+                {/* 1. Basic Info */}
+            <div className="card-box">
+                <div className="product-header">
+                    <h2 className="product-title">{product.name}</h2>
+                    <span className="product-category">{product.category_name}</span>
             </div>
-            <div className="time-item">
-              <span className="time-label">⏰ Thời điểm kết thúc:</span>
-              <span className="time-value">
-                {shouldShowRelativeTime(product.end_time) ? (
-                  <span className="relative-time-badge">{getRelativeTime(product.end_time)}</span>
-                ) : (
-                  formatDate(product.end_time)
+
+
+
+                <div className="card-box">
+                    <h5 className="section-title" style={{fontSize:'16px', marginTop:0}}>
+                        👤 Thông tin người bán
+                    </h5>
+                    <UserInfo user={seller} role="seller" />
+                </div>
+
+                {/* 2. Highest Bidder Info */}
+                {highestBidder && (
+                    <div className="card-box" style={{marginTop: '20px'}}>
+                        <h5 className="section-title" style={{fontSize:'16px', marginTop:0}}>
+                            🏆 Người giữ giá cao nhất
+                        </h5>
+                        <UserInfo user={highestBidder} role="bidder" isHighestBidder={true} />
+                    </div>
                 )}
-              </span>
             </div>
-            {isEnded && <div className="ended-badge">Đã kết thúc</div>}
-          </div>
-
-          {/* Price Section */}
-          <div className="price-section">
+ 
+          {/* 2. Price & Actions */}
+          <div className="price-section card-box">
             <div className="price-item current">
-              <span className="price-label">Giá hiện tại:</span>
+              <span className="price-label">Hiện tại:</span>
               <span className="price-value">{formatPriceVN(product.current_price || product.starting_price)}</span>
             </div>
-            {product.buy_now_price && (
-              <div className="price-item buy-now">
-                <span className="price-label">Giá mua ngay:</span>
-                <span className="price-value">{formatPriceVN(product.buy_now_price)}</span>
-              </div>
-            )}
-            {product.starting_price && (
-              <div className="price-item starting">
-                <span className="price-label">Giá khởi điểm:</span>
-                <span className="price-value">{formatPriceVN(product.starting_price)}</span>
-              </div>
-            )}
-          </div>
+            
+            <div className="time-info card-box" style={{padding:'10px', marginTop:'10px', border:'2px solid var(--pg-stroke)', boxShadow:'none'}}>
+                 <div className="time-item">
+                    <span className="time-label">Kết thúc:</span>
+                    <span className="time-value">
+                        {shouldShowRelativeTime(product.end_time) ? (
+                        <span className="relative-time-badge">{getRelativeTime(product.end_time)}</span>
+                        ) : (
+                        formatDate(product.end_time)
+                        )}
+                    </span>
+                 </div>
+                 {isEnded && <div className="ended-badge">ĐÃ KẾT THÚC</div>}
+            </div>
 
-          {/* Bidding Form */}
-          {!isEnded && (
-            <div className="bidding-form">
-              <h5>🏆 Đặt giá</h5>
+            {!isEnded && (
+              <div className="bidding-area" style={{marginTop: '20px'}}>
+                {bidError && <div className="bid-error">⚠️ {bidError}</div>}
+                {bidSuccess && <div className="bid-success">🎉 Đặt giá thành công!</div>}
 
-              {bidError && <div className="bid-error">⚠️ {bidError}</div>}
-              {bidSuccess && <div className="bid-success">✓ Thành công!</div>}
-
-              <div className="bid-input-group">
-                <input
-                  type="number"
-                  value={bidAmount}
-                  onChange={(e) => setBidAmount(e.target.value)}
-                  placeholder={`Tối thiểu: ${formatPriceVN(product.current_price + (product.step_price || 100000))}`}
-                  className="bid-input"
-                  disabled={isPlacingBid}
-                />
-              </div>
-              <button
-                className="btn-bid"
-                onClick={handlePlaceBid}
-                disabled={isPlacingBid}
-              >
-                {isPlacingBid ? 'Đang xử lý...' : 'Đặt giá'}
-              </button>
-
-              {product.buy_now_price && (
+                <div className="bid-input-group">
+                  <input
+                    type="number"
+                    value={bidAmount}
+                    onChange={(e) => setBidAmount(e.target.value)}
+                    placeholder={`Tối thiểu: ${formatPriceVN(product.current_price + (product.step_price || 100000))}`}
+                    className="bid-input"
+                    disabled={isPlacingBid}
+                  />
+                </div>
+                
                 <button
-                  className="btn-buy-now"
-                  onClick={handleBuyNow}
+                  className="btn-bid"
+                  onClick={handlePlaceBid}
                   disabled={isPlacingBid}
                 >
-                  💳 Mua ngay
+                  {isPlacingBid ? 'Đang xử lý...' : 'ĐẶT GIÁ NGAY'}
                 </button>
-              )}
-            </div>
-          )}
 
-          {isEnded && (
-            <div className="auction-ended">
-              <p>🏁 Đấu giá đã kết thúc</p>
-              {highestBidder && (
-                <p className="winner">Người thắng: {highestBidder.full_name}</p>
+                {product.buy_now_price && (
+                  <button
+                    className="btn-buy-now"
+                    onClick={handleBuyNow}
+                    disabled={isPlacingBid}
+                  >
+                    MUA NGAY: {formatPriceVN(product.buy_now_price)}
+                  </button>
+                )}
+              </div>
+            )}
+             
+             {isEnded && (
+                <div className="auction-ended card-box" style={{backgroundColor: '#f0f0f0', textAlign: 'center', marginTop:'10px', boxShadow: 'none'}}>
+                  <p>🏁 Phiên đấu giá đã kết thúc</p>
+                  {highestBidder && (
+                    <div style={{marginTop: '10px'}}>
+                        <p className="winner" style={{color: 'var(--pg-success)', fontSize: '18px'}}>Người thắng: <strong>{highestBidder.full_name}</strong></p>
+                        {/* Nếu bạn muốn hiển thị thêm thông tin người thắng dài dòng ở đây thì nó sẽ cuộn trong cột phải */}
+                    </div>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-
-          {/* Seller Information */}
-          <div className="seller-section">
-            <h5>👤 Thông tin người bán</h5>
-            <UserInfo user={seller} role="seller" />
           </div>
 
-          {/* Highest Bidder Information */}
-          {highestBidder && (
-            <div className="bidder-section">
-              <h5>🏆 Người đặt giá cao nhất</h5>
-              <UserInfo user={highestBidder} role="bidder" isHighestBidder={true} />
-            </div>
-          )}
         </div>
       </div>
+
+      {/* --- BOTTOM SECTION --- */}
       <div className="detail-below">
-
-        {/* Product Description */}
-        <div className="product-description">
-          <h4 className="section-title">📋 Mô tả chi tiết sản phẩm</h4>
-          <div className="description-content">
-            <p>{product.description}</p>
-          </div>
-        </div>
-        {/* Q&A Section */}
-        <QAHistory faqs={faqs} />
-
-        {/* Related Products */}
-        <ProductsGrid products={relatedProducts} title={"Sản phẩm liên quan"} />
+        <ProductsGrid products={relatedProducts} title={"Sản phẩm tương tự"} />
       </div>
     </div>
   );
