@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import knex from "knex";
 
 const db_host = process.env.SUPABASE_HOST;
@@ -14,11 +15,11 @@ export const db = knex({
         database: 'postgres',
         password: db_pw,
     },
-    pool: { 
-        min: 0, 
-        max: 10, 
-        acquireTimeoutMillis: 30000, 
-        idleTimeoutMillis: 30000 
+    pool: {
+        min: 0,
+        max: 10,
+        acquireTimeoutMillis: 30000,
+        idleTimeoutMillis: 30000
     },
 });
 

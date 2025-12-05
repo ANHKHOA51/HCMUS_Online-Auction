@@ -2,6 +2,36 @@
     transition: transform 150ms ease-in-out;
 }
 
+.default-button {
+  background: linear-gradient(135deg, #667eea, #764ba2, #667eea);
+  background-size: 300%;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  transition: 0.4s ease;
+}
+
+.default-button:hover {
+  background-position: right;
+}
+
+.default-outline-button {
+  background: transparent;
+  background-size: 300%;
+  color: #667eea;               
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: 2px solid #667eea;
+  transition: 0.4s ease;
+}
+
+.default-outline-button:hover {
+  color: white;
+  background: linear-gradient(135deg, #667eea, #764ba2, #667eea);
+}
+
+
 .card-animation:hover {
     transform: scale(1.02);
 }

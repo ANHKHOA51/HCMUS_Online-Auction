@@ -3,7 +3,6 @@ import { db } from '../utils/db.js';
 export const ProductModel = {
     getAllProducts: async (queryParams) => {
         try {
-            console.log('getAllProducts model called');
             const { category_id, sort = 'newest', search } = queryParams || {};
 
             let query = db('products as p')
@@ -60,7 +59,6 @@ export const ProductModel = {
 
             query = query.limit(50).timeout(5000);
 
-            console.log('📝 Query:', query.toString());
             console.log('⏳ Executing query...');
             const result = await query;
             console.log('✓ Query result:', result.length, 'rows');

@@ -32,7 +32,7 @@ export default function LoginForm() {
                         {error}
                     </div>
                 )}
-                <button type="submit" className="btn btn-primary w-100"
+                <button type="submit" className="default-button w-100"
                     disabled={isLoading}
                     aria-busy={isLoading}>
                     {isLoading ? "Signing..." : "Sign in"}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginReq } from "../../services/authentication";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function useLogin() {
     const init = {
@@ -11,6 +11,7 @@ export default function useLogin() {
     const [formData, setFormData] = useState(init)
     const [error, setError] = useState("")
     const [isLoading, setLoading] = useState(false)
+    const { login } = useAuth()
     const navigate = useNavigate()
 
     const onChange = (e) => {
@@ -34,13 +35,13 @@ export default function useLogin() {
 
         setLoading(true);
         try {
-            const response = await loginReq(formData)
+            const response = await login(formData)
+            console.log(response)
 
             if (response.ok) {
-                setFormData(init)            
                 navigate('/')
             } else {
-                setError('Invalid username/email or password');
+                setError(response.message);
             }
         } catch (err) {
             console.error(err)

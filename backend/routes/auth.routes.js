@@ -13,17 +13,7 @@ router.post("/register", async (req, res) => {
         return res.status(400).json({ message: "Not enough information" });
     }
 
-    const errors = {}
-
-    const [check_captcha, check_username, check_email] = await Promise.all([
-        process.env.NODE_ENV === 'development' ? undefined : checkCaptcha(captcha_key),
-        userModel.existsByUsername(username),
-        userModel.existsByEmail(email),
-    ]);
-
-    if (check_captcha) errors.captcha = check_captcha;
-    if (check_username) errors.username = "User đã tồn tại";
-    if (check_email) errors.email = "Email đã tồn tại";
+    const errors = await AuthService.checkExisted(username, email, captcha_key)
 
     if (Object.keys(errors).length > 0) {
         return res.status(400).json(errors);
@@ -31,8 +21,8 @@ router.post("/register", async (req, res) => {
     console.log('Registering user:', { firstname, lastname, username, email });
 
     try {
-        const hashed_password = await hashPassword(password)
-        await AuthService.add2Pending(req.body, hashed_password)
+        
+        await AuthService.add2Pending({ firstname, lastname, username, email, password })
 
         return res.status(201).json({
             message: "Register successful",
@@ -66,13 +56,49 @@ router.post("/register/otp", async (req, res) => {
     }
 })
 
+router.post("/resend-otp", async (req, res) => {
+    const { email } = req.body
+    try {
+        const rs = await AuthService.resendOtp(email)
+        if (rs.ok) {
+            return res.status(201).json({
+                message: "Resend successful"
+            })
+        } else {
+            return res.status(401).json({
+                message: rs.reason
+            })
+        }
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            message: "Server error"
+        })
+    }
+})
+
 router.post("/login", async (req, res) => {
     const { identifier, password } = req.body
     try {
         const rs = await AuthService.signIn(identifier, password)
         if (rs.ok) {
-            return res.status(201).json({
-                message: "Sign in successful"
+            res.cookie("refreshToken", rs.refreshToken, {
+                httpOnly: true,
+                secure: false,
+                sameSite: "strict",
+                maxAge: 24 * 60 * 60 * 1000
+            })
+
+            res.status(201).json({
+                message: "Sign in successful",
+                user: {
+                    id: rs.user.id,
+                    username: rs.user.username,
+                    email: rs.user.email,
+                    role: rs.user.role
+                },
+                accessToken: rs.accessToken,
+                refreshToken: rs.refreshToken
             })
         } else {
             return res.status(401).json({
@@ -86,4 +112,72 @@ router.post("/login", async (req, res) => {
         })
     }
 })
+
+router.post("/refresh", async (req, res) => {
+    const refreshToken = req.cookies.refreshToken
+
+    if (!refreshToken) return res.status(401).json({
+        message: "Unauthorized"
+    })
+
+    try {
+        const rs = await AuthService.refreshToken(refreshToken)
+        if (rs.ok) {
+            res.cookie("refreshToken", rs.refreshToken, {
+                httpOnly: true,
+                secure: false,
+                sameSite: "strict",
+                maxAge: 24 * 60 * 60 * 1000
+            })
+
+            res.status(201).json({
+                message: "Refresh successful",
+                user: {
+                    id: rs.user.id,
+                    username: rs.user.username,
+                    email: rs.user.email,
+                    role: rs.user.role
+                },
+                accessToken: rs.accessToken,
+            })
+        } else {
+            return res.status(401).json({
+                message: "Invalid refresh token"
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: "Server error"
+        })
+    }
+})
+
+router.post("/logout", async (req, res) => {
+    const refreshToken = req.cookies.refreshToken
+
+    if (!refreshToken) return res.status(401).json({
+        message: "Unauthorized"
+    })
+
+    try {
+        const rs = await AuthService.removeToken(refreshToken)
+        if (rs.ok) {
+            res.clearCookie("refreshToken")
+            res.status(201).json({
+                message: "Logout successful"
+            })
+        } else {
+            return res.status(401).json({
+                message: "Invalid refresh token"
+            })
+        }
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: "Server error"
+        })
+    }
+})
+
 export default router;

@@ -6,7 +6,7 @@ const ProductsGrid = ({ title, icon, products, loading }) => {
   if (loading) {
     return (
       <section className="top-products-section">
-        <h2>{icon} {title}</h2>
+        {title && <h2>{icon} {title}</h2>}
         <div className="loading-spinner">Đang tải...</div>
       </section>
     );
@@ -15,7 +15,7 @@ const ProductsGrid = ({ title, icon, products, loading }) => {
   if (!products || products.length === 0) {
     return (
       <section className="top-products-section">
-        <h2>{icon} {title}</h2>
+        {title && <h2>{icon} {title}</h2>}
         <div className="no-products-message">Chưa có sản phẩm</div>
       </section>
     );
@@ -23,7 +23,7 @@ const ProductsGrid = ({ title, icon, products, loading }) => {
 
   return (
     <section className="top-products-section">
-      <h2>{icon} {title}</h2>
+      {title && <h2>{icon} {title}</h2>}
       <div className="top-products-grid">
         {products.map(product => (
           <ProductCard key={product.id} product={product} />

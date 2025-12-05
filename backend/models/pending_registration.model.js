@@ -1,7 +1,7 @@
 import { db } from "../utils/db.js";
 
 export const PendingRegistrationModel = {
-    insertOrUpdate: async(data) => {
+    insertOrUpdate: async (data) => {
         return await db("pending_registrations")
             .insert(data)
             .onConflict("email")
@@ -9,7 +9,7 @@ export const PendingRegistrationModel = {
     },
 
     findValid: async (email, otp) => {
-        return await db("pending_registrations")
+        return db("pending_registrations")
             .where({ email, otp })
             .andWhere("expires_at", ">", new Date())
             .first();
@@ -23,6 +23,12 @@ export const PendingRegistrationModel = {
 
     deleteByEmail: async (email, trx = db) => {
         return await trx("pending_registrations").where({ email }).del();
+    },
+
+    updateOtp: async (email, otp) => {
+        return await db("pending_registrations")
+            .where({ email })
+            .update({ otp });
     }
 };
 

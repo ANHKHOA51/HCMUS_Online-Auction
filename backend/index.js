@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
+import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.routes.js';
 import productRouter from './routes/product.route.js';
 import categoryRouter from './routes/category.route.js';
@@ -14,14 +15,15 @@ console.log('🚀 Starting server...');
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174'],
   credentials: true,
-  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.use(cookieParser());
 
 // Log all requests
 app.use((req, res, next) => {
-  console.log(`📨 ${req.method} ${req.path}`);
+  console.log(`📨 \x1b[32m${req.method} \x1b[36m${req.path}\x1b[0m`);
   next();
 });
 
@@ -51,4 +53,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`✓ Server is running on http://localhost:${PORT}`);
 });
 
-console.log('✓ Listening started');

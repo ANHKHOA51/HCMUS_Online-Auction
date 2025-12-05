@@ -38,7 +38,7 @@ export default function OtpInput() {
 
                 <div className="mt-3 d-flex justify-content-center gap-2">
                     <button
-                        className="btn btn-outline-secondary"
+                        className="default-outline-button"
                         onClick={handleResend}
                         disabled={isResending}
                     >

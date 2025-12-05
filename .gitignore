@@ -156,3 +156,4 @@ dist-ssr
 test.js
 
 .env
+api.test.http

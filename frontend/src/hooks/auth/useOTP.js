@@ -99,7 +99,6 @@ export default function useOTP() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, otp }),
-                credentials: "include",
             });
 
             const data = await res.json();
@@ -122,9 +121,11 @@ export default function useOTP() {
         setError(null);
 
         try {
-            const res = await fetch("/api/resend-otp", {
+            const email = sessionStorage.getItem('VerifyingEmail')
+            const res = await fetch("http://localhost:3000/auths/resend-otp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
                 credentials: "include",
             });
 
