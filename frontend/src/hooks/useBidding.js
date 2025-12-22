@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { formatPriceVN } from '../utils/formatCurrency';
 import { productService } from '../services/product';
+import { bidService } from '../services/bid';
 
 export const useBidding = (product) => {
   const [bidAmount, setBidAmount] = useState('');
@@ -30,8 +31,7 @@ export const useBidding = (product) => {
 
     try {
       setIsPlacingBid(true);
-      // TODO: Replace with actual API call
-      // const result = await productService.placeBid(product.id, bidAmount, token);
+      const result = await bidService.placeBid(product.id, bidAmount, token);
       console.log('Placing bid:', bidAmount);
       
       setBidSuccess(true);
@@ -49,8 +49,7 @@ export const useBidding = (product) => {
   const handleBuyNow = async () => {
     try {
       setIsPlacingBid(true);
-      // TODO: Replace with actual API call
-      // const result = await productService.buyNow(product.id, token);
+      const result = await bidService.buyNow(product.id, token);
       console.log('Buying now product:', product.id);
       
       setBidSuccess(true);

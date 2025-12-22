@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { productService } from '../services/product';
 
+
+const getToken = () => {
+  return sessionStorage.getItem('accessToken'); // Hoặc tên key bạn đã lưu lúc login
+};
+
 export const useProducts = (queryParams = {}) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -13,6 +18,8 @@ export const useProducts = (queryParams = {}) => {
         setLoading(true);
         setError(null);
 
+        const token = getToken();
+
         // Fetch categories always
         const categoriesRes = await productService.getCategories();
         if (categoriesRes.success) {
@@ -20,7 +27,7 @@ export const useProducts = (queryParams = {}) => {
         }
 
         // Fetch products with query params (search, category, sort)
-        const productsRes = await productService.getProducts(queryParams);
+        const productsRes = await productService.getProducts(queryParams, token);
         if (productsRes.success) {
           setProducts(productsRes.data);
         }
@@ -71,7 +78,10 @@ export const useProductDetail = (productId) => {
         setLoading(true);
         setError(null);
 
-        const result = await productService.getProductDetail(productId);
+        const token = getToken();
+        // Fetch product details
+
+        const result = await productService.getProductDetail(productId, token);
         if (!result.success) {
           throw new Error(result.error || 'Lỗi không xác định');
         }

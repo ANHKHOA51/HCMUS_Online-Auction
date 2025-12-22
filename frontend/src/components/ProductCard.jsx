@@ -38,7 +38,7 @@ const ProductCard = ({ product }) => {
             </span>
             {/* Heart Button */}
             <div className="heart-button-container" onClick={(e) => e.stopPropagation()}>
-              <HeartButton productId={product.id} initialState={product.isWatched || false} />
+              <HeartButton productId={product.id} initialState={product.is_favorite || false} />
             </div>
         </div>
       </div>

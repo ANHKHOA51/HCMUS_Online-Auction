@@ -1,8 +1,8 @@
 
 import express from 'express';
-import watchListModel from '../models/watchlist.model';
+import watchListModel from '../models/watchlist.model.js';
 const router = express.Router();
-const authMiddleware = require('../middlewares/auth.middleware.js');
+import authMiddleware from '../middlewares/auth.middleware.js';
 
 
 router.post('/:id', authMiddleware, async (req, res) => {
@@ -16,11 +16,11 @@ router.post('/:id', authMiddleware, async (req, res) => {
       if (existing) {
         // 2a. Có rồi -> Xóa (Unlike)
         await watchListModel.remove(userId, productId);
-        return res.json({ message: 'Đã xóa khỏi yêu thích', isWatched: false });
+        return res.json({ message: 'Đã xóa khỏi yêu thích'});
       } else {
         // 2b. Chưa có -> Thêm (Like)
         await watchListModel.add(userId, productId);
-        return res.json({ message: 'Đã thêm vào yêu thích', isWatched: true });
+        return res.json({ message: 'Đã thêm vào yêu thích'});
       }
 
     } catch (err) {
@@ -29,13 +29,6 @@ router.post('/:id', authMiddleware, async (req, res) => {
     }
   });
 
-router.get('/', async (req, res) => {
-    try {
-      const ids = await watchlistModel.getIdsByUser(req.user.id);
-      res.json(ids); // Trả về: [1, 5, 12]
-    } catch (err) {
-      res.status(500).json({ error: 'Lỗi lấy watchlist' });
-    }
-});
 
-module.exports = router;
+
+export default router;

@@ -21,12 +21,6 @@ const WatchlistModel = {
       .del();
   },
 
-  // Lấy danh sách ID sản phẩm mà user này thích (Để tô màu trái tim khi load trang)
-  getListProductIds: async (userId) => {
-    const list = await db('watch_lists').where('user_id', userId).select('product_id');
-    return list.map(item => item.product_id); // Trả về mảng [1, 5, 9]
-  },
-
   // Lấy danh sách ID sản phẩm trong watchlist của user
   getIdsByUser: async (userId) => {
     const list = await db('watch_lists')

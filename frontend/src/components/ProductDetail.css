@@ -96,6 +96,27 @@
   border: 2px solid var(--pg-headline);
 }
 
+/* Container chứa Tên và Tim */
+.header-top-row {
+  display: flex;
+  justify-content: space-between; /* Đẩy tên sang trái, tim sang phải */
+  align-items: flex-start; /* Căn thẳng hàng theo mép trên */
+  gap: 20px; /* Khoảng cách an toàn để chữ không dính vào tim */
+  margin-bottom: 10px;
+}
+
+.product-title {
+  margin: 0;
+  flex: 1;
+
+}
+
+/* Đảm bảo nút tim không bị bóp méo khi tên quá dài */
+.header-action {
+  flex-shrink: 0; 
+  margin-top: 5px;
+}
+
 /* --- TIME INFO --- */
 .time-info {
   background: #d8eefe; /* Light Blue BG */

@@ -15,7 +15,7 @@ function HeartButton({ productId, initialState = false }) {
     // Ngăn sự kiện click lan ra ngoài (để không bị chuyển trang khi bấm tim)
     e.stopPropagation(); 
 
-    const token = localStorage.getItem('accessToken');
+    const token = sessionStorage.getItem('accessToken');
     
     if (!token) {
       // Gợi ý: Thay alert bằng Toast message/Modal sẽ đẹp hơn
@@ -27,15 +27,11 @@ function HeartButton({ productId, initialState = false }) {
 
     try {
       setLoading(true);
-      // Optimistic update (Cập nhật giao diện ngay lập tức cho mượt)
-      setIsWatched(!isWatched);
       
       const result = await toggleWatch(productId);
-      
       // Nếu API trả về kết quả thực tế (trong trường hợp lỗi hoặc logic khác)
-      if (result !== null && result !== undefined) {
-        setIsWatched(result);
-      }
+      setIsWatched(!isWatched);
+
     } catch (err) {
       console.error('Lỗi toggle watchlist:', err);
       // Revert lại nếu lỗi

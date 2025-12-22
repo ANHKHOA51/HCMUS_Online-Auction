@@ -9,6 +9,7 @@ import { formatPriceVN } from '../utils/formatCurrency';
 import { useProductDetail } from '../hooks/useProduct';
 import { useBidding } from '../hooks/useBidding';
 import ProductsGrid from './ProductsGrid';
+import HeartButton from './HeartButton';
 
 const ProductDetail = () => {
   const navigate = useNavigate();
@@ -52,7 +53,15 @@ const ProductDetail = () => {
                 {/* 1. Basic Info */}
             <div className="card-box">
                 <div className="product-header">
+    {/* Tạo một hàng ngang chứa Tên và Nút Tim */}
+                    <div className="header-top-row">
                     <h2 className="product-title">{product.name}</h2>
+                    
+                    {/* Nút tim nằm ở đây */}
+                    <div className="header-action">
+                        <HeartButton productId={product.id} initialState={product.is_favorite || false} />
+                    </div>
+                </div>
                     <span className="product-category">{product.category_name}</span>
             </div>
 

@@ -3,25 +3,29 @@ import { useSearchParams } from 'react-router-dom';
 import ProductsGrid from './ProductsGrid';
 import { useProducts } from '../hooks/useProduct';
 import { useSearchResults } from '../hooks/useSearchResults';
+import useWatchlist from '../hooks/useWatchlist';
 import './SearchResults.css';
 
 const SearchResultsPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-  // Get URL params
-  const searchQuery = searchParams.get('q') || '';
-  const selectedCategory = searchParams.get('category') || '';
-  const sortBy = searchParams.get('sort') || 'newest';
 
-  // Build query params for API
-  const queryParams = {
-    ...(searchQuery && { search: searchQuery }),
-    ...(selectedCategory && { category_id: selectedCategory }),
-    ...(sortBy && { sort: sortBy }),
-  };
+    // Get URL params
+    const searchQuery = searchParams.get('q') || '';
+    const selectedCategory = searchParams.get('category') || '';
+    const sortBy = searchParams.get('sort') || 'newest';
 
-  // Fetch products with filters from API
-  const { products: allProducts, loading, error } = useProducts(queryParams);
+    // Build query params for API
+    const queryParams = {
+        ...(searchQuery && { search: searchQuery }),
+        ...(selectedCategory && { category_id: selectedCategory }),
+        ...(sortBy && { sort: sortBy }),
+    };
+
+    // Fetch products with filters from API
+    const { products: allProducts, loading, error } = useProducts(queryParams);
+
+  // Handle pagination      
 
   const {
     currentPage,
