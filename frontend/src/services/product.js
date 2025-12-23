@@ -1,20 +1,4 @@
-// ============================================================================
-// Frontend API Service - Centralized API calls
-// ============================================================================
-
-const API_BASE_URL = 'http://localhost:3000';
-
-// Helper: Tự động tạo Header có Token nếu cần
-// Giúp code gọn hơn, không phải lặp lại logic "Bearer ..."
-const createHeaders = (token) => {
-    const headers = {
-        'Content-Type': 'application/json',
-    };
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-    return headers;
-};
+import axiosInstance from './axiosInstance';
 
 export const productService = {
     // 1. Lấy danh sách sản phẩm (Có nhận token để check watchlist)
@@ -26,90 +10,57 @@ export const productService = {
             ...(params.category && { category_id: params.category }),
             ...(params.sort && { sort: params.sort }),
         };
-        const queryString = new URLSearchParams(apiParams).toString();
         
-        // Thêm tham số headers vào fetch
-        const response = await fetch(`${API_BASE_URL}/products?${queryString}`, {
-            method: 'GET',
-            headers: createHeaders(token) 
-        });
-
-        if (!response.ok) throw new Error('Lỗi khi lấy danh sách sản phẩm');
-        return response.json();
+        const response = await axiosInstance.get('/products', { params: apiParams });
+        return response.data;
     },
 
     // 2. Lấy chi tiết sản phẩm
     getProductDetail: async (productId, token = null) => {
-        const response = await fetch(`${API_BASE_URL}/products/${productId}`, {
-            method: 'GET',
-            headers: createHeaders(token)
-        });
-
-        if (!response.ok) throw new Error('Lỗi khi lấy chi tiết sản phẩm');
-        return response.json();
+        const response = await axiosInstance.get(`/products/${productId}`);
+        return response.data;
     },
 
     // 3. Các hàm Top (Cũng cần token để hiện tim đỏ nếu user đã thích)
     async getTopClosing(token = null) {
-        const response = await fetch(`${API_BASE_URL}/products/top/closing`, {
-            headers: createHeaders(token)
-        });
-        if (!response.ok) throw new Error('Lỗi khi lấy danh sách sắp kết thúc');
-        return response.json();
+        const response = await axiosInstance.get('/products/top/closing');
+        return response.data;
     },
 
     async getTopBidding(token = null) {
-        const response = await fetch(`${API_BASE_URL}/products/top/bidding`, {
-            headers: createHeaders(token)
-        });
-        if (!response.ok) throw new Error('Lỗi khi lấy danh sách hot bid');
-        return response.json();
+        const response = await axiosInstance.get('/products/top/bidding');
+        return response.data;
     },
 
     async getTopPricing(token = null) {
-        const response = await fetch(`${API_BASE_URL}/products/top/pricing`, {
-            headers: createHeaders(token)
-        });
-        if (!response.ok) throw new Error('Lỗi khi lấy danh sách giá cao');
-        return response.json();
+        const response = await axiosInstance.get('/products/top/pricing');
+        return response.data;
     },
 
     // 4. Các hàm cần Auth bắt buộc (POST)
     async placeBid(productId, bidAmount, token) {
-        // Token ở đây là BẮT BUỘC
         if (!token) throw new Error('Bạn cần đăng nhập để đấu giá');
-
-        const response = await fetch(`${API_BASE_URL}/products/${productId}/bid`, {
-            method: 'POST',
-            headers: createHeaders(token),
-            body: JSON.stringify({ bidAmount })
+        const response = await axiosInstance.post(`/bids/${productId}/bid`, {
+            price: bidAmount
         });
-        if (!response.ok) throw new Error('Lỗi khi đặt giá');
-        return response.json();
+        return response.data;
     },
 
     async buyNow(productId, token) {
         if (!token) throw new Error('Bạn cần đăng nhập để mua ngay');
-
-        const response = await fetch(`${API_BASE_URL}/products/${productId}/buy-now`, {
-            method: 'POST',
-            headers: createHeaders(token)
-        });
-        if (!response.ok) throw new Error('Lỗi khi mua ngay');
-        return response.json();
+        const response = await axiosInstance.post(`/bids/${productId}/buy-now`);
+        return response.data;
     },
 
-    // Các hàm phụ trợ khác giữ nguyên
+    // Các hàm phụ trợ khác
     async getCategories() {
-        const response = await fetch(`${API_BASE_URL}/categories/all`);
-        if (!response.ok) throw new Error('Lỗi khi lấy danh sách category');
-        return response.json();
+        const response = await axiosInstance.get('/categories/all');
+        return response.data;
     },
 
     async getProductBids(productId) {
-        const response = await fetch(`${API_BASE_URL}/products/${productId}/bids`);
-        if (!response.ok) throw new Error('Lỗi khi lấy lịch sử bid');
-        return response.json();
+        const response = await axiosInstance.get(`/bids/${productId}/history`);
+        return response.data;
     }
 };
 

@@ -170,6 +170,18 @@ export const ProductModel = {
         return createBaseQuery(userId)
             .orderBy('p.current_price', 'desc')
             .limit(5);
+    },
+
+    findByIdLock: (id, trx) => {
+        return trx('products').where('id', id).forUpdate().first();
+    },
+
+    findById: (id) => {
+        return db('products').where('id', id).first();
+    },
+
+    updatePrice: (id, newPrice, trx) => {
+        return trx('products').where('id', id).update({ current_price: newPrice });
     }
 };
 

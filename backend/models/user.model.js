@@ -30,6 +30,31 @@ export const UserModel = {
 
     existsByUsername: async (username) => {
         return db("users").where({ username }).first();
+    },
+
+    getRatingStats: async (userId) => {
+        try {
+            const rows = await db('ratings')
+                .where({ to_user_id: userId })
+                .select(
+                    db.raw('COUNT(*) AS totalRatings'),
+                    db.raw('AVG(score) AS averageRating')
+                )
+                .first();
+
+            return {
+                totalRatings: parseInt(rows?.totalRatings, 10) || 0,
+                averageRating: parseFloat(rows?.averageRating) || 0,
+                score: 0.8  // Default score
+            };
+        } catch (error) {
+            console.warn(' getRatingStats error:', error.message);
+            return {
+                totalRatings: 0,
+                averageRating: 0,
+                score: 0.8  // Default score (allow bid)
+            };
+        }
     }
 };
 

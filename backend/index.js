@@ -7,6 +7,7 @@ import productRouter from './routes/product.route.js';
 import categoryRouter from './routes/category.route.js';
 //import bidRouter from './routes/bid.route.js';
 import watchlistRouter from './routes/watchlist.route.js';
+import bidRouter from './routes/bid.routes.js';
 
 const app = express();
 const PORT = 3000;
@@ -43,6 +44,8 @@ app.use('/products', productRouter);
 app.use('/categories', categoryRouter);
 //app.use('/bids', bidRouter);
 app.use('/watchlists', watchlistRouter);
+app.use('/bids', bidRouter);
+
 
 
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './ProductTab.css';
 import QAHistory from './QAHistory';
+import BidHistory from './BidHistory';
 
 const ProductTabs = ({ product, faqs }) => {
   const [activeTab, setActiveTab] = useState('description');
@@ -19,13 +20,13 @@ const ProductTabs = ({ product, faqs }) => {
           className={`tab-btn ${activeTab === 'qa' ? 'active' : ''}`}
           onClick={() => setActiveTab('qa')}
         >
-          Hỏi đáp & Lịch sử ({faqs ? faqs.length : 0})
+          Hỏi đáp ({faqs ? faqs.length : 0})
         </button>
          <button 
-          className={`tab-btn ${activeTab === 'shipping' ? 'active' : ''}`}
-          onClick={() => setActiveTab('shipping')}
+          className={`tab-btn ${activeTab === 'his' ? 'active' : ''}`}
+          onClick={() => setActiveTab('his')}
         >
-          Chính sách vận chuyển
+          Lịch sự đặt giá
         </button>
       </div>
 
@@ -44,11 +45,9 @@ const ProductTabs = ({ product, faqs }) => {
           </div>
         )}
 
-        {activeTab === 'shipping' && (
-          <div className="shipping-content">
-            <h4 className="section-title">Thông tin vận chuyển</h4>
-            <p>Sản phẩm được đóng gói kỹ lưỡng. Phí vận chuyển sẽ được tính toán dựa trên địa chỉ của người nhận.</p>
-            {/* Bạn có thể thêm logic hiển thị phí ship thật ở đây */}
+        {activeTab === 'his' && (
+          <div className="his-content">
+            <BidHistory productId={product.id} />
           </div>
         )}
       </div>

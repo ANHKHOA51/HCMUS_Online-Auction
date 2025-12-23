@@ -31,6 +31,8 @@ export const useBidding = (product) => {
 
     try {
       setIsPlacingBid(true);
+      // Lấy token NGAY LÚC GỌI (không phải khi mount)
+      const token = sessionStorage.getItem('accessToken');
       const result = await bidService.placeBid(product.id, bidAmount, token);
       console.log('Placing bid:', bidAmount);
       
@@ -61,6 +63,7 @@ export const useBidding = (product) => {
       setIsPlacingBid(false);
     }
   };
+
 
   // Clear messages
   const clearMessages = () => {

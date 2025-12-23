@@ -209,6 +209,7 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--pg-headline);
+  background: var(--pg-bg);
   margin-bottom: 15px;
   transition: all 0.2s;
 }

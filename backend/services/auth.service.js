@@ -178,6 +178,7 @@ export const AuthService = {
             if (!token) return { ok: false }
 
             const decoded = verifyRefreshToken(refreshToken)
+            const user = await UserModel.findById(decoded.id)
             const newAccessToken = generateAccessToken({
                 id: decoded.id,
                 role: decoded.role
@@ -190,7 +191,8 @@ export const AuthService = {
             return {
                 ok: true,
                 accessToken: newAccessToken,
-                refreshToken: newRefreshToken
+                refreshToken: newRefreshToken,
+                user: user
             }
         } catch (error) {
             console.error('refreshToken error:', error);

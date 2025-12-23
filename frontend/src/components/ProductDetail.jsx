@@ -14,7 +14,15 @@ import HeartButton from './HeartButton';
 const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { product, seller, highestBidder, faqs, relatedProducts, loading, error } = useProductDetail(id);
+  const { 
+    product, 
+    seller, 
+    highestBidder, 
+    faqs, 
+    relatedProducts, 
+    loading, 
+    error 
+} = useProductDetail(id);
 
   const {
     bidAmount,
@@ -108,8 +116,8 @@ const ProductDetail = () => {
 
             {!isEnded && (
               <div className="bidding-area" style={{marginTop: '20px'}}>
-                {bidError && <div className="bid-error">⚠️ {bidError}</div>}
-                {bidSuccess && <div className="bid-success">🎉 Đặt giá thành công!</div>}
+                {bidError && <div className="bid-error"> {bidError}</div>}
+                {bidSuccess && <div className="bid-success"> Đặt giá thành công!</div>}
 
                 <div className="bid-input-group">
                   <input

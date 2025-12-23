@@ -1,35 +1,25 @@
-
-
-
-const API_BASE_URL = 'http://localhost:3000';
+import axiosInstance from './axiosInstance';
 
 export const bidService = {
     // Đặt giá mới
     async placeBid(productId, bidAmount, token) {
-        const response = await fetch(`${API_BASE_URL}/bids/${productId}/bid`, {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ price: bidAmount })
+        const response = await axiosInstance.post(`/bids/${productId}/bid`, {
+            price: bidAmount
         });
-        if (!response.ok) throw new Error('Lỗi khi đặt giá');
-        return response.json();
+        return response.data;
     },
 
     // Mua ngay
     async buyNow(productId, token) {
-        const response = await fetch(`${API_BASE_URL}/bids/${productId}/buy-now`, {
-            method: 'POST',
-            headers: {
-            'Authorization': `Bearer ${token}`
-            }
-        });
-        if (!response.ok) throw new Error('Lỗi khi mua ngay');
-        return response.json();
-    }
+        const response = await axiosInstance.post(`/bids/${productId}/buy-now`);
+        return response.data;
+    },
 
+    // Lấy lịch sử đấu giá của sản phẩm
+    async getBidHistory(productId) {
+        const response = await axiosInstance.get(`/bids/${productId}/history`);
+        return response.data;
+    }
 }
 
 export default bidService;
