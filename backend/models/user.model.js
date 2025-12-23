@@ -1,6 +1,11 @@
 import { db } from "../utils/db.js";
 
 export const UserModel = {
+
+    findById: (id) => {
+        return db("users").where({ id }).first();
+    },
+    
     checkExistedUserEmail: async (username, email) => {
         const rows = await db('users')
             .where(function () { this.where('username', username).orWhere('email', email); })

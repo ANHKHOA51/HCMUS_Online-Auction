@@ -8,12 +8,15 @@ import { getRelativeTime, shouldShowRelativeTime, formatDate } from '../utils/ti
 import { formatPriceVN } from '../utils/formatCurrency';
 import { useProductDetail } from '../hooks/useProduct';
 import { useBidding } from '../hooks/useBidding';
+import useQuestions from '../hooks/useQuestions';
+import { useAuth } from '../contexts/AuthContext';
 import ProductsGrid from './ProductsGrid';
 import HeartButton from './HeartButton';
 
 const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { cur_user } = useAuth();
   const { 
     product, 
     seller, 
@@ -34,6 +37,16 @@ const ProductDetail = () => {
     handleBuyNow,
   } = useBidding(product);
 
+  // Use Q&A hook
+  const {
+    questions,
+    isLoading: qaLoading,
+    error: qaError,
+    isAnswering,
+    askQuestion,
+    answerQuestion,
+  } = useQuestions(id);
+
   if (loading) return <div className="loading">Đang tải...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!product) return <div className="error">Sản phẩm không tồn tại</div>;
@@ -51,7 +64,17 @@ const ProductDetail = () => {
           <ProductGallery images={product.images} />
 
           {/* 2. Tabs: Mô tả, Hỏi đáp, Vận chuyển */}
-          <ProductTabs product={product} faqs={faqs} />
+          <ProductTabs 
+            product={product} 
+            faqs={faqs}
+            questions={questions}
+            isAnswering={isAnswering}
+            onAnswer={answerQuestion}
+            onAskQuestion={askQuestion}
+            isAskingQuestion={qaLoading}
+            currentUserId={cur_user?.id}
+            sellerId={product.seller_id}
+          />
 
         </div>
 

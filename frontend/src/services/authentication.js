@@ -1,6 +1,8 @@
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 export async function registerReq(formData) {
     try {
-        const response = await fetch("http://localhost:3000/auths/register", {
+        const response = await fetch(`${API_URL}/auths/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -20,7 +22,7 @@ export async function registerReq(formData) {
 
 export async function loginReq(formData) {
     try {
-        const response = await fetch("http://localhost:3000/auths/login", {
+        const response = await fetch(`${API_URL}/auths/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -48,7 +50,7 @@ export async function loginReq(formData) {
 
 export async function refreshReq() {
     try {
-        const response = await fetch("http://localhost:3000/auths/refresh", {
+        const response = await fetch(`${API_URL}/auths/refresh`, {
             method: "POST",
             credentials: "include"
         });
@@ -71,7 +73,7 @@ export async function refreshReq() {
 
 export async function logoutReq() {
     try {
-        const response = await fetch("http://localhost:3000/auths/logout", {
+        const response = await fetch(`${API_URL}/auths/logout`, {
             method: "POST",
             credentials: "include"
         });

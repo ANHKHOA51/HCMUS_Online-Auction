@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
 import './ProductTab.css';
 import QAHistory from './QAHistory';
+import QuestionForm from './QuestionForm';
 import BidHistory from './BidHistory';
 
-const ProductTabs = ({ product, faqs }) => {
+const ProductTabs = ({ 
+  product, 
+  faqs, 
+  questions = [],
+  isAnswering = false,
+  onAnswer = () => {},
+  onAskQuestion = () => {},
+  isAskingQuestion = false,
+  currentUserId = null,
+  sellerId = null
+}) => {
   const [activeTab, setActiveTab] = useState('description');
 
   return (
@@ -20,7 +31,7 @@ const ProductTabs = ({ product, faqs }) => {
           className={`tab-btn ${activeTab === 'qa' ? 'active' : ''}`}
           onClick={() => setActiveTab('qa')}
         >
-          Hỏi đáp ({faqs ? faqs.length : 0})
+          Hỏi đáp ({questions.length})
         </button>
          <button 
           className={`tab-btn ${activeTab === 'his' ? 'active' : ''}`}
@@ -41,7 +52,19 @@ const ProductTabs = ({ product, faqs }) => {
 
         {activeTab === 'qa' && (
           <div className="qa-content">
-             <QAHistory faqs={faqs} />
+             <QuestionForm 
+               productId={product.id}
+               onQuestionAdded={onAskQuestion}
+               isLoading={isAskingQuestion}
+               sellerId={sellerId}
+             />
+             <QAHistory 
+               questions={questions}
+               onAnswer={onAnswer}
+               isAnswering={isAnswering}
+               currentUserId={currentUserId}
+               sellerId={sellerId}
+             />
           </div>
         )}
 

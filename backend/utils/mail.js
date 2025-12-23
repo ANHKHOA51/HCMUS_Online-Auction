@@ -32,4 +32,46 @@ export async function sendOtpMail(toEmail, otp) {
     }
 }
 
+export async function sendQuestionMail(sellerEmail, sellerName, productName, askerName, questionContent, productId) {
+    try {
+        console.log('📧 Sending question notification to seller:', sellerEmail);
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const productLink = `${frontendUrl}/product/${productId}`;
+        
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: sellerEmail,
+            subject: `❓ Có câu hỏi mới về sản phẩm "${productName}"`,
+            html: `
+                <p>Xin chào ${sellerName},</p>
+                <p>Bạn có một câu hỏi mới về sản phẩm của mình:</p>
+                
+                <div style="background: #f5f5f5; padding: 15px; border-left: 4px solid #0d6efd; margin: 20px 0;">
+                    <p><strong>Sản phẩm:</strong> ${productName}</p>
+                    <p><strong>Hỏi bởi:</strong> ${askerName}</p>
+                    <p><strong>Câu hỏi:</strong></p>
+                    <p style="margin: 10px 0; font-style: italic;">"${questionContent}"</p>
+                </div>
+                
+                <p>
+                    <a href="${productLink}" style="display: inline-block; background: #0d6efd; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                        Xem sản phẩm & Trả lời
+                    </a>
+                </p>
+                
+                <p style="margin-top: 30px; color: #666; font-size: 12px;">
+                    Trân trọng,<br/>
+                    Đội ngũ Online Auction
+                </p>
+            `
+        });
+        console.log('Question notification email sent:', result.response);
+        return true;
+    } catch (error) {
+        console.error('Question email send error:', error.message);
+        // Don't throw - email failure shouldn't block question creation
+        return false;
+    }
+}
+
 export default transporter;
