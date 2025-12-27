@@ -1,17 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { Link, Form, useActionData } from 'react-router';
+import { Link, Form } from 'react-router';
 import { ArrowLeft, Save, X } from 'lucide-react';
 
 export default function AddCategory() {
-
-  const formRef = useRef(null);
-  const actionData = useActionData();
-
-  useEffect(function () {
-    if (actionData && formRef.current) {
-      formRef.current.reset();
-    }
-  }, [actionData]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center py-12">
@@ -31,13 +21,7 @@ export default function AddCategory() {
 
       {/* Form Container */}
       <div className="w-full max-w-4xl bg-white border border-[#E2E8F0] shadow-lg">
-        {actionData && actionData.error && (
-          <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 border-l-4 border-red-500" role="alert">
-            {actionData.error}
-          </div>
-        )}
-
-        <Form className="p-8" method='post' ref={formRef}>
+        <Form className="p-8" method='post'>
           {/* Form Field */}
           <div className="mb-8">
             <label

@@ -8,11 +8,13 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import OtpPage from "../pages/OtpPage";
 import AddProductPage from "../pages/AddProductPage";
-// import AdminLayout from "../components/AdminLayout";
+import AdminLayout from "../layouts/AdminLayout";
 import Page404 from "../pages/404";
-// import ListProduct from "../components/ListProduct";
-// import ListCategory from "../components/ListCategory";
-// import ListUser from "../components/ListUser";
+import ListProduct from "../components/ListProduct";
+import ListCategory from "../components/ListCategory";
+import AddCategory from "../components/AddCategory";
+import EditCategory from "../components/EditCategory";
+import ListUser from "../components/ListUser";
 
 const router = createBrowserRouter([
     {
@@ -40,16 +42,28 @@ const router = createBrowserRouter([
         ]
     },
 
-    // {
-    //     path: "/admin",
-    //     Component: AdminLayout,
-    //     children: [
-    //         { index: true, Component: HomePage },
-    //         { path: "product", Component: ListProduct },
-    //         { path: "category", Component: ListCategory },
-    //         { path: "user", Component: ListUser }
-    //     ]
-    // },
+    {
+        path: "/admin",
+        Component: AdminLayout,
+        children: [
+            { path: "products", Component: ListProduct },
+            {
+                path: "categories",
+                children: [
+                    {
+                        index: true,
+                        Component: ListCategory,
+                    },
+                    { path: "add", Component: AddCategory },
+                    {
+                        path: "edit/:catid",
+                        Component: EditCategory,
+                    }
+                ]
+            },
+            { path: "users", Component: ListUser }
+        ]
+    },
 
     {
         path: "*",

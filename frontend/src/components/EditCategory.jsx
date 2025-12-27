@@ -1,8 +1,9 @@
-import { Link, Form, useLoaderData } from 'react-router';
+import { Link, Form } from 'react-router';
 import { ArrowLeft, Save, X } from 'lucide-react';
 
 export default function EditCategory() {
-  const { record } = useLoaderData();
+  // Logic removed as requested
+  const category = { catid: '', catname: '' };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center py-12">
@@ -35,7 +36,7 @@ export default function EditCategory() {
               type="text"
               name="catid"
               id="catid"
-              value={record?.category.catid || ''}
+              value={category.catid}
               className="w-full px-4 py-3 border border-[#E2E8F0] bg-[#F1F5F9] text-[#64748B] cursor-not-allowed"
               placeholder="Category ID"
               readOnly
@@ -54,7 +55,7 @@ export default function EditCategory() {
               type="text"
               name="catname"
               id="catname"
-              defaultValue={record?.category.catname || ''}
+              defaultValue={category.catname}
               className="w-full px-4 py-3 border border-[#E2E8F0] bg-white text-[#1E293B] focus:outline-none focus:border-[#3B82F6] transition-colors duration-200"
               placeholder="Enter category name"
               required
