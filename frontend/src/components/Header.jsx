@@ -1,5 +1,5 @@
 import './Header.css'
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import useClickOutside from '../hooks/useClickOutside';
 import { useProducts, useFilters } from '../hooks/useProduct';
@@ -79,9 +79,9 @@ export default function Header() {
 		<header className="header">
 			<div className="header-container">
 				{/* Logo */}
-				<a className="header-logo" href="/">
+				<NavLink className="header-logo" to="/">
 					<span className="logo-text">Đấu Giá Online</span>
-				</a>
+				</NavLink>
 
 				{/* Search Bar */}
 				<form className="search-form" onSubmit={handleSearchSubmit}>
@@ -210,9 +210,9 @@ export default function Header() {
 						</Container>
 					</Navbar>
 				) : (
-					<a href="/login" className="header-login">
+					<NavLink to="/login" className="header-login">
 						🔐 Đăng nhập
-					</a>
+					</NavLink>
 				)}
 			</div>
 		</header>

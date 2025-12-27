@@ -24,12 +24,11 @@ export default function useAddProduct() {
         buy_now_price: '',
     })
 
-    const [photos, setPhotos] = useState([]);
+    const photosRef = useRef([]);
     const [uppy] = useState(() =>
         new Uppy({
             restrictions: {
                 allowedFileTypes: ['image/*'],
-                maxNumberOfFiles: 10,
             }
         })
             .use(XHRUpload, {
@@ -41,12 +40,10 @@ export default function useAddProduct() {
                 fieldName: 'photos'
             })
             .on('upload-success', (file, response) => {
-                console.log(response)
                 const photo = response.body.files[0];
                 if (photo) {
-                    setPhotos(prev => [...prev, photo.filename]);
+                    photosRef.current.push(photo.filename);
                 }
-                console.log(photos)
             })
     );
 
@@ -54,7 +51,6 @@ export default function useAddProduct() {
     const navigate = useNavigate()
 
     const validateForm = () => {
-        console.log(photos.length)
         const newErrors = {};
 
         if (!formData.name || formData.name.trim() === '') {
@@ -136,7 +132,7 @@ export default function useAddProduct() {
         const data = {
             ...formData,
             ...price,
-            images: photos,
+            images: photosRef.current,
             description: description,
         }
         console.log(data);

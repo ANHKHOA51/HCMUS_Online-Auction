@@ -8,6 +8,11 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import OtpPage from "../pages/OtpPage";
 import AddProductPage from "../pages/AddProductPage";
+import AdminLayout from "../components/AdminLayout";
+import Page404 from "../pages/404";
+import ListProduct from "../components/ListProduct";
+import ListCategory from "../components/ListCategory";
+import ListUser from "../components/ListUser";
 
 const router = createBrowserRouter([
     {
@@ -33,7 +38,24 @@ const router = createBrowserRouter([
                 ]
             }
         ]
-    }
+    },
+
+    {
+        path: "/admin",
+        Component: AdminLayout,
+        children: [
+            { index: true, Component: HomePage },
+            { path: "product", Component: ListProduct },
+            { path: "category", Component: ListCategory },
+            { path: "user", Component: ListUser }
+        ]
+    },
+
+    {
+        path: "*",
+        Component: Page404
+    },
+
 ]);
 
 export default router;

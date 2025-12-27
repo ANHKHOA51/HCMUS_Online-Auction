@@ -1,6 +1,7 @@
 import ReCAPTCHA from "react-google-recaptcha"
 import "./style.css"
 import useRegister from "../hooks/auth/useRegister.js"
+import { NavLink } from "react-router-dom"
 
 
 export default function RegisterForm() {
@@ -103,7 +104,7 @@ export default function RegisterForm() {
                     {isLoading ? "Registering..." : "Register"}
                 </button>
 
-                <a href="/login" className="d-block mt-2 text-center">Already have an account?</a>
+                <NavLink to="/login" className="d-block mt-2 text-center">Already have an account?</NavLink>
             </form>
         </div>
     )
