@@ -1,7 +1,9 @@
 import { Link, Form } from 'react-router';
 import { ArrowLeft, Save, X } from 'lucide-react';
+import useCategory from '../hooks/useCategory.jsx';
 
 export default function AddCategory() {
+  const { categories, handleSubmit, error } = useCategory();
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center py-12">
@@ -21,7 +23,7 @@ export default function AddCategory() {
 
       {/* Form Container */}
       <div className="w-full max-w-4xl bg-white border border-[#E2E8F0] shadow-lg">
-        <Form className="p-8" method='post'>
+        <Form className="p-8" method='post' onSubmit={handleSubmit}>
           {/* Form Field */}
           <div className="mb-8">
             <label
@@ -32,11 +34,50 @@ export default function AddCategory() {
             </label>
             <input
               type="text"
-              name="catname"
+              name="name"
               className="w-full px-4 py-3 border border-[#E2E8F0] bg-white text-[#1E293B] focus:outline-none focus:border-[#3B82F6] transition-colors duration-200"
               placeholder="Enter category name"
             />
           </div>
+          <div className="mb-8">
+            <label
+              htmlFor="parentCategory"
+              className="block text-sm font-bold text-[#64748B] uppercase tracking-wider mb-4"
+            >
+              Parent category
+            </label>
+            <select
+              name="parent_category_id"
+              className="w-full px-4 py-3 border border-[#E2E8F0] bg-white text-[#1E293B] focus:outline-none focus:border-[#3B82F6] transition-colors duration-200"
+              placeholder="Enter parent id"
+            >
+              <option value="">-- No parent --</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+
+          </div>
+          <div className="mb-8">
+            <label
+              htmlFor="categoryName"
+              className="block text-sm font-bold text-[#64748B] uppercase tracking-wider mb-4"
+            >
+              Description
+            </label>
+            <input
+              type="text"
+              name="description"
+              className="w-full px-4 py-3 border border-[#E2E8F0] bg-white text-[#1E293B] focus:outline-none focus:border-[#3B82F6] transition-colors duration-200"
+              placeholder="Enter category description"
+            />
+          </div>
+
+          {error && (
+            <div className="text-red-500 mb-4">
+              {error}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex items-center gap-4">

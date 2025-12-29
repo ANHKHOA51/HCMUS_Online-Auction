@@ -1,9 +1,19 @@
 import { Link, Form } from 'react-router';
 import { ArrowLeft, Save, X } from 'lucide-react';
+import useCategory from '../hooks/useCategory.jsx';
 
 export default function EditCategory() {
   // Logic removed as requested
-  const category = { catid: '', catname: '' };
+  const { categories, category, handleEdit, error } = useCategory();
+
+  console.log("Editing category:", category);
+  if (!category) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-slate-500">Loading category...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center py-12">
@@ -23,7 +33,7 @@ export default function EditCategory() {
 
       {/* Form Container */}
       <div className="w-full max-w-4xl bg-white border border-[#E2E8F0] shadow-lg">
-        <Form className="p-8" method='post'>
+        <Form className="p-8" method='post' onSubmit={handleEdit}>
           {/* Category ID Field (Read-only) */}
           <div className="mb-6">
             <label
@@ -34,9 +44,9 @@ export default function EditCategory() {
             </label>
             <input
               type="text"
-              name="catid"
+              name="id"
               id="catid"
-              value={category.catid}
+              value={category?.id ?? ''}
               className="w-full px-4 py-3 border border-[#E2E8F0] bg-[#F1F5F9] text-[#64748B] cursor-not-allowed"
               placeholder="Category ID"
               readOnly
@@ -46,21 +56,63 @@ export default function EditCategory() {
           {/* Category Name Field */}
           <div className="mb-8">
             <label
-              htmlFor="catname"
+              htmlFor="name"
               className="block text-sm font-bold text-[#64748B] uppercase tracking-wider mb-4"
             >
               Category Name
             </label>
             <input
               type="text"
-              name="catname"
-              id="catname"
-              defaultValue={category.catname}
+              name="name"
+              id="name"
+              defaultValue={category?.name ?? ''}
               className="w-full px-4 py-3 border border-[#E2E8F0] bg-white text-[#1E293B] focus:outline-none focus:border-[#3B82F6] transition-colors duration-200"
               placeholder="Enter category name"
               required
             />
           </div>
+
+          <div className="mb-8">
+            <label
+              htmlFor="parentCategory"
+              className="block text-sm font-bold text-[#64748B] uppercase tracking-wider mb-4"
+            >
+              Parent category
+            </label>
+            <select
+              name="parent_category_id"
+              className="w-full px-4 py-3 border border-[#E2E8F0] bg-white text-[#1E293B] focus:outline-none focus:border-[#3B82F6] transition-colors duration-200"
+              placeholder="Enter parent id"
+              defaultValue={category?.parent_category_id ?? ""}
+            >
+              <option value="">-- No parent --</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+
+          </div>
+          <div className="mb-8">
+            <label
+              htmlFor="categoryName"
+              className="block text-sm font-bold text-[#64748B] uppercase tracking-wider mb-4"
+            >
+              Description
+            </label>
+            <input
+              type="text"
+              name="description"
+              className="w-full px-4 py-3 border border-[#E2E8F0] bg-white text-[#1E293B] focus:outline-none focus:border-[#3B82F6] transition-colors duration-200"
+              placeholder="Enter category description"
+              defaultValue={category?.description ?? ''}
+            />
+          </div>
+
+          {error && (
+            <div className="text-red-500 mb-4">
+              {error}
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex items-center gap-4">

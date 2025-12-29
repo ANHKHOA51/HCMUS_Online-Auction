@@ -39,7 +39,19 @@ export const UserModel = {
 
     existsByUsername: async (username) => {
         return db("users").where({ username }).first();
-    }
+    },
+
+    getAllUsers: async () => {
+        return db("users").select("id", "username", "email", "role");
+    },
+
+    getBidderRequests: async () => {
+        return db("users").where({ role: "bidder_requests" }).select("id", "username", "email");
+    },
+
+    updateRole: async (id, role) => {
+        return db("users").where({ id }).update({ role });
+    },
 };
 
 export default UserModel;

@@ -1,14 +1,11 @@
 import { useState } from "react";
 import { Link, Form } from "react-router";
 import { Plus, Pencil, Trash2, Search, Filter } from 'lucide-react';
+import useCategory from "../hooks/useCategory.jsx";
 
 export default function ListCategories() {
     // Mock data for UI preview
-    const categories = [
-        { catid: 1, catname: "Electronics" },
-        { catid: 2, catname: "Fashion" },
-        { catid: 3, catname: "Home & Garden" },
-    ];
+    const { categories } = useCategory();
 
     const [deleteConfirm, setDeleteConfirm] = useState(null);
 
@@ -67,22 +64,22 @@ export default function ListCategories() {
                         {categories.length > 0 ? (
                             categories.map(category => (
                                 <tr
-                                    key={category.catid}
+                                    key={category.id}
                                     className="group hover:bg-[#F8FAFC] transition-colors duration-200"
                                 >
                                     <td className="px-6 py-4 text-sm text-[#64748B] text-left">
-                                        {category.catid}
+                                        {category.id}
                                     </td>
                                     <td className="px-6 py-4 text-base text-[#1E293B] font-medium text-left">
-                                        {category.catname}
+                                        {category.name}
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-3">
                                             {/* Edit Button */}
                                             <Link
-                                                to={`/admin/categories/edit/${category.catid}`}
+                                                to={`/admin/categories/edit/${category.id}`}
                                                 className="p-2 border border-[#E2E8F0] rounded hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200"
-                                                aria-label={`Edit ${category.catname}`}
+                                                aria-label={`Edit ${category.name}`}
                                             >
                                                 <Pencil className="w-4 h-4" />
                                             </Link>

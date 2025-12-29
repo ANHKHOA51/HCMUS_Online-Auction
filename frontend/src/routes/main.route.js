@@ -10,11 +10,11 @@ import OtpPage from "../pages/OtpPage";
 import AddProductPage from "../pages/AddProductPage";
 import AdminLayout from "../layouts/AdminLayout";
 import Page404 from "../pages/404";
-import ListProduct from "../components/ListProduct";
-import ListCategory from "../components/ListCategory";
-import AddCategory from "../components/AddCategory";
-import EditCategory from "../components/EditCategory";
-import ListUser from "../components/ListUser";
+import ListProduct from "../features/AdminManagement/components/ListProduct";
+import ListCategory from "../features/AdminManagement/components/ListCategory";
+import AddCategory from "../features/AdminManagement/components/AddCategory";
+import EditCategory from "../features/AdminManagement/components/EditCategory";
+import ListUser from "../features/AdminManagement/components/ListUser";
 
 const router = createBrowserRouter([
     {
@@ -56,8 +56,19 @@ const router = createBrowserRouter([
                     },
                     { path: "add", Component: AddCategory },
                     {
-                        path: "edit/:catid",
+                        path: "edit/:id",
                         Component: EditCategory,
+                        // loader: async function ({ params }) {
+                        //     return {
+                        //         record: await categoryService.fetchCategoryById(params.id)
+                        //     };
+                        // },
+                        // action: async function ({ request, params }) {
+                        //     const formData = await request.formData();
+                        //     const data = Object.fromEntries(formData.entries());
+                        //     await categoryService.updateCategory(params.id, data);
+                        //     return redirect('/admin/categories');
+                        // },
                     }
                 ]
             },
