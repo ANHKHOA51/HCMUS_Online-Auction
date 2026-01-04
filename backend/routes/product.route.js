@@ -91,11 +91,8 @@ router.get('/:id/bids', async (req, res) => {
 
 router.post('/add', authMiddleware, async (req, res) => {
     try {
-        const body = req.body;
-        body.seller_id = req.user.id;
-        console.log(body)
-        const result = await productModel.addProduct(body);
-        console.log(result)
+        req.body.seller_id = req.user.id;
+        const result = await productModel.addProduct(req.body);
         const dirpath = path.join('static', 'images', 'products', result[0].id.toString());
         if (!fs.existsSync(dirpath)) {
             fs.mkdirSync(dirpath, { recursive: true });
@@ -104,14 +101,6 @@ router.post('/add', authMiddleware, async (req, res) => {
         if (req.body.images) {
             req.body.images.forEach(function (item, idx) {
                 const oldpath = path.join('static', 'temp', item);
-                // let newfilename, thumbfilename;
-                // if (idx === 0) {
-                //     newfilename = 'main.jpg';
-                //     thumbfilename = 'main_thumbs.jpg';
-                // } else {
-                //     newfilename = `${idx}.jpg`;
-                //     thumbfilename = `${idx}_thumbs.jpg`;
-                // }
 
                 const newpath = path.join(dirpath, item);
                 fs.copyFileSync(oldpath, newpath);
@@ -137,7 +126,23 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.post('/upload', authMiddleware, upload.array('photos', 12), async (req, res) => {
-    res.json({ success: true, files: req.files });
+    try {
+        res.status(200).json({ success: true, files: req.files });
+    } catch (error) {
+        console.error('Error uploading files:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
+router.delete('/delete/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await productModel.delete(id);
+        res.status(200).json({ success: true, data: result });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 })
 
 export default router;

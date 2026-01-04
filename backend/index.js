@@ -9,6 +9,8 @@ import categoryRouter from './routes/category.route.js';
 import watchlistRouter from './routes/watchlist.route.js';
 import bidRouter from './routes/bid.routes.js';
 import questionRouter from './routes/question.route.js';
+import userRouter from './routes/user.route.js';
+import orderRouter from './routes/order.route.js';
 
 const app = express();
 const PORT = 3000;
@@ -33,7 +35,7 @@ app.use('/static', express.static('static'));
 
 // Log all requests
 app.use((req, res, next) => {
-  console.log(`📨 \x1b[32m${req.method} \x1b[36m${req.path}\x1b[0m`);
+  console.log(`\x1b[33m[${new Date().toLocaleString('vi-VN')}] 📨 \x1b[32m${req.method} \x1b[36m${req.path}\x1b[0m`);
   next();
 });
 
@@ -52,6 +54,8 @@ app.use('/questions', questionRouter);
 
 
 
+app.use('/users', userRouter);
+app.use('/orders', orderRouter);
 
 
 app.get('/', (req, res) => {
