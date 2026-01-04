@@ -37,17 +37,35 @@ router.get('/seller', async (req, res) => {
     }
 });
 
+// GET /orders/buyer - Get all orders for the logged-in buyer
+router.get('/buyer', async (req, res) => {
+    const buyerId = req.query.buyer_id;
+
+    if (!buyerId) {
+        return res.status(401).json({ success: false, message: 'Unauthorized: Buyer ID required' });
+    }
+
+    try {
+        const orders = await OrderModel.findByBuyer(buyerId);
+        res.json({ success: true, data: orders });
+    } catch (error) {
+        console.error('Error fetching buyer orders:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // POST /orders/confirm/:id
 router.post('/confirm/:id', async (req, res) => {
     const { id } = req.params;
+    const { shipping_info } = req.body;
     try {
         const order = await OrderModel.findById(id);
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Update order status
-        await OrderModel.updateStatus(id, 'paid');
+        // Update order status with shipping info
+        await OrderModel.updateStatus(id, 'paid', null, shipping_info);
 
         // Also update product status to 'sold'? Or keep it active until specific logic?
         // Usually "paid" means deal closed.

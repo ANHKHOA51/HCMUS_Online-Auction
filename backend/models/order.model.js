@@ -18,15 +18,34 @@ export const OrderModel = {
             .orderBy('o.created_at', 'desc');
     },
 
+    // Tìm đơn hàng của người mua
+    findByBuyer: async (buyerId) => {
+        return db('orders as o')
+            .select(
+                'o.*',
+                'p.name as product_name',
+                'p.current_price as amount',
+                'p.images as product_images',
+                's.full_name as seller_name'
+            )
+            .join('products as p', 'o.product_id', 'p.id')
+            .join('users as s', 'p.seller_id', 's.id')
+            .where('o.buyer_id', buyerId)
+            .orderBy('o.created_at', 'desc');
+    },
+
     findById: async (id) => {
         return db('orders').where({ id }).first();
     },
 
     // Cập nhật trạng thái và ghi chú (nếu có)
-    updateStatus: async (id, status, seller_note = null) => {
+    updateStatus: async (id, status, seller_note = null, shipping_info = null) => {
         const updateData = { status };
         if (seller_note !== null) {
             updateData.seller_note = seller_note;
+        }
+        if (shipping_info !== null) {
+            updateData.shipping_info = shipping_info;
         }
         return db('orders').where({ id }).update(updateData);
     },

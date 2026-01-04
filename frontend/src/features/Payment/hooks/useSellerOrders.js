@@ -29,8 +29,8 @@ export default function useSellerOrders() {
         fetchOrders();
     }, [fetchOrders]);
 
-    const handleConfirm = async (orderId) => {
-        const res = await orderService.confirmOrder(orderId);
+    const handleConfirm = async (orderId, shippingCode) => {
+        const res = await orderService.confirmOrder(orderId, shippingCode);
         if (res.ok) {
             await fetchOrders(true);
             return true;
