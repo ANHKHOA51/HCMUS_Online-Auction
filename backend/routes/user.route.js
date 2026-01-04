@@ -64,8 +64,9 @@ router.post('/reset-password', async (req, res) => {
     try {
         const { id } = req.body;
         const updatedUser = await UserModel.resetPassword(id);
-        sendResetPasswordMail(updatedUser.email, updatedUser.password_hash);
-        res.status(200).json({ success: true, data: updatedUser });
+        console.log(updatedUser);
+        sendResetPasswordMail(updatedUser.email, updatedUser.password);
+        res.status(200).json({ success: true, data: updatedUser }); 
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

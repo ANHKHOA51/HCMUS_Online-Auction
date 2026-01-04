@@ -23,7 +23,7 @@ export default function AdminLayout() {
                             to={item.path}
                             end={item.end}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 ${isActive
+                                `flex items-center gap-3 px-4 py-3 !rounded-lg transition-colors duration-200 ${isActive
                                     ? "bg-[#EFF6FF] text-[#3B82F6]"
                                     : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#1E293B]"
                                 }`

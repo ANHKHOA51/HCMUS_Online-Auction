@@ -31,19 +31,19 @@ export default function ProductDetail() {
             </div>
 
             {/* Content Container */}
-            <div className="w-full max-w-6xl bg-white border border-[#E2E8F0] shadow-lg rounded-xl overflow-hidden">
+            <div className="w-full max-w-6xl bg-white border border-[#E2E8F0] shadow-lg !rounded-xl overflow-hidden">
                 <div className="p-8">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                         {/* Left Column: Images & Key Info */}
                         <div className="lg:col-span-2 space-y-8">
                             {/* Images Gallery */}
-                            <div className="bg-[#F8FAFC] p-4 rounded-lg border border-[#E2E8F0]">
+                            <div className="bg-[#F8FAFC] p-4 !rounded-lg border border-[#E2E8F0]">
                                 <h3 className="text-sm font-bold text-[#64748B] uppercase tracking-wider mb-4">Product Images</h3>
                                 {product.images && product.images.length > 0 ? (
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         {product.images.map((img, index) => (
-                                            <div key={index} className="relative aspect-square bg-white rounded-md border border-[#E2E8F0] overflow-hidden group">
+                                            <div key={index} className="relative aspect-square bg-white !rounded-md border border-[#E2E8F0] overflow-hidden group">
                                                 <img
                                                     src={getImageSrc(img, product.id)}
                                                     alt={`Product ${index + 1}`}
@@ -61,14 +61,14 @@ export default function ProductDetail() {
                             <div className="space-y-6">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-[#64748B] uppercase tracking-wider">Product Name</label>
-                                    <div className="w-full px-4 py-3 border border-[#E2E8F0] rounded-lg bg-[#F8FAFC] text-[#1E293B] font-medium text-lg">
+                                    <div className="w-full px-4 py-3 border border-[#E2E8F0] !rounded-lg bg-[#F8FAFC] text-[#1E293B] font-medium text-lg">
                                         {product.name}
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-[#64748B] uppercase tracking-wider">Description (HTML)</label>
-                                    <div className="w-full px-4 py-3 border border-[#E2E8F0] rounded-lg bg-[#F8FAFC] text-[#1E293B] font-mono text-sm min-h-[120px] whitespace-pre-wrap"
+                                    <div className="w-full px-4 py-3 border border-[#E2E8F0] !rounded-lg bg-[#F8FAFC] text-[#1E293B] font-mono text-sm min-h-[120px] whitespace-pre-wrap"
                                         dangerouslySetInnerHTML={{ __html: product.description }}
                                     />
                                 </div>
@@ -79,7 +79,7 @@ export default function ProductDetail() {
                         <div className="space-y-6">
 
                             {/* ID & Status Card */}
-                            <div className="bg-[#F1F5F9] p-6 rounded-xl space-y-4">
+                            <div className="bg-[#F1F5F9] p-6 !rounded-xl space-y-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2 text-[#64748B]">
                                         <Hash className="w-4 h-4" />
@@ -93,7 +93,7 @@ export default function ProductDetail() {
                                         <Tag className="w-4 h-4" />
                                         <span className="text-sm font-bold uppercase">Status</span>
                                     </div>
-                                    <span className="px-3 py-1 bg-white border border-[#E2E8F0] rounded-full text-sm font-medium text-[#1E293B] capitalize">
+                                    <span className="px-3 py-1 bg-white border border-[#E2E8F0] !rounded-full text-sm font-medium text-[#1E293B] capitalize">
                                         {product.status || 'Active'}
                                     </span>
                                 </div>
@@ -108,7 +108,7 @@ export default function ProductDetail() {
                             </div>
 
                             {/* Pricing Card */}
-                            <div className="bg-white border border-[#E2E8F0] p-6 rounded-xl space-y-4 shadow-sm">
+                            <div className="bg-white border border-[#E2E8F0] p-6 !rounded-xl space-y-4 shadow-sm">
                                 <h3 className="flex items-center gap-2 text-[#1E293B] font-semibold border-b border-[#E2E8F0] pb-2">
                                     <DollarSign className="w-5 h-5 text-[#3B82F6]" />
                                     Pricing & Bids
@@ -117,13 +117,13 @@ export default function ProductDetail() {
                                 <div className="grid grid-cols-1 gap-4">
                                     <div className="space-y-1">
                                         <label className="text-xs text-[#64748B] font-semibold uppercase">Starting Price</label>
-                                        <div className="w-full px-3 py-2 border border-[#E2E8F0] rounded-md bg-[#F8FAFC]">
+                                        <div className="w-full px-3 py-2 border border-[#E2E8F0] !rounded-md bg-[#F8FAFC]">
                                             {Number(product.starting_price).toLocaleString()} <span className="text-xs text-gray-500">VND</span>
                                         </div>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs text-[#64748B] font-semibold uppercase">Buy Now Price</label>
-                                        <div className="w-full px-3 py-2 border border-[#E2E8F0] rounded-md bg-[#F8FAFC]">
+                                        <div className="w-full px-3 py-2 border border-[#E2E8F0] !rounded-md bg-[#F8FAFC]">
                                             {product.buy_now_price ? Number(product.buy_now_price).toLocaleString() : 'N/A'} <span className="text-xs text-gray-500">VND</span>
                                         </div>
                                     </div>
@@ -141,7 +141,7 @@ export default function ProductDetail() {
                             </div>
 
                             {/* Timing Card */}
-                            <div className="bg-white border border-[#E2E8F0] p-6 rounded-xl space-y-4 shadow-sm">
+                            <div className="bg-white border border-[#E2E8F0] p-6 !rounded-xl space-y-4 shadow-sm">
                                 <h3 className="flex items-center gap-2 text-[#1E293B] font-semibold border-b border-[#E2E8F0] pb-2">
                                     <Clock className="w-5 h-5 text-[#F59E0B]" />
                                     Timing
@@ -150,13 +150,13 @@ export default function ProductDetail() {
                                 <div className="space-y-3">
                                     <div className="space-y-1">
                                         <label className="text-xs text-[#64748B] font-semibold uppercase">Start Time</label>
-                                        <div className="w-full px-3 py-2 border border-[#E2E8F0] rounded-md bg-[#F8FAFC] text-sm">
+                                        <div className="w-full px-3 py-2 border border-[#E2E8F0] !rounded-md bg-[#F8FAFC] text-sm">
                                             {displayDate(product.start_time)}
                                         </div>
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-xs text-[#64748B] font-semibold uppercase">End Time</label>
-                                        <div className="w-full px-3 py-2 border border-[#E2E8F0] rounded-md bg-[#F8FAFC] text-sm">
+                                        <div className="w-full px-3 py-2 border border-[#E2E8F0] !rounded-md bg-[#F8FAFC] text-sm">
                                             {displayDate(product.end_time)}
                                         </div>
                                     </div>
@@ -168,7 +168,7 @@ export default function ProductDetail() {
                             </div>
 
                             {/* People Card */}
-                            <div className="bg-white border border-[#E2E8F0] p-6 rounded-xl space-y-4 shadow-sm">
+                            <div className="bg-white border border-[#E2E8F0] p-6 !rounded-xl space-y-4 shadow-sm">
                                 <h3 className="flex items-center gap-2 text-[#1E293B] font-semibold border-b border-[#E2E8F0] pb-2">
                                     <User className="w-5 h-5 text-[#8B5CF6]" />
                                     Participants
@@ -177,14 +177,14 @@ export default function ProductDetail() {
                                 <div className="space-y-3">
                                     <div>
                                         <label className="text-xs text-[#64748B] uppercase font-bold">Seller</label>
-                                        <div className="flex justify-between items-center bg-[#F8FAFC] p-2 rounded border border-[#E2E8F0]">
+                                        <div className="flex justify-between items-center bg-[#F8FAFC] p-2 !rounded border border-[#E2E8F0]">
                                             <span className="text-sm font-medium">{product.seller_name}</span>
                                             <span className="text-xs text-slate-400">ID: {product.seller_id}</span>
                                         </div>
                                     </div>
                                     <div>
                                         <label className="text-xs text-[#64748B] uppercase font-bold">Winner</label>
-                                        <div className="flex justify-between items-center bg-[#F8FAFC] p-2 rounded border border-[#E2E8F0]">
+                                        <div className="flex justify-between items-center bg-[#F8FAFC] p-2 !rounded border border-[#E2E8F0]">
                                             <span className="text-sm font-medium">{product.winner_name || 'No winner yet'}</span>
                                             {product.winner_id && <span className="text-xs text-slate-400">ID: {product.winner_id}</span>}
                                         </div>
@@ -223,9 +223,9 @@ export default function ProductDetail() {
 
                 {deleteConfirm && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
+                        <div className="bg-white !rounded-xl shadow-xl max-w-md w-full overflow-hidden">
                             <div className="bg-[#EF4444] px-6 py-4 flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-full">
+                                <div className="p-2 bg-white/20 !rounded-full">
                                     <Trash2 className="w-5 h-5 text-white" />
                                 </div>
                                 <h2 className="text-lg font-semibold text-white">
@@ -243,7 +243,7 @@ export default function ProductDetail() {
                             <div className="bg-[#F8FAFC] px-6 py-4 flex justify-end gap-3 border-t border-[#E2E8F0]">
                                 <button
                                     onClick={() => setDeleteConfirm(null)}
-                                    className="px-4 py-2 border border-[#E2E8F0] bg-white text-[#64748B] font-medium rounded-lg hover:bg-[#F1F5F9] transition-colors"
+                                    className="px-4 py-2 border border-[#E2E8F0] bg-white text-[#64748B] font-medium !rounded-lg hover:bg-[#F1F5F9] transition-colors"
                                 >
                                     Cancel
                                 </button>
@@ -251,7 +251,7 @@ export default function ProductDetail() {
                                     <input type="hidden" name="id" value={deleteConfirm.id} />
                                     <button
                                         type="submit"
-                                        className="px-4 py-2 bg-[#EF4444] text-white font-medium rounded-lg hover:bg-[#DC2626] transition-colors shadow-sm"
+                                        className="px-4 py-2 bg-[#EF4444] text-white font-medium !rounded-lg hover:bg-[#DC2626] transition-colors shadow-sm"
                                     >
                                         Delete Product
                                     </button>

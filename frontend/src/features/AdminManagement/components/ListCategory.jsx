@@ -77,7 +77,7 @@ export default function ListCategories() {
                                             {/* Delete Button */}
                                             <button
                                                 onClick={() => handleDeleteClick(category)}
-                                                className="p-2 border border-[#E2E8F0] rounded hover:bg-[#EF4444] hover:border-[#EF4444] text-[#64748B] hover:text-white transition-all duration-200"
+                                                className="p-2 border border-[#E2E8F0] !rounded hover:bg-[#EF4444] hover:border-[#EF4444] text-[#64748B] hover:text-white transition-all duration-200"
                                                 aria-label={`Delete ${category.name}`}
                                             >
                                                 <Trash2 className="w-4 h-4" />
@@ -106,10 +106,10 @@ export default function ListCategories() {
             {/* Delete Confirmation Modal */}
             {deleteConfirm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
+                    <div className="bg-white !rounded-xl shadow-xl max-w-md w-full overflow-hidden">
                         {/* Modal Header */}
                         <div className="bg-[#EF4444] px-6 py-4 flex items-center gap-3">
-                            <div className="p-2 bg-white/`20 rounded-full">
+                            <div className="p-2 bg-white/`20 !rounded-full">
                                 <Trash2 className="w-5 h-5 text-white" />
                             </div>
                             <h2 className="text-lg font-semibold text-white">
@@ -135,7 +135,7 @@ export default function ListCategories() {
                         <div className="bg-[#F8FAFC] px-6 py-4 flex items-center justify-end gap-3 border-t border-[#E2E8F0]">
                             <button
                                 onClick={hideDeleteConfirmDialog}
-                                className="px-4 py-2 border border-[#E2E8F0] bg-white text-[#64748B] font-medium rounded-lg hover:bg-[#F1F5F9] transition-colors"
+                                className="px-4 py-2 border border-[#E2E8F0] bg-white text-[#64748B] font-medium !rounded-lg hover:bg-[#F1F5F9] transition-colors"
                             >
                                 Cancel
                             </button>
@@ -147,7 +147,7 @@ export default function ListCategories() {
                                 />
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 bg-[#EF4444] text-white font-medium rounded-lg hover:bg-[#DC2626] transition-colors shadow-sm"
+                                    className="px-4 py-2 bg-[#EF4444] text-white font-medium !rounded-lg hover:bg-[#DC2626] transition-colors shadow-sm"
                                 >
                                     Delete
                                 </button>

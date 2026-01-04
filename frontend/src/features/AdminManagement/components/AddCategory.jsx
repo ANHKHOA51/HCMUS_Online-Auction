@@ -83,7 +83,7 @@ export default function AddCategory() {
           <div className="flex items-center gap-4">
             <Link
               to="/admin/categories"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white !rounded-lg font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
               aria-label="Back to categories"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -91,14 +91,14 @@ export default function AddCategory() {
             </Link>
             <button
               type="submit"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white !rounded-lg font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg"
             >
               <Save className="w-5 h-5" />
               Save Category
             </button>
             <button
               type="reset"
-              className="inline-flex items-center gap-2 px-6 py-3 border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-[#64748B] font-medium transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
+              className="inline-flex items-center gap-2 px-6 py-3 border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-[#64748B] !rounded-lg font-medium transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md"
             >
               <X className="w-5 h-5" />
               Clear

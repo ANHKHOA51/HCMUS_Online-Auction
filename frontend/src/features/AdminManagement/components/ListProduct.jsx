@@ -33,7 +33,7 @@ export default function ListProduct() {
             </div>
 
             {/* Table Container */}
-            <div className="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden shadow-sm">
+            <div className="bg-white border border-[#E2E8F0] !rounded-lg overflow-hidden shadow-sm">
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
@@ -83,14 +83,14 @@ export default function ListProduct() {
                                         <div className="flex items-center justify-end gap-3">
                                             <Link
                                                 to={`/admin/products/edit/${product.id}`}
-                                                className="p-2 border border-[#E2E8F0] rounded hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200"
+                                                className="p-2 border border-[#E2E8F0] !rounded hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200"
                                                 title="Edit"
                                             >
                                                 <Eye className="w-4 h-4" />
                                             </Link>
                                             <button
                                                 onClick={() => setDeleteConfirm(product)}
-                                                className="p-2 border border-[#E2E8F0] rounded hover:bg-[#EF4444] hover:border-[#EF4444] text-[#64748B] hover:text-white transition-all duration-200"
+                                                className="p-2 border border-[#E2E8F0] !rounded hover:bg-[#EF4444] hover:border-[#EF4444] text-[#64748B] hover:text-white transition-all duration-200"
                                                 title="Delete"
                                             >
                                                 <Trash2 className="w-4 h-4" />
@@ -119,9 +119,9 @@ export default function ListProduct() {
             {/* Delete Modal */}
             {deleteConfirm && (
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
+                        <div className="bg-white !rounded-xl shadow-xl max-w-md w-full overflow-hidden">
                             <div className="bg-[#EF4444] px-6 py-4 flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-full">
+                                <div className="p-2 bg-white/20 !rounded-full">
                                     <Trash2 className="w-5 h-5 text-white" />
                                 </div>
                                 <h2 className="text-lg font-semibold text-white">

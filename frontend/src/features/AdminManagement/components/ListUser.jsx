@@ -65,7 +65,7 @@ export default function ListUser() {
                         <UserCheck className="w-4 h-4" />
                         Upgrade Requests
                         {upgradeRequests.length > 0 && (
-                            <span className="bg-[#EF4444] text-white text-xs px-2 py-0.5 rounded-full">
+                            <span className="bg-[#EF4444] text-white text-xs px-2 py-0.5 !rounded-full">
                                 {upgradeRequests.length}
                             </span>
                         )}
@@ -77,7 +77,7 @@ export default function ListUser() {
             </div>
 
             {/* Content */}
-            <div className="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden shadow-sm">
+            <div className="bg-white border border-[#E2E8F0] !rounded-lg overflow-hidden shadow-sm">
                 {activeTab === 'users' ? (
                     <UsersTable users={users} setDeleteConfirm={setDeleteConfirm} />
                 ) : (
@@ -94,7 +94,7 @@ export default function ListUser() {
             {deleteConfirm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     {/* Modal content would go here depending on action type */}
-                    <div className="bg-white p-6 rounded-lg max-w-sm w-full">
+                    <div className="bg-white p-6 !rounded-lg max-w-sm w-full">
                         <h3 className="text-lg font-bold mb-2">Confirm Action</h3>
                         <p className="text-gray-600 mb-4">Are you sure you want to delete user {deleteConfirm.name}?</p>
                         <div className="flex justify-end gap-2">
@@ -126,7 +126,7 @@ function UsersTable({ users, setDeleteConfirm }) {
                         <tr key={user.id} className="hover:bg-[#F8FAFC]">
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-[#E2E8F0] flex items-center justify-center text-[#64748B] font-bold">
+                                    <div className="w-8 h-8 !rounded-full bg-[#E2E8F0] flex items-center justify-center text-[#64748B] font-bold">
                                         {user.name.charAt(0)}
                                     </div>
                                     <span className="font-medium text-[#1E293B]">{user.name}</span>
@@ -134,7 +134,7 @@ function UsersTable({ users, setDeleteConfirm }) {
                             </td>
                             <td className="px-6 py-4 text-sm text-[#64748B]">{user.email}</td>
                             <td className="px-6 py-4">
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                                <span className={`inline-flex items-center px-2.5 py-0.5 !rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
                                     user.role === 'seller' ? 'bg-blue-100 text-blue-800' :
                                         'bg-gray-100 text-gray-800'
                                     }`}>
@@ -142,18 +142,18 @@ function UsersTable({ users, setDeleteConfirm }) {
                                 </span>
                             </td>
                             <td className="px-6 py-4">
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 !rounded-full text-xs font-medium ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${user.status === 'active' ? 'bg-green-600' : 'bg-red-600'}`}></span>
+                                    <span className={`w-1.5 h-1.5 !rounded-full ${user.status === 'active' ? 'bg-green-600' : 'bg-red-600'}`}></span>
                                     {user.status}
                                 </span>
                             </td>
                             <td className="px-6 py-4 text-right">
                                 <div className="flex items-center justify-end gap-3">
-                                    <Link to={`/admin/users/edit/${user.id}`} className="p-2 border border-[#E2E8F0] rounded hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200" title="Edit details">
+                                    <Link to={`/admin/users/edit/${user.id}`} className="p-2 border border-[#E2E8F0] !rounded hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200" title="Edit details">
                                         <Eye className="w-4 h-4" />
                                     </Link>
-                                    <button className="p-2 border border-[#E2E8F0] rounded hover:bg-[#EF4444] hover:border-[#EF4444] text-[#64748B] hover:text-white transition-all duration-200" title="Delete User"
+                                    <button className="p-2 border border-[#E2E8F0] !rounded hover:bg-[#EF4444] hover:border-[#EF4444] text-[#64748B] hover:text-white transition-all duration-200" title="Delete User"
                                         onClick={() => setDeleteConfirm(user)}>
                                         <Trash2 className="w-4 h-4" />
                                     </button>
@@ -191,7 +191,7 @@ function RequestsTable({ requests, onSelect, handleAccept, handleReject }) {
                         <tr key={req.id} className="hover:bg-[#F8FAFC]">
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-[#E2E8F0] flex items-center justify-center text-[#64748B] font-bold">
+                                    <div className="w-8 h-8 !rounded-full bg-[#E2E8F0] flex items-center justify-center text-[#64748B] font-bold">
                                         {req.name.charAt(0)}
                                     </div>
                                     <div>

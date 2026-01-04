@@ -75,7 +75,8 @@ export const UserModel = {
     resetPassword: async (id) => {
         const password = generatePassword();
         const password_hash = await hashPassword(password);
-        return db("users").where({ id }).update({ password_hash });
+        const email = await db("users").where({ id }).update({ password_hash }).returning(["email"]);
+        return { email: email[0].email, password };
     },
 
     deleteUser: async (id) => {
