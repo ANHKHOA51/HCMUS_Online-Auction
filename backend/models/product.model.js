@@ -1,7 +1,5 @@
 import { db } from '../utils/db.js';
 
-// 1. Helper Function: Tạo query cơ bản để tái sử dụng
-// Giúp code gọn gàng, sửa 1 chỗ cập nhật mọi chỗ
 const createBaseQuery = (userId = null) => {
     let query = db('products as p')
         .select(
@@ -11,7 +9,6 @@ const createBaseQuery = (userId = null) => {
             'p.starting_price',
             'p.current_price',
             'p.buy_now_price',
-            'c.name as category_name',
             'p.images',
             'p.start_time',
             'p.end_time',
@@ -24,8 +21,8 @@ const createBaseQuery = (userId = null) => {
             db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count')
         )
         .join('users as u', 'p.seller_id', 'u.id')
-        .leftJoin('users as w', 'p.winner_id', 'w.id')
-        .join('categories as c', 'p.category_id', 'c.id')
+        .leftJoin('users as w', 'p.winner_id', 'w.id');
+
     // 2. Logic Check Watchlist (Yêu cầu mới của bạn)
     if (userId) {
         // Nếu có userId, kiểm tra trong bảng watch_lists
@@ -48,8 +45,6 @@ export const ProductModel = {
     getAllProducts: async (queryParams, userId = null) => {
         try {
             const { category_id, sort = 'newest', search } = queryParams || {};
-
-            // Sử dụng Base Query đã tạo ở trên
             let query = createBaseQuery(userId).where('p.status', 'active');
 
             if (category_id) {
@@ -78,11 +73,11 @@ export const ProductModel = {
                     query = query.orderBy('p.current_price', 'desc');
                     break;
                 default: // newest
-                    // Nếu có search mà không sort cụ thể, ưu tiên độ liên quan (relevance)
+                     // Nếu có search mà không sort cụ thể, ưu tiên độ liên quan (relevance)
                     if (hasSearch && sort === 'newest') {
-                        query = query.orderBy('relevance', 'desc');
+                         query = query.orderBy('relevance', 'desc');
                     } else {
-                        query = query.orderBy('p.created_at', 'desc');
+                         query = query.orderBy('p.created_at', 'desc');
                     }
             }
 
@@ -139,11 +134,43 @@ export const ProductModel = {
 
             return { product, highestBidder, faqs, relatedProducts };
         } catch (error) {
-            console.error('Error in getProductDetail:', error);
+            console.error('Error getting product detail:', error);
             throw error;
         }
     },
 
+    // Lấy danh sách sản phẩm user đang tham gia đấu giá
+    getBiddingProducts: async (userId) => {
+        try {
+            // Lấy các sản phẩm mà user đã bid VÀ sản phẩm đó chưa kết thúc (status = 'active')
+            // DISTINCT để tránh trùng lặp nếu user bid nhiều lần vào 1 sản phẩm
+            const query = createBaseQuery(userId)
+                .join('bids as b', 'p.id', 'b.product_id')
+                .where('b.bidder_id', userId)
+                .where('p.status', 'active')
+                .distinct('p.id'); // Quan trọng: Chỉ lấy mỗi sản phẩm 1 lần
+
+            return await query;
+        } catch (error) {
+            console.error('Error getting bidding products:', error);
+            throw error;
+        }
+    },
+
+    // Lấy danh sách sản phẩm user đã thắng
+    getWonProducts: async (userId) => {
+        try {
+            const query = createBaseQuery(userId)
+                .where('p.winner_id', userId)
+                .where('p.status', 'sold');
+            
+            return await query;
+        } catch (error) {
+            console.error('Error getting won products:', error);
+            throw error;
+        }
+    },
+        
     getProductBids: async (id) => {
         // Hàm này đơn giản, giữ nguyên
         return db('bids as b')
@@ -185,10 +212,10 @@ export const ProductModel = {
         return trx('products').where('id', id).update({ current_price: newPrice });
     },
 
+
     addProduct: async (productData) => {
         try {
             return db('products').insert(productData).returning('id');
-
         } catch (error) {
             console.error('Error adding product:', error);
             throw error;
@@ -198,21 +225,20 @@ export const ProductModel = {
     delete: async (id) => {
         try {
             return await db.transaction(async (trx) => {
-                // Delete related records first to avoid foreign key constraints
                 await trx('bids').where('product_id', id).del();
                 await trx('questions_answers').where('product_id', id).del();
                 await trx('watch_lists').where('product_id', id).del();
                 await trx('bidder_requests').where('product_id', id).del();
                 await trx('notifications').where('related_product_id', id).del();
-                await trx('bids').where('product_id', id).del();
-
                 return await trx('products').where('id', id).del();
             });
         } catch (error) {
             console.error('Error deleting product:', error);
             throw error;
         }
-    }
+    },
+
 };
+
 
 export default ProductModel;
