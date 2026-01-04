@@ -1,7 +1,5 @@
 import { db } from '../utils/db.js';
 
-// 1. Helper Function: Tạo query cơ bản để tái sử dụng
-// Giúp code gọn gàng, sửa 1 chỗ cập nhật mọi chỗ
 const createBaseQuery = (userId = null) => {
     let query = db('products as p')
         .select(
@@ -47,8 +45,6 @@ export const ProductModel = {
     getAllProducts: async (queryParams, userId = null) => {
         try {
             const { category_id, sort = 'newest', search } = queryParams || {};
-
-            // Sử dụng Base Query đã tạo ở trên
             let query = createBaseQuery(userId).where('p.status', 'active');
 
             if (category_id) {
@@ -214,7 +210,35 @@ export const ProductModel = {
 
     updatePrice: (id, newPrice, trx) => {
         return trx('products').where('id', id).update({ current_price: newPrice });
-    }
+    },
+
+
+    addProduct: async (productData) => {
+        try {
+            return db('products').insert(productData).returning('id');
+        } catch (error) {
+            console.error('Error adding product:', error);
+            throw error;
+        }
+    },
+
+    delete: async (id) => {
+        try {
+            return await db.transaction(async (trx) => {
+                await trx('bids').where('product_id', id).del();
+                await trx('questions_answers').where('product_id', id).del();
+                await trx('watch_lists').where('product_id', id).del();
+                await trx('bidder_requests').where('product_id', id).del();
+                await trx('notifications').where('related_product_id', id).del();
+                return await trx('products').where('id', id).del();
+            });
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            throw error;
+        }
+    },
+
 };
+
 
 export default ProductModel;
