@@ -19,6 +19,11 @@ export const bidService = {
     async getBidHistory(productId) {
         const response = await axiosInstance.get(`/bids/${productId}/history`);
         return response.data;
+    },
+
+    async rejectBid(bidId) {
+        const response = await axiosInstance.post(`/bids/reject/${bidId}`);
+        return response.data;
     }
 }
 

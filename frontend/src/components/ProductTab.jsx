@@ -132,7 +132,10 @@ const ProductTabs = ({
 
         {activeTab === 'his' && (
           <div className="his-content">
-            <BidHistory productId={product.id} />
+            <BidHistory
+              productId={product.id}
+              isSeller={currentUserId && sellerId && String(currentUserId) === String(sellerId)}
+            />
           </div>
         )}
       </div>

@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { formatPriceVN } from '../utils/formatCurrency';
 import { getRelativeTime } from '../utils/timeUtil';
 import { useBidHistory } from '../hooks/useBidHistory';
+import { bidService } from '../services/bid';
 import './BidHistory.css';
 
-const BidHistory = ({ productId }) => {
-  const { bidHistory, isLoading, error } = useBidHistory(productId);
-  // --- STATE CHO PHÂN TRANG ---
+const BidHistory = ({ productId, isSeller }) => {
+  const { bidHistory, isLoading, error, refreshBidHistory } = useBidHistory(productId);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Số lượt đấu giá trên mỗi trang
-
+  const itemsPerPage = 5;
 
   const bids = bidHistory;
 
@@ -19,13 +18,22 @@ const BidHistory = ({ productId }) => {
     return name.substring(0, 3) + '****';
   };
 
-  // --- LOGIC TÍNH TOÁN TRANG ---
+  const handleReject = async (bidId, bidderName) => {
+    if (window.confirm(`Bạn có chắc muốn từ chối người ra giá "${bidderName}"?`)) {
+      try {
+        await bidService.rejectBid(bidId);
+        refreshBidHistory();
+      } catch (error) {
+        alert(error.response?.data?.error || 'Lỗi khi từ chối');
+      }
+    }
+  };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentBids = bids.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(bids.length / itemsPerPage);
 
-  // Hàm chuyển trang
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (isLoading) return <div className="bid-loading"> Đang tải...</div>;
@@ -43,7 +51,6 @@ const BidHistory = ({ productId }) => {
         <>
           <div className="bid-list">
             {currentBids.map((bid, index) => {
-              // Tính thứ hạng thực tế (cộng dồn theo trang)
               const realRank = indexOfFirstItem + index + 1;
 
               return (
@@ -60,15 +67,27 @@ const BidHistory = ({ productId }) => {
                       <span className="bid-time">{new Date(bid.time).toLocaleString('vi-VN')}</span>
                     </div>
                   </div>
-                  <div className="bid-amount">
-                    {formatPriceVN(bid.amount)}
+                  <div className="bid-amount-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div className="bid-amount">
+                      {formatPriceVN(bid.amount)}
+                    </div>
+                    {isSeller && realRank === 1 && (
+                      <button
+                        onClick={() => handleReject(bid.id, bid.full_name || bid.username)}
+                        style={{
+                          backgroundColor: '#ff4d4f', color: 'white', border: 'none',
+                          padding: '4px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px'
+                        }}
+                      >
+                        Từ chối
+                      </button>
+                    )}
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* --- THANH PHÂN TRANG (PAGINATION) --- */}
           {totalPages > 1 && (
             <div className="pagination-container">
               <button
@@ -78,8 +97,6 @@ const BidHistory = ({ productId }) => {
               >
                 &lt;
               </button>
-
-              {/* Render số trang */}
               {Array.from({ length: totalPages }, (_, i) => (
                 <button
                   key={i + 1}
@@ -89,7 +106,6 @@ const BidHistory = ({ productId }) => {
                   {i + 1}
                 </button>
               ))}
-
               <button
                 className="page-btn next"
                 onClick={() => paginate(currentPage + 1)}
