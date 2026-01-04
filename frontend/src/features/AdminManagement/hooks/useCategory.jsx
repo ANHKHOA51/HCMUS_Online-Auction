@@ -9,19 +9,19 @@ export default function useCategory() {
     const [category, setCategory] = useState(null);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+
+    const fetchCategories = async () => {
+        try {
+            const response = await categoryService.getCategories();
+            console.log("Fetched categories:", response);
+            setCategories(response.data.data);
+        } catch (error) {
+            console.error("Failed to fetch categories", error);
+        }
+    };
 
     useEffect(() => {
-        // Fetch categories from API or service
-        async function fetchCategories() {
-            try {
-                const response = await categoryService.getCategories();
-                console.log("Fetched categories:", response);
-                setCategories(response.data.data);
-            } catch (error) {
-                console.error("Failed to fetch categories", error);
-            }
-        }
-
         fetchCategories();
     }, []);
 
@@ -43,7 +43,7 @@ export default function useCategory() {
     }, [id]);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();        
+        e.preventDefault();
         e.stopPropagation();
 
         setError(null);
@@ -68,6 +68,8 @@ export default function useCategory() {
         } catch (error) {
             console.error("Failed to create category", error);
         }
+
+        navigate('/admin/categories');
     };
 
     const handleEdit = async (e) => {
@@ -98,10 +100,40 @@ export default function useCategory() {
         }
     };
 
+    const handleDeleteClick = function (cate) {
+        setDeleteConfirm(cate);
+    };
+
+    const hideDeleteConfirmDialog = () => {
+        setDeleteConfirm(null);
+    };
+
+    const handleDelete = async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        try {
+            const response = await categoryService.deleteCategory(deleteConfirm.id);
+            console.log("Category deleted:", response);
+            // Optionally, you can refresh the categories list or provide feedback to the user
+            navigate('/admin/categories');
+        } catch (error) {
+            console.error("Failed to delete category", error);
+        }
+
+        setDeleteConfirm(null);
+        fetchCategories();
+    };
+
     return {
         categories,
         category,
+        error,
         handleSubmit,
-        handleEdit
+        handleEdit,
+        deleteConfirm,
+        handleDeleteClick,
+        hideDeleteConfirmDialog,
+        handleDelete
     };
 }

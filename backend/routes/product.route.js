@@ -128,4 +128,15 @@ router.post('/upload', authMiddleware, upload.array('photos', 12), async (req, r
     }
 })
 
+router.delete('/delete/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await productModel.delete(id);
+        res.status(200).json({ success: true, data: result });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+})
+
 export default router;

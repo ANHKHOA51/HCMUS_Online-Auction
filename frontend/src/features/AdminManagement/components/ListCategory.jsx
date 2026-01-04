@@ -5,17 +5,7 @@ import useCategory from "../hooks/useCategory.jsx";
 
 export default function ListCategories() {
     // Mock data for UI preview
-    const { categories } = useCategory();
-
-    const [deleteConfirm, setDeleteConfirm] = useState(null);
-
-    const handleDeleteClick = function (category) {
-        setDeleteConfirm(category);
-    };
-
-    const hideDeleteConfirmDialog = () => {
-        setDeleteConfirm(null);
-    };
+    const { categories, deleteConfirm, handleDeleteClick, hideDeleteConfirmDialog, handleDelete } = useCategory();
 
     return (
         <div className="w-full">
@@ -34,7 +24,7 @@ export default function ListCategories() {
                     <div className="flex gap-3">
                         <Link
                             to="/admin/categories/add"
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg rounded-lg"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-[#3B82F6] hover:bg-[#2563EB] text-white font-medium transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg !rounded-lg"
                             aria-label="Add new category"
                         >
                             <Plus className="w-5 h-5" />
@@ -45,7 +35,7 @@ export default function ListCategories() {
             </div>
 
             {/* Table Container */}
-            <div className="bg-white border border-[#E2E8F0] rounded-lg overflow-hidden shadow-sm">
+            <div className="bg-white border border-[#E2E8F0] !rounded-lg overflow-hidden shadow-sm">
                 <table className="w-full">
                     <thead>
                         <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
@@ -78,7 +68,7 @@ export default function ListCategories() {
                                             {/* Edit Button */}
                                             <Link
                                                 to={`/admin/categories/edit/${category.id}`}
-                                                className="p-2 border border-[#E2E8F0] rounded hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200"
+                                                className="p-2 border border-[#E2E8F0] ! hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200"
                                                 aria-label={`Edit ${category.name}`}
                                             >
                                                 <Pencil className="w-4 h-4" />
@@ -88,7 +78,7 @@ export default function ListCategories() {
                                             <button
                                                 onClick={() => handleDeleteClick(category)}
                                                 className="p-2 border border-[#E2E8F0] rounded hover:bg-[#EF4444] hover:border-[#EF4444] text-[#64748B] hover:text-white transition-all duration-200"
-                                                aria-label={`Delete ${category.catname}`}
+                                                aria-label={`Delete ${category.name}`}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
@@ -119,7 +109,7 @@ export default function ListCategories() {
                     <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
                         {/* Modal Header */}
                         <div className="bg-[#EF4444] px-6 py-4 flex items-center gap-3">
-                            <div className="p-2 bg-white/20 rounded-full">
+                            <div className="p-2 bg-white/`20 rounded-full">
                                 <Trash2 className="w-5 h-5 text-white" />
                             </div>
                             <h2 className="text-lg font-semibold text-white">
@@ -132,7 +122,7 @@ export default function ListCategories() {
                             <p className="text-[#475569] text-base">
                                 Are you sure you want to delete the category{' '}
                                 <span className="font-semibold text-[#1E293B]">
-                                    "{deleteConfirm.catname}"
+                                    "{deleteConfirm.name}"
                                 </span>
                                 ?
                             </p>
@@ -149,16 +139,11 @@ export default function ListCategories() {
                             >
                                 Cancel
                             </button>
-                            <Form method="post" onSubmit={hideDeleteConfirmDialog}>
-                                <input
-                                    type="hidden"
-                                    name="intent"
-                                    value="delete"
-                                />
+                            <Form method="post" onSubmit={handleDelete}>
                                 <input
                                     type="hidden"
                                     name="catid"
-                                    value={deleteConfirm.catid}
+                                    value={deleteConfirm.id}
                                 />
                                 <button
                                     type="submit"

@@ -32,4 +32,26 @@ export async function sendOtpMail(toEmail, otp) {
     }
 }
 
+export async function sendResetPasswordMail(toEmail, password) {
+    try {
+        console.log('📧 Sending reset password email to:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: "Đặt lại mật khẩu",
+            text: `Mật khẩu của bạn đã được thay đổi`,
+            html: `<p>Xin chào,</p>
+             <p>Mật khẩu của bạn đã được thay đổi</p>
+             <p>Mật khẩu mới của bạn là: ${password}</p>
+             <p>Vui lòng thay đổi mật khẩu ngay khi nhận được email này</p>
+             <p>Trân trọng,<br/>Đội ngũ hỗ trợ Online Auction</p>`
+        });
+        console.log('Email sent successfully:', result.response);
+
+    } catch (error) {
+        console.error('Email send error:', error.message);
+        throw error
+    }
+}
+
 export default transporter;

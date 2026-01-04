@@ -15,6 +15,8 @@ import ListCategory from "../features/AdminManagement/components/ListCategory";
 import AddCategory from "../features/AdminManagement/components/AddCategory";
 import EditCategory from "../features/AdminManagement/components/EditCategory";
 import ListUser from "../features/AdminManagement/components/ListUser";
+import ProductDetail from "../features/AdminManagement/components/ProductDetail";
+import UserDetail from "../features/AdminManagement/components/UserDetail";
 
 const router = createBrowserRouter([
     {
@@ -46,7 +48,13 @@ const router = createBrowserRouter([
         path: "/admin",
         Component: AdminLayout,
         children: [
-            { path: "products", Component: ListProduct },
+            {
+                path: "products",
+                children: [
+                    { index: true, Component: ListProduct },
+                    { path: "edit/:id", Component: ProductDetail }
+                ]
+            },
             {
                 path: "categories",
                 children: [
@@ -58,21 +66,16 @@ const router = createBrowserRouter([
                     {
                         path: "edit/:id",
                         Component: EditCategory,
-                        // loader: async function ({ params }) {
-                        //     return {
-                        //         record: await categoryService.fetchCategoryById(params.id)
-                        //     };
-                        // },
-                        // action: async function ({ request, params }) {
-                        //     const formData = await request.formData();
-                        //     const data = Object.fromEntries(formData.entries());
-                        //     await categoryService.updateCategory(params.id, data);
-                        //     return redirect('/admin/categories');
-                        // },
                     }
                 ]
             },
-            { path: "users", Component: ListUser }
+            {
+                path: "users",
+                children: [
+                    { index: true, Component: ListUser },
+                    { path: "edit/:id", Component: UserDetail }
+                ]
+            }
         ]
     },
 

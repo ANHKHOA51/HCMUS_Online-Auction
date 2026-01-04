@@ -5,12 +5,12 @@ const router = express.Router();
 // Route to get all categories
 router.get('/all', async (req, res) => {
     try {
-          const rows = await categoryModel.all();
-          res.json({ success: true, data: rows });
-        } catch (error) {
-          console.error('Error fetching categories:', error);
-          res.status(500).json({ success: false, error: error.message });
-        }
+        const rows = await categoryModel.all();
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 // Route to get a category by ID
@@ -53,6 +53,21 @@ router.post('/edit/:id', async (req, res) => {
         }
     } catch (error) {
         console.error('Error updating category:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+router.delete('/delete/:id', async (req, res) => {
+    const id = req.params.id;
+    try {
+        const deletedRows = await categoryModel.delete(id);
+        if (deletedRows) {
+            res.json({ success: true, data: { id } });
+        } else {
+            res.status(404).json({ success: false, message: 'Category not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting category:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

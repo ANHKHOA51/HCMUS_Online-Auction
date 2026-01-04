@@ -13,6 +13,7 @@ export const ProductModel = {
                     'p.starting_price',
                     'p.current_price',
                     'p.buy_now_price',
+                    'c.name as category_name',
                     'p.images',
                     'p.start_time',
                     'p.end_time',
@@ -27,6 +28,7 @@ export const ProductModel = {
                 )
                 .join('users as u', 'p.seller_id', 'u.id')
                 .leftJoin('users as w', 'p.winner_id', 'w.id')
+                .join('categories as c', 'p.category_id', 'c.id')
                 .where('p.status', 'active');
 
             if (category_id) {
@@ -213,13 +215,31 @@ export const ProductModel = {
     addProduct: async (productData) => {
         try {
             return db('products').insert(productData).returning('id');
-            
+
         } catch (error) {
             console.error('Error adding product:', error);
             throw error;
         }
     },
 
+    delete: async (id) => {
+        try {
+            return await db.transaction(async (trx) => {
+                // Delete related records first to avoid foreign key constraints
+                await trx('bids').where('product_id', id).del();
+                await trx('questions_answers').where('product_id', id).del();
+                await trx('watch_lists').where('product_id', id).del();
+                await trx('bidder_requests').where('product_id', id).del();
+                await trx('notifications').where('related_product_id', id).del();
+                await trx('bids').where('product_id', id).del();
+
+                return await trx('products').where('id', id).del();
+            });
+        } catch (error) {
+            console.error('Error deleting product:', error);
+            throw error;
+        }
+    }
 };
 
 export default ProductModel;
