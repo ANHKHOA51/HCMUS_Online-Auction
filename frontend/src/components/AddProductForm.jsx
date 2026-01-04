@@ -14,6 +14,7 @@ import Dashboard from '@uppy/react/dashboard';
 
 import '@uppy/core/css/style.min.css'
 import '@uppy/dashboard/css/style.min.css'
+import { NavLink } from 'react-router-dom'
 
 export default function AddProductForm() {
     const {
@@ -29,8 +30,6 @@ export default function AddProductForm() {
     } = useAddProduct();
 
     const { categories } = useProducts()
-
-
 
     return (
         <div className='d-flex justify-content-center align-items-center'>
@@ -172,10 +171,11 @@ export default function AddProductForm() {
                             <i className="bi bi-check2"></i>
                             Save
                         </button>
-                        <a href="/admin/products" className="btn btn-outline-success">
+
+                        <NavLink to="/admin/products" className="btn btn-outline-success">
                             <i className="bi bi-arrow-left"></i>
                             Back
-                        </a>
+                        </NavLink>
                     </Card.Footer>
                 </Card>
             </Form>

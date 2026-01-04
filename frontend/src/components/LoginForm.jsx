@@ -1,5 +1,17 @@
+import { NavLink } from "react-router-dom"
 import useLogin from "../hooks/auth/useLogin.js"
 import "./style.css"
+
+const Separator = () => {
+    return (
+        <div className="d-flex align-items-center my-3">
+            <div className="flex-grow-1 border-bottom"></div>
+            <span className="mx-2 text-muted text-uppercase small">or</span>
+            <div className="flex-grow-1 border-bottom"></div>
+        </div>
+    )
+}
+
 
 export default function LoginForm() {
     const { error, isLoading, handleSubmit, onChange } = useLogin()
@@ -37,7 +49,9 @@ export default function LoginForm() {
                     aria-busy={isLoading}>
                     {isLoading ? "Signing..." : "Sign in"}
                 </button>
-                <a href="/register" className="d-block mt-2 text-center">Don't have an account?</a>
+                <Separator />
+                <NavLink to="/register" className="d-block mt-2 text-center">Don't have an account?</NavLink>
+                <NavLink to="/forgot-password" className="d-block mt-2 text-center">Forgot Password?</NavLink>
             </form>
         </div>
     )

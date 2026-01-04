@@ -8,6 +8,18 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import OtpPage from "../pages/OtpPage";
 import AddProductPage from "../pages/AddProductPage";
+import AdminLayout from "../layouts/AdminLayout";
+import Page404 from "../pages/404";
+import ListProduct from "../features/AdminManagement/components/ListProduct";
+import ListCategory from "../features/AdminManagement/components/ListCategory";
+import AddCategory from "../features/AdminManagement/components/AddCategory";
+import EditCategory from "../features/AdminManagement/components/EditCategory";
+import ListUser from "../features/AdminManagement/components/ListUser";
+import ProductDetail from "../features/AdminManagement/components/ProductDetail";
+import SellerOrderList from "../features/Payment/components/SellerOrderList";
+import UserDetail from "../features/AdminManagement/components/UserDetail";
+
+// ... existing imports
 
 const router = createBrowserRouter([
     {
@@ -17,7 +29,8 @@ const router = createBrowserRouter([
             { index: true, Component: HomePage },
             { path: "search", Component: SearchResultsPage },
             { path: "products/:id", Component: ProductDetailPage },
-            { path: "products/add-product", Component: AddProductPage }
+            { path: "products/add-product", Component: AddProductPage },
+            { path: "seller/orders", Component: SellerOrderList }
         ]
     },
 
@@ -33,7 +46,48 @@ const router = createBrowserRouter([
                 ]
             }
         ]
-    }
+    },
+
+    {
+        path: "/admin",
+        Component: AdminLayout,
+        children: [
+            {
+                path: "products",
+                children: [
+                    { index: true, Component: ListProduct },
+                    { path: "edit/:id", Component: ProductDetail }
+                ]
+            },
+            {
+                path: "categories",
+                children: [
+                    {
+                        index: true,
+                        Component: ListCategory,
+                    },
+                    { path: "add", Component: AddCategory },
+                    {
+                        path: "edit/:id",
+                        Component: EditCategory,
+                    }
+                ]
+            },
+            {
+                path: "users",
+                children: [
+                    { index: true, Component: ListUser },
+                    { path: "edit/:id", Component: UserDetail }
+                ]
+            }
+        ]
+    },
+
+    {
+        path: "*",
+        Component: Page404
+    },
+
 ]);
 
 export default router;

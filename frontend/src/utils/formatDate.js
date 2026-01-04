@@ -7,3 +7,14 @@ export const formatDateVN = (time) => {
 
     return `${day}/${month}/${year}`
 }
+
+export const displayDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleString('vi-VN');
+}
+
+export const getImageSrc = (imgName, prodId) => {
+    if (!imgName) return '/default-product.png';
+    if (imgName.startsWith('http')) return imgName;
+    return `http://localhost:3000/static/images/products/${prodId}/${imgName}`;
+};
