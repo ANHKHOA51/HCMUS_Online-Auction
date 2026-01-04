@@ -1,57 +1,94 @@
 import { db } from '../utils/db.js';
 
+// 1. Helper Function: Tạo query cơ bản để tái sử dụng
+// Giúp code gọn gàng, sửa 1 chỗ cập nhật mọi chỗ
+const createBaseQuery = (userId = null) => {
+    let query = db('products as p')
+        .select(
+            'p.id',
+            'p.name',
+            'p.description',
+            'p.starting_price',
+            'p.current_price',
+            'p.buy_now_price',
+            'p.images',
+            'p.start_time',
+            'p.end_time',
+            'p.status',
+            'p.category_id',
+            'p.created_at',
+            'p.seller_id',
+            db.raw('u.full_name as seller_name'),
+            db.raw('w.full_name as winner_name'),
+            db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count')
+        )
+        .join('users as u', 'p.seller_id', 'u.id')
+        .leftJoin('users as w', 'p.winner_id', 'w.id');
+
+    // 2. Logic Check Watchlist (Yêu cầu mới của bạn)
+    if (userId) {
+        // Nếu có userId, kiểm tra trong bảng watch_lists
+        query.select(
+            db.raw(
+                'EXISTS(SELECT 1 FROM watch_lists wl WHERE wl.product_id = p.id AND wl.user_id = ?) as is_favorite',
+                [userId]
+            )
+        );
+    } else {
+        // Nếu không có userId, mặc định là false
+        query.select(db.raw('false as is_favorite'));
+    }
+
+    return query;
+};
+
 export const ProductModel = {
-    getAllProducts: async (queryParams) => {
+    // Thêm tham số userId vào đây (mặc định null nếu khách vãng lai)
+    getAllProducts: async (queryParams, userId = null) => {
         try {
             const { category_id, sort = 'newest', search } = queryParams || {};
 
-            let query = db('products as p')
-                .select(
-                    'p.id',
-                    'p.name',
-                    'p.description',
-                    'p.starting_price',
-                    'p.current_price',
-                    'p.buy_now_price',
-                    'p.images',
-                    'p.start_time',
-                    'p.end_time',
-                    'p.status',
-                    'p.category_id',
-                    'p.seller_id',
-                    'p.winner_id',
-                    'p.created_at',
-                    db.raw('u.full_name as seller_name'),
-                    db.raw('w.full_name as winner_name'),
-                    db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
-                )
-                .join('users as u', 'p.seller_id', 'u.id')
-                .leftJoin('users as w', 'p.winner_id', 'w.id')
-                .where('p.status', 'active');
+            // Sử dụng Base Query đã tạo ở trên
+            let query = createBaseQuery(userId).where('p.status', 'active');
 
             if (category_id) {
                 query = query.where('p.category_id', category_id);
             }
 
+            let hasSearch = false;
             if (search) {
-                query = query.where('p.name', 'ilike', `%${search}%`);
+                query = query
+                    .whereRaw(`p.search_vector @@ plainto_tsquery('simple', ?)`, [search])
+                    .select(
+                        db.raw(`ts_rank(p.search_vector, plainto_tsquery('simple', ?)) as relevance`, [search])
+                    );
+                hasSearch = true;
             }
 
-            if (sort === 'newest') {
-                query = query.orderBy('p.created_at', 'desc');
-            } else if (sort === 'ending') {
-                query = query.orderBy('p.end_time', 'asc');
-            } else if (sort === 'price_low') {
-                query = query.orderBy('p.current_price', 'asc');
-            } else if (sort === 'price_high') {
-                query = query.orderBy('p.current_price', 'desc');
+            // Xử lý Sort
+            switch (sort) {
+                case 'ending':
+                    query = query.orderBy('p.end_time', 'asc');
+                    break;
+                case 'price_low':
+                    query = query.orderBy('p.current_price', 'asc');
+                    break;
+                case 'price_high':
+                    query = query.orderBy('p.current_price', 'desc');
+                    break;
+                default: // newest
+                     // Nếu có search mà không sort cụ thể, ưu tiên độ liên quan (relevance)
+                    if (hasSearch && sort === 'newest') {
+                         query = query.orderBy('relevance', 'desc');
+                    } else {
+                         query = query.orderBy('p.created_at', 'desc');
+                    }
             }
 
             query = query.limit(50).timeout(5000);
 
-            console.log('⏳ Executing query...');
             const result = await query;
-            console.log('✓ Query result:', result.length, 'rows');
+            console.log('📝 Query result sample:', result[0] ? Object.keys(result[0]) : 'empty');
             return result;
         } catch (error) {
             console.error('Model error:', error.message);
@@ -59,12 +96,18 @@ export const ProductModel = {
         }
     },
 
-    getProductDetail: async (id) => {
+    getProductDetail: async (id, userId = null) => {
         try {
-            const product = await db('products as p')
-                .select('p.*', 'c.name as category_name', 'u.id as seller_id', 'u.full_name as seller_name', 'u.email as seller_email', 'u.rating_positive', 'u.rating_negative', 'u.avatar_url as seller_avatar')
+            // Tận dụng createBaseQuery để lấy thông tin cơ bản + is_favorite
+            const product = await createBaseQuery(userId)
+                .select(
+                    'c.name as category_name',
+                    'u.email as seller_email',
+                    'u.rating_positive',
+                    'u.rating_negative',
+                    'u.avatar_url as seller_avatar'
+                )
                 .join('categories as c', 'p.category_id', 'c.id')
-                .join('users as u', 'p.seller_id', 'u.id')
                 .where('p.id', id)
                 .first();
 
@@ -72,35 +115,28 @@ export const ProductModel = {
                 return { product: null };
             }
 
-            // Get highest bidder
+            // (Giữ nguyên logic lấy bidder, faqs, related...)
             let highestBidder = null;
             if (product.winner_id) {
                 highestBidder = await db('users').where('id', product.winner_id).first();
             }
 
-            // Get Q&A
             const faqs = await db('questions_answers as qa')
-                .select('qa.id', 'qa.question', 'qa.answer', 'qa.created_at', 'qa.answered_at', 'u1.full_name as user_name', 'u2.full_name as seller_name')
+                .select('qa.*', 'u1.full_name as user_name', 'u2.full_name as seller_name')
                 .join('users as u1', 'qa.user_id', 'u1.id')
                 .leftJoin('users as u2', 'qa.answered_by', 'u2.id')
                 .where('qa.product_id', id)
                 .orderBy('qa.created_at', 'desc');
 
-            // Get related products
-            const relatedProducts = await db('products')
-                .select('id', 'name', 'current_price', 'starting_price', 'buy_now_price', 'images', 'end_time')
-                .where('category_id', product.category_id)
-                .whereNot('id', id)
-                .where('status', 'active')
-                .orderBy('created_at', 'desc')
+            // Related products cũng nên check is_favorite nếu được (tùy chọn)
+            const relatedProducts = await createBaseQuery(userId)
+                .where('p.category_id', product.category_id)
+                .whereNot('p.id', id)
+                .where('p.status', 'active')
+                .orderBy('p.created_at', 'desc')
                 .limit(5);
 
-            return {
-                product,
-                highestBidder,
-                faqs,
-                relatedProducts
-            };
+            return { product, highestBidder, faqs, relatedProducts };
         } catch (error) {
             console.error('Error in getProductDetail:', error);
             throw error;
@@ -108,106 +144,44 @@ export const ProductModel = {
     },
 
     getProductBids: async (id) => {
-        const bids = await db('bids as b')
+        // Hàm này đơn giản, giữ nguyên
+        return db('bids as b')
             .select('b.id', 'b.bid_amount', 'b.bid_time', 'u.id as bidder_id', 'u.full_name as bidder_name', 'u.username')
             .join('users as u', 'b.bidder_id', 'u.id')
             .where('b.product_id', id)
             .orderBy('b.bid_time', 'desc');
-
-        return bids;
     },
 
-    findTopClosing: () => {
-        return db('products as p')
-            .select(
-                'p.id',
-                'p.name',
-                'p.description',
-                'p.starting_price',
-                'p.current_price',
-                'p.buy_now_price',
-                'p.images',
-                'p.start_time',
-                'p.end_time',
-                'p.status',
-                'p.category_id',
-                'p.seller_id',
-                'p.winner_id',
-                'p.created_at',
-                db.raw('u.full_name as seller_name'),
-                db.raw('w.full_name as winner_name'),
-                db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
-            )
-            .join('users as u', 'p.seller_id', 'u.id')
-            .leftJoin('users as w', 'p.winner_id', 'w.id')
-            //.where('status', 'active')
-            //.where('end_time', '>', db.fn.now()) // Chưa hết hạn
-            .orderBy('end_time', 'asc') // Thời gian kết thúc tăng dần (gần nhất lên đầu)
+    // Refactor 3 hàm Top thành gọn hơn, có hỗ trợ userId
+    findTopClosing: (userId = null) => {
+        return createBaseQuery(userId)
+            //.where('status', 'active') // Uncomment nếu cần
+            .orderBy('p.end_time', 'asc')
             .limit(5);
     },
 
-    findTopBidding: () => {
-        /* SQL Tương đương:
-           SELECT p.*, COUNT(b.id) as bid_count 
-           FROM products p 
-           LEFT JOIN bids b ON p.id = b.product_id
-           GROUP BY p.id
-           ORDER BY bid_count DESC
-           LIMIT 5
-        */
-        return db('products as p')
-            .select(
-                'p.id',
-                'p.name',
-                'p.description',
-                'p.starting_price',
-                'p.current_price',
-                'p.buy_now_price',
-                'p.images',
-                'p.start_time',
-                'p.end_time',
-                'p.status',
-                'p.category_id',
-                'p.seller_id',
-                'p.winner_id',
-                'p.created_at',
-                db.raw('u.full_name as seller_name'),
-                db.raw('w.full_name as winner_name'),
-                db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) AS bid_count')
-            )
-            .join('users as u', 'p.seller_id', 'u.id')
-            .leftJoin('users as w', 'p.winner_id', 'w.id')
+    findTopBidding: (userId = null) => {
+        return createBaseQuery(userId)
             .orderBy('bid_count', 'desc')
             .limit(5);
-
     },
 
-    findTopPricing: () => {
-        return db('products as p')
-            .select(
-                'p.id',
-                'p.name',
-                'p.description',
-                'p.starting_price',
-                'p.current_price',
-                'p.buy_now_price',
-                'p.images',
-                'p.start_time',
-                'p.end_time',
-                'p.status',
-                'p.category_id',
-                'p.seller_id',
-                'p.winner_id',
-                'p.created_at',
-                db.raw('u.full_name as seller_name'),
-                db.raw('w.full_name as winner_name'),
-                db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
-            )
-            .join('users as u', 'p.seller_id', 'u.id')
-            .leftJoin('users as w', 'p.winner_id', 'w.id')
-            //.where('status', 'active')
-            .orderBy('current_price', 'desc')
+    findTopPricing: (userId = null) => {
+        return createBaseQuery(userId)
+            .orderBy('p.current_price', 'desc')
             .limit(5);
+    },
+
+    findByIdLock: (id, trx) => {
+        return trx('products').where('id', id).forUpdate().first();
+    },
+
+    findById: (id) => {
+        return db('products').where('id', id).first();
+    },
+
+    updatePrice: (id, newPrice, trx) => {
+        return trx('products').where('id', id).update({ current_price: newPrice });
     },
 
     addProduct: async (productData) => {
@@ -219,7 +193,6 @@ export const ProductModel = {
             throw error;
         }
     },
-
 };
 
 export default ProductModel;

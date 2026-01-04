@@ -1,44 +1,49 @@
 import express from 'express';
 import productModel from '../models/product.model.js';
-import { authMiddleware } from '../middlewares/auth.middleware.js';
+import  authMiddleware  from '../middlewares/auth.middleware.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { optionalAuth } from '../middlewares/optionalAuth.middleware.js';
 
 const router = express.Router();
 
-router.get('/top/closing', async (req, res) => {
+router.get('/top/closing', optionalAuth, async (req, res) => {
     try {
-        const rows = await productModel.findTopClosing();
+        const userId = req.user ? req.user.id : null;
+        const rows = await productModel.findTopClosing(userId);
         res.json({ success: true, data: rows });;
     } catch (err) {
         res.status(500).json({ error: 'Lỗi server' });
     }
 });
 
-router.get('/top/bidding', async (req, res) => {
+router.get('/top/bidding', optionalAuth, async (req, res) => {
     try {
-        const rows = await productModel.findTopBidding();
+        const userId = req.user ? req.user.id : null;
+        const rows = await productModel.findTopBidding(userId);
         res.json({ success: true, data: rows });
     } catch (err) {
         res.status(500).json({ error: 'Lỗi server' });
     }
 });
 
-router.get('/top/pricing', async (req, res) => {
+router.get('/top/pricing', optionalAuth, async (req, res) => {
     try {
-        const rows = await productModel.findTopPricing();
+
+        const userId = req.user ? req.user.id : null;
+        const rows = await productModel.findTopPricing(userId); 
         res.json({ success: true, data: rows });
     } catch (err) {
         res.status(500).json({ error: 'Lỗi server' });
     }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
     try {
-        console.log('getAllProducts called with query:', req.query);
-        // truyền nguyên req.query vào service để giữ nguyên behavior
-        const rows = await productModel.getAllProducts(req.query);
+
+        const userId = req.user ? req.user.id : null;
+        const rows = await productModel.getAllProducts(req.query, userId);
         console.log('Found', rows.length, 'products');
         res.json({ success: true, data: rows });
     } catch (error) {
@@ -48,10 +53,11 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', optionalAuth, async (req, res) => {
     try {
+        const userId = req.user ? req.user.id : null;
         const { id } = req.params;
-        const data = await productModel.getProductDetail(id);
+        const data = await productModel.getProductDetail(id, userId);
 
         if (!data.product) {
             return res.status(404).json({ success: false, error: 'Product not found' });

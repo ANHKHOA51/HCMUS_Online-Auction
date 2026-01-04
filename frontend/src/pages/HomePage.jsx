@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import './HomePage.css';
 import ProductsGrid from '../components/ProductsGrid';
 import { useTopProductsEndingSoon, useTopProductsByBids, useTopProductsByPrice } from '../hooks/useTopProducts';
+import useWatchlist from '../hooks/useWatchlist';
 
 const HomePage = () => {
   const { products: endingSoonProducts, loading: loadingEndingSoon } = useTopProductsEndingSoon();
   const { products: mostBidProducts, loading: loadingBids } = useTopProductsByBids();
   const { products: premiumProducts, loading: loadingPrice } = useTopProductsByPrice();
+
 
   return (
     <div className="home-page">

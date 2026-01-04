@@ -3,113 +3,105 @@ import { useNavigate } from 'react-router-dom';
 import './ProductCard.css';
 import { getRelativeTime, shouldShowRelativeTime } from '../utils/timeUtil';
 import { formatPriceVN } from '../utils/formatCurrency';
+import HeartButton from './HeartButton';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+
+  if (!product) return null;
 
   const handleClick = () => {
     navigate(`/products/${product.id}`);
   };
 
-  if (!product) return null;
-
-  const defaultSrc = '/default-product.png';
-
-  let imageSrc = defaultSrc;
-
-  if (product.images && product.images.length > 0) {
-    const first = product.images[0];
-    if (typeof first === 'string') {
-      if (first.startsWith('https://') || first.startsWith('http://')) {
-        imageSrc = first;
-      } else {
-        imageSrc = `http://localhost:3000/static/images/products/${product.id}/${first}`;
-      }
-    }
-  }
+  // Lấy ảnh đầu tiên hoặc ảnh placeholder
+  const productImage = (product.images && product.images.length > 0) 
+    ? product.images[0] 
+    : 'https://via.placeholder.com/300x300?text=No+Image'; 
 
   return (
     <div className="product-card-wrapper" onClick={handleClick}>
-      {/* --- PHẦN ẢNH --- */}
+      
+      {/* --- ẢNH & BADGE --- */ }
       <div className="product-card-image">
         <img
-          src={imageSrc}
+          src={productImage}
           alt={product.name}
           className="product-img"
+          loading="lazy"
         />
-
-        {/* Badge trạng thái + Badge số lượt bid */}
+        
         <div className="card-badges">
-          <span className={`status-badge ${product.bid_count > 0 ? 'hot' : 'new'}`}>
-            {product.bid_count > 0 ? 'Hot' : 'Mới'}
-          </span>
+            {/* Logic hiển thị Badge: Nếu có bid thì là HOT, không thì là NEW */}
+            <span className={`status-badge ${product.bid_count > 0 ? 'hot' : 'new'}`}>
+                {product.bid_count > 0 ? 'HOT' : 'NEW'}
+            </span>
+            {/* Heart Button */}
+            <div className="heart-button-container" onClick={(e) => e.stopPropagation()}>
+              <HeartButton productId={product.id} initialState={product.is_favorite || false} />
+            </div>
         </div>
       </div>
 
-      {/* --- PHẦN NỘI DUNG --- */}
+      {/* --- NỘI DUNG --- */}
       <div className="product-card-body">
-        {/* 1. Tên sản phẩm */}
-        <h6 className="product-card-name" title={product.name}>{product.name}</h6>
+        
+        {/* Tên */}
+        <h3 className="product-card-name" title={product.name}>
+            {product.name}
+        </h3>
 
-        {/* 2. Thông tin Giá */}
+        {/* Giá */}
         <div className="product-pricing">
           <div className="price-group main-price">
             <span className="label">Hiện tại</span>
-            <span className="value highlight">
+            <span className="value">
               {formatPriceVN(product.current_price || product.starting_price)}
             </span>
           </div>
 
+          {/* Chỉ hiện giá mua ngay nếu có */}
           {product.buy_now_price && (
             <div className="price-group buy-now">
               <span className="label">Mua ngay</span>
-              <span className="value secondary">
+              <span className="value">
                 {formatPriceVN(product.buy_now_price)}
               </span>
             </div>
           )}
         </div>
 
-        {/* 3. Khu vực Thống kê (Box xám) */}
+        {/* Thống kê nhỏ */}
         <div className="product-stats-box">
-          <div className="stat-row">
-            <span className="icon">🔨</span>
-            <span className="text">
-              {product.bid_count > 0 ? <b>{product.bid_count} lượt đấu</b> : 'Chưa có lượt đấu'}
-            </span>
-          </div>
-          <div className="stat-row">
-            <span className="icon"></span>
-            <span className="text winner">
-              {product.winner_name ? (
-                <>Top: <b>{product.winner_name}</b></>
-              ) : (
-                <span className="muted">Chưa có người thắng</span>
-              )}
-            </span>
-          </div>
-        </div>
-
-        {/* 4. Footer: Thời gian */}
-        <div className="product-footer-meta">
-          {/* Ngày đăng */}
-          <div className="meta-item" title="Ngày đăng">
-            <small>Đăng: {new Date(product.created_at || Date.now()).toLocaleDateString('vi-VN')}</small>
-          </div>
-
-          {/* Thời gian còn lại */}
-          <div className="meta-item time-left">
-            {shouldShowRelativeTime(product.end_time) ? (
-              <span className="tag-urgent">
-                {getRelativeTime(product.end_time)}
-              </span>
-            ) : (
-              <span className="tag-finished">
-                Kết thúc: {new Date(product.end_time).toLocaleDateString('vi-VN')}
-              </span>
+            <div className="stat-row">
+                <span>🔨 {product.bid_count || 0} lượt đấu giá</span>
+            </div>
+            {product.winner_name && (
+                <div className="stat-row">
+                    <span className="winner">👑 Top: <b>{product.winner_name}</b></span>
+                </div>
             )}
-          </div>
         </div>
+
+        {/* Footer: Thời gian */}
+        <div className="product-footer-meta">
+            <div className="meta-item">
+                <small>{new Date(product.created_at).toLocaleDateString('vi-VN')}</small>
+            </div>
+            
+            <div className="meta-item">
+                {shouldShowRelativeTime(product.end_time) ? (
+                    <span className="tag-urgent">
+                        ⏳ {getRelativeTime(product.end_time)}
+                    </span>
+                ) : (
+                    <span className="tag-finished">
+                        Đã kết thúc
+                    </span>
+                )}
+            </div>
+        </div>
+
       </div>
     </div>
   );

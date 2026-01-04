@@ -45,12 +45,18 @@ export const AuthProvider = ({ children }) => {
     const refreshToken = async () => {
         if (!cur_user) return;
         
+    try {
         const res = await refreshReq();
-
-        if (!res.ok) return;
-
-        setAccessToken(res.data.accessToken);
-    };
+        if (res.ok) {
+            setAccessToken(res.data.accessToken);
+            sessionStorage.setItem('accessToken', res.data.accessToken);  // Lưu vào sessionStorage
+        } else {
+            console.warn('Auto-refresh failed');
+        }
+    } catch (error) {
+        console.error('Auto-refresh error:', error);
+    }
+};
 
     useEffect(() => {
         const interval = setInterval(() => {

@@ -1,17 +1,18 @@
+/* Xóa bỏ border và shadow cũ vì class cha (.card-box) đã lo việc này rồi */
 .user-info-card {
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0; /* Xóa padding để nó tận dụng padding của cha */
+  width: 100%;
 }
 
 .user-header {
   display: flex;
   gap: 15px;
-  margin-bottom: 15px;
-  align-items: flex-start;
+  align-items: center;
+  /* Quan trọng: Giúp con bên trong tính toán độ rộng chính xác */
+  min-width: 0; 
 }
 
 .user-avatar {
@@ -19,56 +20,78 @@
 }
 
 .user-avatar img {
-  width: 80px;
-  height: 80px;
+  width: 60px; /* Giảm xuống xíu cho gọn sidebar */
+  height: 60px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ddd;
+  border: 2px solid var(--pg-stroke); /* Viền đậm theo theme */
+  background-color: #fff;
 }
 
 .user-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* Quan trọng để cắt chữ nếu quá dài */
   flex: 1;
+  min-width: 0; 
 }
 
 .user-name {
   margin: 0;
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
   font-size: 18px;
+  color: var(--pg-headline);
+  
+  /* Xử lý tên quá dài sẽ thành dấu ... */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .user-role {
-  margin: 5px 0;
-  color: #666;
-  font-size: 14px;
+  margin: 2px 0 6px 0;
+  color: var(--pg-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.user-rating {
-  margin-top: 8px;
-}
-
+/* Badge đánh giá */
 .rating-badge {
-  display: inline-block;
-  background: #fff3cd;
-  color: #856404;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  background: var(--pg-warning); /* Màu vàng warning */
+  color: var(--pg-headline);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid var(--pg-stroke);
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
 }
 
+/* Phần liên hệ bên dưới */
 .user-contact {
-  background: #f5f5f5;
-  padding: 12px;
-  border-radius: 6px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 2px dashed var(--pg-secondary); /* Đường kẻ đứt nét */
   font-size: 14px;
+  color: var(--pg-paragraph);
 }
 
 .user-contact p {
-  margin: 6px 0;
-  color: #555;
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  /* Xử lý email dài quá thì xuống dòng */
+  word-break: break-all; 
 }
 
 .user-contact strong {
-  color: #333;
+  color: var(--pg-headline);
+  min-width: 70px; /* Canh thẳng hàng label */
 }

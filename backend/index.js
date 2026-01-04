@@ -5,9 +5,17 @@ import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.routes.js';
 import productRouter from './routes/product.route.js';
 import categoryRouter from './routes/category.route.js';
+//import bidRouter from './routes/bid.route.js';
+import watchlistRouter from './routes/watchlist.route.js';
+import bidRouter from './routes/bid.routes.js';
+import questionRouter from './routes/question.route.js';
 
 const app = express();
 const PORT = 3000;
+
+// Log environment variables
+console.log('🔍 JWT_ACCESS_TOKEN_SECRET:', process.env.JWT_ACCESS_TOKEN_SECRET ? '✓ Set' : '❌ Not set');
+console.log('🔍 JWT_REFRESH_TOKEN_SECRET:', process.env.JWT_REFRESH_TOKEN_SECRET ? '✓ Set' : '❌ Not set');
 
 console.log('🚀 Starting server...');
 
@@ -37,6 +45,13 @@ console.log('✓ Middleware configured');
 app.use('/auths', authRouter);
 app.use('/products', productRouter);
 app.use('/categories', categoryRouter);
+//app.use('/bids', bidRouter);
+app.use('/watchlists', watchlistRouter);
+app.use('/bids', bidRouter);
+app.use('/questions', questionRouter);
+
+
+
 
 
 app.get('/', (req, res) => {

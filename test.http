@@ -1,0 +1,65 @@
+### Test API Endpoints
+
+@baseUrl = http://localhost:3000
+
+### Get Product Detail - Anonymous
+GET {{baseUrl}}/products/1
+
+### Get Product Detail - With Auth Token
+GET {{baseUrl}}/products/1
+Authorization: Bearer your_token_here
+
+### Get All Products
+GET {{baseUrl}}/products
+
+### Get Top Closing Products
+GET {{baseUrl}}/products/top/closing
+
+### Get Top Bidding Products
+GET {{baseUrl}}/products/top/bidding
+
+### Get Top Pricing Products
+GET {{baseUrl}}/products/top/pricing
+
+### Register User
+POST {{baseUrl}}/auths/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test@123",
+  "password_confirmation": "Test@123",
+  "full_name": "Test User"
+}
+
+### Login
+POST {{baseUrl}}/auths/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test@123"
+}
+
+### Refresh Token
+POST {{baseUrl}}/auths/refresh
+
+### Toggle Watchlist
+POST {{baseUrl}}/watchlists/1
+Authorization: Bearer your_token_here
+
+### Get Watchlist
+GET {{baseUrl}}/watchlists
+Authorization: Bearer your_token_here
+
+### Place Bid
+POST {{baseUrl}}/bids/2/bid
+Authorization: Bearer your_token_here
+Content-Type: application/json
+
+{
+  "price": 150000
+}
+
+### Get Bid History
+GET {{baseUrl}}/bids/4/history

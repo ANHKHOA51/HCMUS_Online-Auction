@@ -1,6 +1,6 @@
 import { generateOTP } from '../utils/otp.js';
 import { db } from '../utils/db.js';
-import { comparePassword } from '../utils/password.js';
+import { comparePassword, hashPassword } from '../utils/password.js';
 import { PendingRegistrationModel } from '../models/pending_registration.model.js';
 import UserModel from '../models/user.model.js';
 import RefreshTokenModel from '../models/refresh_tokens.model.js';
@@ -106,11 +106,16 @@ export const AuthService = {
     signIn: async (identifier, password) => {
         try {
             const user = await UserModel.findByUsernameOrEmail(identifier);
-            console.log(user)
+            console.log('User found:', user);
+            
             if (!user) {
                 return { ok: false }
             } else {
+                console.log('Password hash:', user.password_hash ? `[${user.password_hash.substring(0, 20)}...]` : 'NULL');
+                console.log('Password input:', password);
+                
                 const rs = await comparePassword(password, user.password_hash)
+                console.log('Password compare result:', rs);
 
                 if (rs) {
                     const accessToken = generateAccessToken({
@@ -173,6 +178,7 @@ export const AuthService = {
             if (!token) return { ok: false }
 
             const decoded = verifyRefreshToken(refreshToken)
+            const user = await UserModel.findById(decoded.id)
             const newAccessToken = generateAccessToken({
                 id: decoded.id,
                 role: decoded.role
@@ -185,7 +191,8 @@ export const AuthService = {
             return {
                 ok: true,
                 accessToken: newAccessToken,
-                refreshToken: newRefreshToken
+                refreshToken: newRefreshToken,
+                user: user
             }
         } catch (error) {
             console.error('refreshToken error:', error);

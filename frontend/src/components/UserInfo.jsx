@@ -15,7 +15,7 @@ const UserInfo = ({ user, role, isHighestBidder = false }) => {
     <div className="user-info-card">
       <div className="user-header">
         <div className="user-avatar">
-          <img src={user.avatar || '/default-avatar.png'} alt={user.full_name} />
+          <img src={user.avatar || '/default-avatar.png'} alt={'failed'} />
         </div>
         <div className="user-details">
           <h5 className="user-name">{user.full_name || user.username}</h5>

@@ -51,7 +51,16 @@ export const useProducts = (queryParams = {}) => {
         setLoading(true);
         setError(null);
 
-        const productsRes = await productService.getProducts(queryParams);
+        const token = getToken();
+
+        // Fetch categories always
+        const categoriesRes = await productService.getCategories();
+        if (categoriesRes.success) {
+          setCategories(categoriesRes.data);
+        }
+
+        // Fetch products with query params (search, category, sort)
+        const productsRes = await productService.getProducts(queryParams, token);
         if (productsRes.success) {
           setProducts(productsRes.data);
           productsCache.set(queryKey, productsRes.data);
@@ -103,7 +112,10 @@ export const useProductDetail = (productId) => {
         setLoading(true);
         setError(null);
 
-        const result = await productService.getProductDetail(productId);
+        const token = getToken();
+        // Fetch product details
+
+        const result = await productService.getProductDetail(productId, token);
         if (!result.success) {
           throw new Error(result.error || 'Lỗi không xác định');
         }
