@@ -18,6 +18,15 @@ export const OrderModel = {
             .orderBy('o.created_at', 'desc');
     },
 
+    cancelOrder: async (id, reason) => {
+        return db('orders').where({ id }).update({
+            status: 'cancelled',
+            is_cancelled: true,
+            cancellation_reason: reason,
+            buyer_rating: -1,
+            buyer_comment: 'Auto-negative: Order cancelled'
+        });
+    },
     // Tìm đơn hàng của người mua
     findByBuyer: async (buyerId) => {
         return db('orders as o')

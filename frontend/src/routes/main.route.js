@@ -17,7 +17,7 @@ import EditCategory from "../features/AdminManagement/components/EditCategory";
 import ListUser from "../features/AdminManagement/components/ListUser";
 import ProductDetail from "../features/AdminManagement/components/ProductDetail";
 import SellerOrderList from "../features/Payment/components/SellerOrderList";
-import BuyerOrderList from "../features/Payment/components/BuyerOrderList";
+// import BuyerOrderList from "../features/Payment/components/BuyerOrderList";
 import UserDetail from "../features/AdminManagement/components/UserDetail";
 
 // ... existing imports
@@ -32,7 +32,7 @@ const router = createBrowserRouter([
             { path: "products/:id", Component: ProductDetailPage },
             { path: "products/add-product", Component: AddProductPage },
             { path: "seller/orders", Component: SellerOrderList },
-            { path: "buyer/orders", Component: BuyerOrderList }
+            // { path: "buyer/orders", Component: BuyerOrderList }
         ]
     },
 

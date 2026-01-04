@@ -37,23 +37,6 @@ router.get('/seller', async (req, res) => {
     }
 });
 
-// GET /orders/buyer - Get all orders for the logged-in buyer
-router.get('/buyer', async (req, res) => {
-    const buyerId = req.query.buyer_id;
-
-    if (!buyerId) {
-        return res.status(401).json({ success: false, message: 'Unauthorized: Buyer ID required' });
-    }
-
-    try {
-        const orders = await OrderModel.findByBuyer(buyerId);
-        res.json({ success: true, data: orders });
-    } catch (error) {
-        console.error('Error fetching buyer orders:', error);
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
 // POST /orders/confirm/:id
 router.post('/confirm/:id', async (req, res) => {
     const { id } = req.params;
@@ -64,8 +47,8 @@ router.post('/confirm/:id', async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Update order status with shipping info
-        await OrderModel.updateStatus(id, 'paid', null, shipping_info);
+        // Update order status to shipping
+        await OrderModel.updateStatus(id, 'shipping', null, shipping_info);
 
         // Also update product status to 'sold'? Or keep it active until specific logic?
         // Usually "paid" means deal closed.
@@ -73,6 +56,23 @@ router.post('/confirm/:id', async (req, res) => {
         res.json({ success: true, message: 'Order confirmed successfully' });
     } catch (error) {
         console.error('Error confirming order:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// POST /orders/delivered/:id
+router.post('/delivered/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const order = await OrderModel.findById(id);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        await OrderModel.updateStatus(id, 'shipped');
+        res.json({ success: true, message: 'Order marked as shipped' });
+    } catch (error) {
+        console.error('Error updating order:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
@@ -92,6 +92,31 @@ router.post('/reject/:id', async (req, res) => {
         res.json({ success: true, message: 'Order rejected' });
     } catch (error) {
         console.error('Error rejecting order:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// POST /orders/cancel/:id
+router.post('/cancel/:id', async (req, res) => {
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    try {
+        const order = await OrderModel.findById(id);
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        await OrderModel.cancelOrder(id, reason);
+
+        // Auto-rate buyer as negative
+        if (order.buyer_id) {
+            await userModel.rate(order.buyer_id, 'negative');
+        }
+
+        res.json({ success: true, message: 'Order cancelled and buyer rated negative' });
+    } catch (error) {
+        console.error('Error cancelling order:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

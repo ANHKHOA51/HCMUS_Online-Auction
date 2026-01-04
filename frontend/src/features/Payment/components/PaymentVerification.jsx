@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { X, Check, XCircle } from 'lucide-react';
 import BuyerRating from './BuyerRating';
 
-export default function PaymentVerification({ order, onClose, onConfirm, onReject }) {
+export default function PaymentVerification({ order, onClose, onConfirm, onReject, initialShowRating = false }) {
     const [rejecting, setRejecting] = useState(false);
     const [rejectNote, setRejectNote] = useState('');
-    const [showRating, setShowRating] = useState(false);
+    const [showRating, setShowRating] = useState(initialShowRating || order.status === 'shipped');
 
     const [shippingCode, setShippingCode] = useState('');
 
@@ -17,7 +17,7 @@ export default function PaymentVerification({ order, onClose, onConfirm, onRejec
         // Optimistic UI or wait for API
         const success = await onConfirm(order.id, shippingCode);
         if (success) {
-            setShowRating(true);
+            onClose();
         }
     };
 

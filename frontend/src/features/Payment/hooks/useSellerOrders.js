@@ -54,6 +54,7 @@ export default function useSellerOrders() {
         loading,
         error,
         refreshOrders: fetchOrders,
+        fetchOrders, // Expose directly
         confirmOrder: handleConfirm,
         rejectOrder: handleReject
     };
