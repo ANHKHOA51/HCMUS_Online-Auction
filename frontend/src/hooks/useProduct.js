@@ -5,6 +5,10 @@ import { productService } from '../services/product';
 let categoriesCache = null;
 let categoriesPromise = null;
 
+const getToken = () => {
+  return sessionStorage.getItem('accessToken'); // Hoặc tên key bạn đã lưu lúc login
+};
+
 // Global cache for products (key: JSON.stringify(queryParams))
 const productsCache = new Map();
 
