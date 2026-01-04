@@ -65,6 +65,18 @@ CREATE TABLE public.notifications (
   CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
   CONSTRAINT notifications_related_product_id_fkey FOREIGN KEY (related_product_id) REFERENCES public.products(id)
 );
+CREATE TABLE public.orders (
+  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
+  product_id integer,
+  buyer_id integer,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  status character varying,
+  payment_info text,
+  seller_note text,
+  CONSTRAINT orders_pkey PRIMARY KEY (id),
+  CONSTRAINT orders_buyer_id_fkey FOREIGN KEY (buyer_id) REFERENCES public.users(id),
+  CONSTRAINT orders_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
+);
 CREATE TABLE public.pending_registrations (
   id integer NOT NULL DEFAULT nextval('pending_registrations_id_seq'::regclass),
   firstname character varying,
@@ -143,7 +155,7 @@ CREATE TABLE public.users (
   id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
   username character varying NOT NULL UNIQUE,
   password_hash text NOT NULL,
-  full_name character varying,
+  full_name character varying NOT NULL,
   email character varying NOT NULL UNIQUE,
   address text,
   rating_positive integer DEFAULT 0,

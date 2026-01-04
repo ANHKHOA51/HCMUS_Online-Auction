@@ -200,6 +200,7 @@ export default function Header() {
 										menuVariant="dark"
 									>
 										<NavDropdown.Item >Xem thông tin</NavDropdown.Item>
+										{cur_user.role === 2 && <NavDropdown.Item onClick={() => navigate('/seller/orders')}>Quản lý đơn hàng</NavDropdown.Item>}
 										<NavDropdown.Divider className="border-white" />
 										<NavDropdown.Item onClick={logout}>
 											Đăng xuất

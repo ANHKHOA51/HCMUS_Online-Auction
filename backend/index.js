@@ -6,6 +6,7 @@ import authRouter from './routes/auth.routes.js';
 import productRouter from './routes/product.route.js';
 import categoryRouter from './routes/category.route.js';
 import userRouter from './routes/user.route.js';
+import orderRouter from './routes/order.route.js';
 
 const app = express();
 const PORT = 3000;
@@ -39,6 +40,7 @@ app.use('/auths', authRouter);
 app.use('/products', productRouter);
 app.use('/categories', categoryRouter);
 app.use('/users', userRouter);
+app.use('/orders', orderRouter);
 
 
 app.get('/', (req, res) => {

@@ -16,7 +16,10 @@ import AddCategory from "../features/AdminManagement/components/AddCategory";
 import EditCategory from "../features/AdminManagement/components/EditCategory";
 import ListUser from "../features/AdminManagement/components/ListUser";
 import ProductDetail from "../features/AdminManagement/components/ProductDetail";
+import SellerOrderList from "../features/Payment/components/SellerOrderList";
 import UserDetail from "../features/AdminManagement/components/UserDetail";
+
+// ... existing imports
 
 const router = createBrowserRouter([
     {
@@ -26,7 +29,8 @@ const router = createBrowserRouter([
             { index: true, Component: HomePage },
             { path: "search", Component: SearchResultsPage },
             { path: "products/:id", Component: ProductDetailPage },
-            { path: "products/add-product", Component: AddProductPage }
+            { path: "products/add-product", Component: AddProductPage },
+            { path: "seller/orders", Component: SellerOrderList }
         ]
     },
 
