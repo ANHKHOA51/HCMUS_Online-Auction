@@ -108,6 +108,13 @@ export default function useCategory() {
         setDeleteConfirm(null);
     };
 
+    const showError = (msg) => {
+        setError(msg);
+        setTimeout(() => {
+            setError(null);
+        }, 3000);
+    };
+
     const handleDelete = async (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -115,10 +122,13 @@ export default function useCategory() {
         try {
             const response = await categoryService.deleteCategory(deleteConfirm.id);
             console.log("Category deleted:", response);
+            if (!response.ok) {
+                showError(response.message || response.data?.message);
+            }
             // Optionally, you can refresh the categories list or provide feedback to the user
-            navigate('/admin/categories');
         } catch (error) {
             console.error("Failed to delete category", error);
+            showError(error.message);
         }
 
         setDeleteConfirm(null);

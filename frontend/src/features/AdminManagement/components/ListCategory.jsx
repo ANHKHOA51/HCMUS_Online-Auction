@@ -5,10 +5,15 @@ import useCategory from "../hooks/useCategory.jsx";
 
 export default function ListCategories() {
     // Mock data for UI preview
-    const { categories, deleteConfirm, handleDeleteClick, hideDeleteConfirmDialog, handleDelete } = useCategory();
+    const { categories, deleteConfirm, handleDeleteClick, hideDeleteConfirmDialog, handleDelete, error } = useCategory();
 
     return (
         <div className="w-full">
+            {error && (
+                <div className="block border border-red-500 !rounded-lg p-4 bg-red-50 absolute top-10 left-1/2 text-red-500 mb-4">
+                    {error}
+                </div>
+            )}
             {/* Header */}
             <div className="mb-8">
                 <div className="flex items-center justify-between">
@@ -68,7 +73,7 @@ export default function ListCategories() {
                                             {/* Edit Button */}
                                             <Link
                                                 to={`/admin/categories/edit/${category.id}`}
-                                                className="p-2 border border-[#E2E8F0] ! hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200"
+                                                className="p-2 border border-[#E2E8F0] !rounded hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200"
                                                 aria-label={`Edit ${category.name}`}
                                             >
                                                 <Pencil className="w-4 h-4" />

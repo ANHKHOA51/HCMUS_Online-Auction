@@ -67,6 +67,12 @@ router.delete('/delete/:id', async (req, res) => {
             res.status(404).json({ success: false, message: 'Category not found' });
         }
     } catch (error) {
+        if (error.message === 'CATEGORY_HAS_PRODUCTS') {
+            return res.status(400).json({
+                success: false,
+                message: 'Cannot delete category because it contains products.'
+            });
+        }
         console.error('Error deleting category:', error);
         res.status(500).json({ success: false, error: error.message });
     }

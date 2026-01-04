@@ -33,7 +33,21 @@ export const CategoryModel = {
     },
 
     delete: async (id) => {
-        const deletedRows = await db('categories').where({ id }).del();
+        const deletedRows = await db('categories')
+            .where({ id })
+            .whereNotExists(function () {
+                this.select('id').from('products').whereRaw('products.category_id = categories.id');
+            })
+            .del();
+
+        if (deletedRows === 0) {
+            // If delete failed, check if category exists to determine error
+            const category = await db('categories').where({ id }).first();
+            if (category) {
+                // Category exists, so checking products prevented deletion
+                throw new Error('CATEGORY_HAS_PRODUCTS');
+            }
+        }
         return deletedRows;
     },
 
