@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { formatPriceVN } from '../utils/formatCurrency';
 import { getRelativeTime } from '../utils/timeUtil';
 import { useBidHistory } from '../hooks/useBidHistory';
+import Pagination from './Pagination';
 import './BidHistory.css';
 
 const BidHistory = ({ productId }) => {
   const  { bidHistory, isLoading, error } = useBidHistory(productId);
   // --- STATE CHO PHÂN TRANG ---
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Số lượt đấu giá trên mỗi trang
+  const itemsPerPage = 3; // Số lượt đấu giá trên mỗi trang
 
 
   const bids = bidHistory;
@@ -69,36 +70,11 @@ const BidHistory = ({ productId }) => {
           </div>
 
           {/* --- THANH PHÂN TRANG (PAGINATION) --- */}
-          {totalPages > 1 && (
-            <div className="pagination-container">
-              <button 
-                className="page-btn prev"
-                onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                &lt;
-              </button>
-
-              {/* Render số trang */}
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i + 1}
-                  className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                  onClick={() => paginate(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              ))}
-
-              <button 
-                className="page-btn next"
-                onClick={() => paginate(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                &gt;
-              </button>
-            </div>
-          )}
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={paginate} 
+          />
         </>
       )}
     </div>

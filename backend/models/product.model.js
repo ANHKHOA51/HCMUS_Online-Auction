@@ -138,11 +138,43 @@ export const ProductModel = {
 
             return { product, highestBidder, faqs, relatedProducts };
         } catch (error) {
-            console.error('Error in getProductDetail:', error);
+            console.error('Error getting product detail:', error);
             throw error;
         }
     },
 
+    // Lấy danh sách sản phẩm user đang tham gia đấu giá
+    getBiddingProducts: async (userId) => {
+        try {
+            // Lấy các sản phẩm mà user đã bid VÀ sản phẩm đó chưa kết thúc (status = 'active')
+            // DISTINCT để tránh trùng lặp nếu user bid nhiều lần vào 1 sản phẩm
+            const query = createBaseQuery(userId)
+                .join('bids as b', 'p.id', 'b.product_id')
+                .where('b.bidder_id', userId)
+                .where('p.status', 'active')
+                .distinct('p.id'); // Quan trọng: Chỉ lấy mỗi sản phẩm 1 lần
+
+            return await query;
+        } catch (error) {
+            console.error('Error getting bidding products:', error);
+            throw error;
+        }
+    },
+
+    // Lấy danh sách sản phẩm user đã thắng
+    getWonProducts: async (userId) => {
+        try {
+            const query = createBaseQuery(userId)
+                .where('p.winner_id', userId)
+                .where('p.status', 'sold');
+            
+            return await query;
+        } catch (error) {
+            console.error('Error getting won products:', error);
+            throw error;
+        }
+    },
+        
     getProductBids: async (id) => {
         // Hàm này đơn giản, giữ nguyên
         return db('bids as b')

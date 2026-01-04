@@ -3,6 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/HomePage";
 import SearchResultsPage from "../components/SearchResults";
 import ProductDetailPage from "../pages/ProductDetailPage";
+import ProfilePage from "../pages/Profile/ProfilePage";
 import AuthLayout from "../layouts/AuthLayout";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
@@ -15,7 +16,8 @@ const router = createBrowserRouter([
         children: [
             { index: true, Component: HomePage },
             { path: "search", Component: SearchResultsPage },
-            { path: "products/:id", Component: ProductDetailPage }
+            { path: "products/:id", Component: ProductDetailPage },
+            { path: "profile", Component: ProfilePage }
         ]
     },
 

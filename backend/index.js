@@ -9,6 +9,7 @@ import categoryRouter from './routes/category.route.js';
 import watchlistRouter from './routes/watchlist.route.js';
 import bidRouter from './routes/bid.routes.js';
 import questionRouter from './routes/question.route.js';
+import userRouter from './routes/user.routes.js';
 
 const app = express();
 const PORT = 3000;
@@ -47,6 +48,7 @@ app.use('/categories', categoryRouter);
 app.use('/watchlists', watchlistRouter);
 app.use('/bids', bidRouter);
 app.use('/questions', questionRouter);
+app.use('/users', userRouter);
 
 
 

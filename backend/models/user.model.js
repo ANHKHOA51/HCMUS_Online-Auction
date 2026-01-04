@@ -60,6 +60,17 @@ export const UserModel = {
                 score: 0.8  // Default score (allow bid)
             };
         }
+    },
+
+    update: async (id, data) => {
+        return db('users')
+            .where({ id })
+            .update(data)
+            .returning('*'); // Trả về user đã update
+    },
+
+    findByIdWithPassword: (id) => {
+        return db('users').where({ id }).first();
     }
 };
 

@@ -199,7 +199,7 @@ export default function Header() {
 										title={`Xin chào ${cur_user.username}`}
 										menuVariant="dark"
 									>
-										<NavDropdown.Item >Xem thông tin</NavDropdown.Item>
+										<NavDropdown.Item onClick={() => navigate('/profile')}>Xem thông tin</NavDropdown.Item>
 										<NavDropdown.Divider className="border-white" />
 										<NavDropdown.Item onClick={logout}>
 											Đăng xuất
