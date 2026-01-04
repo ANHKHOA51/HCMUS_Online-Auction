@@ -46,3 +46,18 @@ export function rejectOrder(orderId, note) {
             return { ok: false, message: error.message };
         });
 }
+
+export function rateBuyer(orderId, note) {
+    return fetch(`http://localhost:3000/users/rate/${orderId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ note })
+    })
+        .then(response => response.json())
+        .then(data => ({ ok: data.success, message: data.message }))
+        .catch(error => {
+            console.error("Error rating buyer:", error);
+            return { ok: false, message: error.message };
+        });
+}

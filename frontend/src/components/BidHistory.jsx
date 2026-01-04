@@ -5,7 +5,7 @@ import { useBidHistory } from '../hooks/useBidHistory';
 import './BidHistory.css';
 
 const BidHistory = ({ productId }) => {
-  const  { bidHistory, isLoading, error } = useBidHistory(productId);
+  const { bidHistory, isLoading, error } = useBidHistory(productId);
   // --- STATE CHO PHÂN TRANG ---
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5; // Số lượt đấu giá trên mỗi trang
@@ -45,19 +45,19 @@ const BidHistory = ({ productId }) => {
             {currentBids.map((bid, index) => {
               // Tính thứ hạng thực tế (cộng dồn theo trang)
               const realRank = indexOfFirstItem + index + 1;
-              
+
               return (
                 <div key={bid.id} className={`bid-item ${realRank === 1 ? 'top-1' : ''}`}>
                   <div className="bid-user-info">
                     <div className={`rank-badge ${realRank <= 3 ? `rank-${realRank}` : ''}`}>
-                        {realRank}
+                      {realRank}
                     </div>
                     <div className="bidder-details">
-                        <span className="bidder-name">
-                            {maskName(bid.full_name || bid.username)}
-                            {realRank === 1 && <span className="crown-icon"> 👑</span>}
-                        </span>
-                        <span className="bid-time">{new Date(bid.time).toLocaleString('vi-VN')}</span>
+                      <span className="bidder-name">
+                        {maskName(bid.full_name || bid.username)}
+                        {realRank === 1 && <span className="crown-icon"> 👑</span>}
+                      </span>
+                      <span className="bid-time">{new Date(bid.time).toLocaleString('vi-VN')}</span>
                     </div>
                   </div>
                   <div className="bid-amount">
@@ -71,7 +71,7 @@ const BidHistory = ({ productId }) => {
           {/* --- THANH PHÂN TRANG (PAGINATION) --- */}
           {totalPages > 1 && (
             <div className="pagination-container">
-              <button 
+              <button
                 className="page-btn prev"
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -90,7 +90,7 @@ const BidHistory = ({ productId }) => {
                 </button>
               ))}
 
-              <button 
+              <button
                 className="page-btn next"
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}

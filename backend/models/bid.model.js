@@ -14,8 +14,8 @@ export default {
         'bids.id',
         'bids.bidder_id',
         'bids.product_id',
-        'bids.bid_amount as amount',  
-        'bids.bid_time as time', 
+        'bids.bid_amount as amount',
+        'bids.bid_time as time',
         'users.full_name',
         'users.username'
       )

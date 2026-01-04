@@ -145,6 +145,10 @@ export const UserModel = {
             await trx("users").where({ id }).delete();
         });
     },
+
+    rate: async (id, note) => {
+        return db("users").where({ id }).increment(`rating_${note}`, 1);
+    },
 };
 
 export default UserModel;

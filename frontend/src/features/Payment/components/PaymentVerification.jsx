@@ -91,13 +91,13 @@ export default function PaymentVerification({ order, onClose, onConfirm, onRejec
                         <>
                             <button
                                 onClick={() => setRejecting(true)}
-                                className="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-200 !rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors"
                             >
                                 Reject Payment
                             </button>
                             <button
                                 onClick={handleConfirmClick}
-                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 !rounded-lg hover:bg-green-700 transition-colors shadow-sm"
                             >
                                 <Check className="w-4 h-4" />
                                 Confirm Payment
@@ -114,7 +114,7 @@ export default function PaymentVerification({ order, onClose, onConfirm, onRejec
                             <button
                                 onClick={handleRejectSubmit}
                                 disabled={!rejectNote.trim()}
-                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 !rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <XCircle className="w-4 h-4" />
                                 Confirm Rejection

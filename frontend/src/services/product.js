@@ -10,7 +10,7 @@ export const productService = {
             ...(params.category && { category_id: params.category }),
             ...(params.sort && { sort: params.sort }),
         };
-        
+
         const response = await axiosInstance.get('/products', { params: apiParams });
         return response.data;
     },
@@ -64,16 +64,23 @@ export const productService = {
     },
 
     async addProduct(formData, token) {
+        // ... existing addProduct logic ...
+        // Note: Ideally refactor to use axiosInstance but keeping scope minimal
         const response = await fetch(`${API_BASE_URL}/products/add`, {
             method: 'POST',
             headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(formData)
         });
         if (!response.ok) throw new Error('Lỗi khi thêm sản phẩm');
         return response.json();
+    },
+
+    async appendDescription(productId, description) {
+        const response = await axiosInstance.patch(`/products/${productId}/description`, { description });
+        return response.data;
     }
 };
 
