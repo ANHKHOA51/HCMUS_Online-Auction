@@ -83,7 +83,7 @@ export const productService = {
         const response = await axiosInstance.post(`/products/${productId}/cancel`);
         return response.data;
     }
-    }
-};
+}
+;
 
 export default productService;
