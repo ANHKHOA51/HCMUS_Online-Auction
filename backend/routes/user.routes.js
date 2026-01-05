@@ -65,7 +65,7 @@ router.patch('/change-password', authMiddleware, async (req, res) => {
         }
 
         // Verify old password
-        const isValid = await comparePassword(old_password, user.password);
+        const isValid = await comparePassword(old_password, user.password_hash);
         if (!isValid) {
             return res.status(400).json({ message: 'Mật khẩu cũ không chính xác.' });
         }
@@ -74,7 +74,7 @@ router.patch('/change-password', authMiddleware, async (req, res) => {
         const hashedPassword = await hashPassword(new_password);
 
         // Update
-        await UserModel.update(userId, { password: hashedPassword });
+        await UserModel.update(userId, { password_hash: hashedPassword });
 
         res.json({ message: 'Đổi mật khẩu thành công.' });
 

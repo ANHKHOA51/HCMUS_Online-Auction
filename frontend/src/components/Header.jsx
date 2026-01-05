@@ -201,7 +201,10 @@ export default function Header() {
 									>
 										<NavDropdown.Item onClick={() => navigate('/profile')}>Xem thông tin</NavDropdown.Item>
 										<NavDropdown.Divider className="border-white" />
-										<NavDropdown.Item onClick={logout}>
+										<NavDropdown.Item onClick={() => {
+											logout();
+											navigate('/login');
+										}}>
 											Đăng xuất
 										</NavDropdown.Item>
 									</NavDropdown>

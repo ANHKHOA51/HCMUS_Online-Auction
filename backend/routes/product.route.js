@@ -51,6 +51,49 @@ router.get('/', optionalAuth, async (req, res) => {
     }
 });
 
+// --- Seller Routes ---
+
+// Lấy danh sách sản phẩm đang đăng bán (Active)
+router.get('/seller/active', auth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const products = await productModel.findBySellerId(userId, 'active');
+        res.json({ success: true, data: products });
+    } catch (error) {
+        console.error('Error fetching active products:', error);
+        res.status(500).json({ success: false, error: 'Lỗi server' });
+    }
+});
+
+// Lấy danh sách sản phẩm đã có người thắng (Sold)
+router.get('/seller/sold', auth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const products = await productModel.findBySellerId(userId, 'sold');
+        res.json({ success: true, data: products });
+    } catch (error) {
+        console.error('Error fetching sold products:', error);
+        res.status(500).json({ success: false, error: 'Lỗi server' });
+    }
+});
+
+// Huỷ giao dịch (Cancel Transaction)
+router.post('/:id/cancel', auth, async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const sellerId = req.user.id;
+        
+        await productModel.cancelTransaction(productId, sellerId);
+        
+        res.json({ success: true, message: 'Đã huỷ giao dịch thành công' });
+    } catch (error) {
+        console.error('Error cancelling transaction:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// --- End Seller Routes ---
+
 router.get('/:id', optionalAuth, async (req, res) => {
     try {
         const userId = req.user ? req.user.id : null;

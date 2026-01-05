@@ -3,34 +3,52 @@
     max-width: 1400px;
     margin: 0 auto;
     padding: 40px 15px;
-    display: flex;
-    gap: 30px;
     min-height: 600px;
+}
+
+.profile-dashboard-card {
+    display: flex;
+    background: var(--color-white);
+    border: 2px solid var(--color-dark);
+    box-shadow: 8px 8px 0 var(--color-dark);
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 600px;
+}
+
+@media (max-width: 992px) {
+    .profile-dashboard-card {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .profile-sidebar {
+        width: 100%;
+        border-right: none !important;
+        border-bottom: 2px solid var(--color-dark);
+    }
 }
 
 /* --- SIDEBAR (MENU TRÁI) --- */
 .profile-sidebar {
     width: 280px;
     flex-shrink: 0;
-    background: white;
-    border-radius: 16px;
+    background: var(--color-white);
     padding: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    height: fit-content;
-    border: 1px solid #eee;
+    border-right: 2px solid var(--color-dark);
 }
 
 .user-summary {
     text-align: center;
     margin-bottom: 24px;
     padding-bottom: 24px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 2px dashed var(--color-gray-600);
 }
 
 .user-avatar-placeholder {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--color-primary);
     color: white;
     font-size: 32px;
     font-weight: bold;
@@ -39,18 +57,21 @@
     align-items: center;
     justify-content: center;
     margin: 0 auto 12px;
+    border: 2px solid var(--color-dark);
 }
 
 .user-summary h3 {
     margin: 0;
     font-size: 1.2rem;
-    color: #333;
+    color: var(--color-dark);
+    font-weight: 700;
 }
 
 .user-summary p {
     margin: 4px 0 0;
-    color: #666;
+    color: var(--color-gray-600);
     font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .profile-menu {
@@ -66,10 +87,10 @@
     padding: 12px 16px;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s;
-    color: #555;
-    font-weight: 500;
-    border: none;
+    transition: all 0.1s;
+    color: var(--color-dark);
+    font-weight: 600;
+    border: 2px solid transparent;
     background: none;
     width: 100%;
     text-align: left;
@@ -77,14 +98,17 @@
 }
 
 .menu-item:hover {
-    background-color: #f5f7fa;
-    color: #667eea;
+    background-color: var(--color-white);
+    border-color: var(--color-dark);
+    transform: translate(-2px, -2px);
+    box-shadow: 2px 2px 0 var(--color-dark);
 }
 
 .menu-item.active {
-    background-color: #eef2ff;
-    color: #667eea;
-    font-weight: 600;
+    background-color: var(--color-accent);
+    color: var(--color-dark);
+    border-color: var(--color-dark);
+    box-shadow: 2px 2px 0 var(--color-dark);
 }
 
 .menu-icon {
@@ -93,13 +117,12 @@
 
 /* --- CONTENT (NỘI DUNG PHẢI) --- */
 .profile-content {
-    flex-grow: 1;
+    flex: 1;
     background: white;
-    border-radius: 16px;
     padding: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #eee;
-}
+    min-width: 0; /* Prevent flex child overflow */
+}   
+
 
 .tab-title {
     font-size: 1.5rem;

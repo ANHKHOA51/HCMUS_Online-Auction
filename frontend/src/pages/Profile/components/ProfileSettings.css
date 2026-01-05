@@ -5,11 +5,11 @@
 
 /* --- INFO CARD (VIEW MODE) --- */
 .info-card {
-    background: var(--color-white);
-    border: 2px solid var(--color-dark);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
-    box-shadow: 4px 4px 0 var(--color-dark);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
@@ -159,11 +159,11 @@
 
 /* --- EDIT FORM --- */
 .edit-form-container {
-    background: var(--color-white);
-    border: 2px solid var(--color-dark);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
-    box-shadow: 4px 4px 0 var(--color-dark);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
     animation: slideUp 0.2s ease-out;
 }
 
@@ -209,6 +209,7 @@
     position: relative;
 }
 
+
 .input-with-icon svg {
     position: absolute;
     left: 12px;
@@ -224,6 +225,8 @@
     border-radius: var(--radius-md);
     font-size: 1rem;
     transition: border-color 0.2s;
+    background-color: var(--color-white);
+    color: var(--color-gray-600);
 }
 
 .input-with-icon input:focus {

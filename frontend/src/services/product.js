@@ -61,6 +61,22 @@ export const productService = {
     async getProductBids(productId) {
         const response = await axiosInstance.get(`/bids/${productId}/history`);
         return response.data;
+    },
+
+    // 5. Seller methods
+    async getSellerActiveProducts() {
+        const response = await axiosInstance.get('/products/seller/active');
+        return response.data;
+    },
+
+    async getSellerSoldProducts() {
+        const response = await axiosInstance.get('/products/seller/sold');
+        return response.data;
+    },
+
+    async cancelTransaction(productId) {
+        const response = await axiosInstance.post(`/products/${productId}/cancel`);
+        return response.data;
     }
 };
 

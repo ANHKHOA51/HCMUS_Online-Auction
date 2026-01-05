@@ -95,7 +95,8 @@ router.post("/login", async (req, res) => {
                     id: rs.user.id,
                     username: rs.user.username,
                     email: rs.user.email,
-                    role: rs.user.role
+                    role: rs.user.role,
+                    full_name: rs.user.full_name
                 },
                 accessToken: rs.accessToken,
                 refreshToken: rs.refreshToken
@@ -136,7 +137,8 @@ router.post("/refresh", async (req, res) => {
                     id: rs.user.id,
                     username: rs.user.username,
                     email: rs.user.email,
-                    role: rs.user.role
+                    role: rs.user.role,
+                    full_name: rs.user.full_name
                 },
                 accessToken: rs.accessToken,
             })
