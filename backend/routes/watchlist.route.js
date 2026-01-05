@@ -4,6 +4,17 @@ import watchListModel from '../models/watchlist.model.js';
 const router = express.Router();
 import authMiddleware from '../middlewares/auth.middleware.js';
 
+// Lấy danh sách yêu thích của user
+router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const list = await watchListModel.getWatchlist(userId);
+    res.json(list);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Lỗi server' });
+  }
+});
 
 router.post('/:id', authMiddleware, async (req, res) => {
     try {

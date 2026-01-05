@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 10;
 
 export const useSearchResults = (filteredProducts, searchParams, setSearchParams) => {
   const [currentPage, setCurrentPage] = useState(1);

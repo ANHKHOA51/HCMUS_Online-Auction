@@ -9,7 +9,7 @@ import categoryRouter from './routes/category.route.js';
 import watchlistRouter from './routes/watchlist.route.js';
 import bidRouter from './routes/bid.routes.js';
 import questionRouter from './routes/question.route.js';
-import userRouter from './routes/user.route.js';
+import userRouter from './routes/user.routes.js';
 import orderRouter from './routes/order.route.js';
 
 const app = express();
@@ -25,7 +25,7 @@ console.log('🚀 Starting server...');
 app.use(cors({
   origin: ['http://localhost:5173', 'http://localhost:5174'],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
@@ -51,6 +51,7 @@ app.use('/categories', categoryRouter);
 app.use('/watchlists', watchlistRouter);
 app.use('/bids', bidRouter);
 app.use('/questions', questionRouter);
+app.use('/users', userRouter);
 
 
 

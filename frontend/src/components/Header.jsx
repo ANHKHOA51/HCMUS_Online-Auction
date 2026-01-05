@@ -199,10 +199,13 @@ export default function Header() {
 										title={`Xin chào ${cur_user.username}`}
 										menuVariant="dark"
 									>
-										<NavDropdown.Item >Xem thông tin</NavDropdown.Item>
+										<NavDropdown.Item onClick={() => navigate('/profile')}>Xem thông tin</NavDropdown.Item>
 										{cur_user.role === 2 && <NavDropdown.Item onClick={() => navigate('/seller/orders')}>Quản lý đơn hàng</NavDropdown.Item>}
 										<NavDropdown.Divider className="border-white" />
-										<NavDropdown.Item onClick={logout}>
+										<NavDropdown.Item onClick={() => {
+											logout();
+											navigate('/login');
+										}}>
 											Đăng xuất
 										</NavDropdown.Item>
 									</NavDropdown>

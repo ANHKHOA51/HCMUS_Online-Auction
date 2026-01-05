@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductsGrid from './ProductsGrid';
+import Pagination from './Pagination';
 import { useProducts } from '../hooks/useProduct';
 import { useSearchResults } from '../hooks/useSearchResults';
 import useWatchlist from '../hooks/useWatchlist';
@@ -34,7 +35,6 @@ const SearchResultsPage = () => {
     startIndex,
     goToPage,
     resetPagination,
-    visiblePages,
   } = useSearchResults(allProducts, searchParams, setSearchParams);
 
   if (loading) {
@@ -82,42 +82,11 @@ const SearchResultsPage = () => {
           />
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="pagination">
-              <button
-                className="pagination-btn"
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-              >
-                ← Trước
-              </button>
-
-              <div className="pagination-numbers">
-                {visiblePages.map((page, idx) => {
-                  if (page === '...') {
-                    return <span key={`dots-${idx}`} className="pagination-dots">...</span>;
-                  }
-                  return (
-                    <button
-                      key={page}
-                      className={`pagination-number ${page === currentPage ? 'active' : ''}`}
-                      onClick={() => goToPage(page)}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <button
-                className="pagination-btn"
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-              >
-                Sau →
-              </button>
-            </div>
-          )}
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={goToPage} 
+          />
         </main>
       </div>
     </div>

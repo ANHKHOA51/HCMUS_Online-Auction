@@ -238,6 +238,58 @@ export const ProductModel = {
         }
     },
 
+    findBySellerId: async (sellerId, status) => {
+        let query = createBaseQuery().where('p.seller_id', sellerId);
+
+        if (status === 'active') {
+            // Đang đăng & còn hạn
+            query = query.where('p.status', 'active').andWhere('p.end_time', '>', new Date());
+        } else if (status === 'sold') {
+            // Đã có người thắng (status = sold HOẶC hết hạn mà có winner)
+            query = query.where(function() {
+                this.where('p.status', 'sold')
+                    .orWhere(function() {
+                        this.where('p.end_time', '<=', new Date())
+                            .andWhereNotNull('p.winner_id');
+                    });
+            });
+        }
+
+        return query.orderBy('p.created_at', 'desc');
+    },
+
+    cancelTransaction: async (productId, sellerId) => {
+        return db.transaction(async (trx) => {
+            // 1. Check product
+            const product = await trx('products').where('id', productId).first();
+            if (!product) throw new Error('Product not found');
+            if (product.seller_id !== sellerId) throw new Error('Unauthorized');
+            if (!product.winner_id) throw new Error('No winner to cancel');
+
+            // 2. Update status
+            await trx('products')
+                .where('id', productId)
+                .update({ status: 'cancelled' });
+
+            // 3. Auto rate -1
+            const review = {
+                from_user_id: sellerId,
+                to_user_id: product.winner_id,
+                product_id: productId,
+                score: '-1',
+                comment: 'Người thắng không thanh toán'
+            };
+
+            await trx('ratings').insert(review);
+
+            // 4. Update user stats
+            await trx('users')
+                .where('id', product.winner_id)
+                .increment('rating_negative', 1);
+
+            return true;
+        });
+    },
 };
 
 

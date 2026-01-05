@@ -29,6 +29,21 @@ const WatchlistModel = {
 
     return list.map(item => item.product_id);
   },
+
+  // Lấy danh sách sản phẩm chi tiết (để hiển thị)
+  getWatchlist: async (userId) => {
+    return db('watch_lists as wl')
+      .join('products as p', 'wl.product_id', 'p.id')
+      .leftJoin('users as s', 'p.seller_id', 's.id') // Lấy tên người bán
+      .select(
+        'p.*',
+        's.full_name as seller_name',
+        db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count'),
+        db.raw('true as is_favorite') // Chắc chắn là true vì đang ở trong watchlist
+      )
+      .where('wl.user_id', userId)
+      .orderBy('wl.created_at', 'desc');
+  }
   
 };
 

@@ -145,6 +145,18 @@ export const UserModel = {
             await trx("users").where({ id }).delete();
         });
     },
+
+    update: async (id, data) => {
+        return db('users')
+            .where({ id })
+            .update(data)
+            .returning('*'); // Trả về user đã update
+    },
+
+    findByIdWithPassword: (id) => {
+        return db('users').where({ id }).first();
+    }
+
 };
 
 export default UserModel;

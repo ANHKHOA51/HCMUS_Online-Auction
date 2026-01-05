@@ -3,6 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/HomePage";
 import SearchResultsPage from "../components/SearchResults";
 import ProductDetailPage from "../pages/ProductDetailPage";
+import ProfilePage from "../pages/Profile/ProfilePage";
 import AuthLayout from "../layouts/AuthLayout";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
@@ -30,7 +31,8 @@ const router = createBrowserRouter([
             { path: "search", Component: SearchResultsPage },
             { path: "products/:id", Component: ProductDetailPage },
             { path: "products/add-product", Component: AddProductPage },
-            { path: "seller/orders", Component: SellerOrderList }
+            { path: "seller/orders", Component: SellerOrderList },
+            { path: "profile", Component: ProfilePage }
         ]
     },
 

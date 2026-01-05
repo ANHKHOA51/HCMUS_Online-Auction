@@ -42,6 +42,11 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const updateUser = (userData) => {
+        setCur_user(userData);
+        sessionStorage.setItem('user', JSON.stringify(userData));
+    };
+
     const refreshToken = async () => {
         if (!cur_user) return;
         
@@ -66,7 +71,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ cur_user, accessToken, login, logout }}>
+        <AuthContext.Provider value={{ cur_user, accessToken, login, logout, updateUser }}>
             {children}
         </AuthContext.Provider>
     )
