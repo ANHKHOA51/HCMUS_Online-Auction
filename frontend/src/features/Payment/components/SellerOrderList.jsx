@@ -1,11 +1,35 @@
 import React, { useState } from 'react';
 import useSellerOrders from '../hooks/useSellerOrders';
 import PaymentVerification from './PaymentVerification';
-import { Eye, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
+import CancelOrderModal from './CancelOrderModal';
+import { Eye, CheckCircle, XCircle, Clock, Truck, Ban, Star, PackageCheck, AlertCircle } from 'lucide-react';
+import { formatPrice } from '../../../utils/formatCurrency';
+import { cancelOrder, markOrderDelivered } from '../../../services/order';
 
 export default function SellerOrderList() {
-    const { orders, loading, error, confirmOrder, rejectOrder } = useSellerOrders();
+    const { orders, loading, error, confirmOrder, rejectOrder, fetchOrders } = useSellerOrders();
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [cancellingOrder, setCancellingOrder] = useState(null);
+
+    const handleConfirmCancel = async (orderId, reason) => {
+        const res = await cancelOrder(orderId, reason);
+        if (res.ok) {
+            fetchOrders();
+        } else {
+            alert(res.message);
+        }
+    };
+
+    const handleMarkDelivered = async (order) => {
+        if (window.confirm(`Xác nhận đơn hàng ${order.product_name} đã được giao thành công?`)) {
+            const res = await markOrderDelivered(order.id);
+            if (res.ok) {
+                fetchOrders();
+            } else {
+                alert(res.message);
+            }
+        }
+    };
 
     const getStatusBadge = (status) => {
         switch (status) {
@@ -15,10 +39,28 @@ export default function SellerOrderList() {
                         <CheckCircle className="w-3 h-3" /> Paid
                     </span>
                 );
+            case 'shipping':
+                return (
+                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                        <Truck className="w-3 h-3" /> Shipping
+                    </span>
+                );
+            case 'shipped':
+                return (
+                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 border border-green-200">
+                        <PackageCheck className="w-3 h-3" /> Delivered
+                    </span>
+                );
             case 'rejected':
                 return (
                     <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200">
                         <XCircle className="w-3 h-3" /> Rejected
+                    </span>
+                );
+            case 'cancelled':
+                return (
+                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800 border border-gray-200">
+                        <Ban className="w-3.5 h-3.5" /> Cancelled
                     </span>
                 );
             default:
@@ -79,11 +121,25 @@ export default function SellerOrderList() {
                                             <div className="flex items-center gap-3">
                                                 {/* Placeholder image if not handling parsing yet */}
                                                 <div className="w-10 h-10 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden">
-                                                    {order.product_images ? (
-                                                        <img src={JSON.parse(order.product_images)[0]} alt="" className='w-full h-full object-cover' />
-                                                    ) : (
-                                                        <div className='w-full h-full bg-gray-200' />
-                                                    )}
+                                                    {(() => {
+                                                        const getImage = (imgData) => {
+                                                            if (!imgData) return null;
+                                                            if (Array.isArray(imgData)) return imgData[0];
+                                                            try {
+                                                                const parsed = JSON.parse(imgData);
+                                                                return Array.isArray(parsed) ? parsed[0] : parsed;
+                                                            } catch (e) {
+                                                                return imgData;
+                                                            }
+                                                        };
+                                                        const imgSrc = getImage(order.product_images);
+
+                                                        return imgSrc ? (
+                                                            <img src={imgSrc} alt="" className='w-full h-full object-cover' />
+                                                        ) : (
+                                                            <div className='w-full h-full bg-gray-200' />
+                                                        );
+                                                    })()}
                                                 </div>
                                                 <p className="text-sm font-medium text-gray-900 line-clamp-1 max-w-[200px]" title={order.product_name}>{order.product_name}</p>
                                             </div>
@@ -93,7 +149,7 @@ export default function SellerOrderList() {
                                             <p className="text-xs text-gray-500">{order.buyer_email}</p>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="text-sm font-medium text-gray-900">${Number(order.amount).toLocaleString()}</p>
+                                            <p className="text-sm font-medium text-gray-900">{formatPrice(Number(order.amount))} ₫</p>
                                         </td>
                                         <td className="px-6 py-4">
                                             <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</p>
@@ -103,21 +159,40 @@ export default function SellerOrderList() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                {order.status !== 'pending' ? (
-                                                    <button
-                                                        disabled
-                                                        className="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-100 rounded-md cursor-not-allowed"
-                                                    >
-                                                        Closed
-                                                    </button>
-                                                ) : (
+                                                {order.status === 'pending' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => setCancellingOrder(order)}
+                                                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 !rounded-md transition-colors"
+                                                            title="Hủy đơn hàng"
+                                                        >
+                                                            <Ban className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setSelectedOrder(order)}
+                                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 !rounded-md transition-colors"
+                                                        >
+                                                            <Eye className="w-3.5 h-3.5" />
+                                                            Verify
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {order.status === 'shipping' && (
+                                                    <span className="text-xs text-blue-600 font-medium italic px-2">
+                                                        Chờ người mua xác nhận
+                                                    </span>
+                                                )}
+                                                {order.status === 'shipped' && (
                                                     <button
                                                         onClick={() => setSelectedOrder(order)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 !rounded-md transition-colors"
                                                     >
-                                                        <Eye className="w-3.5 h-3.5" />
-                                                        Verify Payment
+                                                        <Star className="w-3.5 h-3.5" />
+                                                        Rate Buyer
                                                     </button>
+                                                )}
+                                                {['cancelled', 'rejected'].includes(order.status) && (
+                                                    <span className="text-xs text-gray-400 font-medium px-2">Closed</span>
                                                 )}
                                             </div>
                                         </td>
@@ -135,6 +210,15 @@ export default function SellerOrderList() {
                     onClose={() => setSelectedOrder(null)}
                     onConfirm={confirmOrder}
                     onReject={rejectOrder}
+                    initialShowRating={selectedOrder.status === 'shipped'}
+                />
+            )}
+
+            {cancellingOrder && (
+                <CancelOrderModal
+                    order={cancellingOrder}
+                    onClose={() => setCancellingOrder(null)}
+                    onConfirm={handleConfirmCancel}
                 />
             )}
         </div>

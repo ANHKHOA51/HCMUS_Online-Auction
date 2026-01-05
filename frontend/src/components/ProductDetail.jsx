@@ -68,10 +68,10 @@ const ProductDetail = () => {
   return (
     <div className="product-detail-page">
       <div className="detail-container">
-        
+
         {/* --- LEFT COLUMN --- */}
         <div className="detail-left">
-          
+
           {/* 1. Gallery (Đã được CSS chỉnh to ra) */}
           <ProductGallery images={product.images} />
 
@@ -164,7 +164,7 @@ const ProductDetail = () => {
                     disabled={isPlacingBid}
                   />
                 </div>
-                
+
                 <button
                   className="btn-bid"
                   onClick={handlePlaceBid}

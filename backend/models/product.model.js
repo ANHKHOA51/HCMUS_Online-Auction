@@ -73,11 +73,11 @@ export const ProductModel = {
                     query = query.orderBy('p.current_price', 'desc');
                     break;
                 default: // newest
-                     // Nếu có search mà không sort cụ thể, ưu tiên độ liên quan (relevance)
+                    // Nếu có search mà không sort cụ thể, ưu tiên độ liên quan (relevance)
                     if (hasSearch && sort === 'newest') {
-                         query = query.orderBy('relevance', 'desc');
+                        query = query.orderBy('relevance', 'desc');
                     } else {
-                         query = query.orderBy('p.created_at', 'desc');
+                        query = query.orderBy('p.created_at', 'desc');
                     }
             }
 
@@ -163,14 +163,14 @@ export const ProductModel = {
             const query = createBaseQuery(userId)
                 .where('p.winner_id', userId)
                 .where('p.status', 'sold');
-            
+
             return await query;
         } catch (error) {
             console.error('Error getting won products:', error);
             throw error;
         }
     },
-        
+
     getProductBids: async (id) => {
         // Hàm này đơn giản, giữ nguyên
         return db('bids as b')
@@ -289,6 +289,20 @@ export const ProductModel = {
 
             return true;
         });
+    },
+
+    appendDescription: async (id, newContent) => {
+        try {
+            // Append with a break
+            return await db('products')
+                .where('id', id)
+                .update({
+                    description: db.raw("COALESCE(description, '') || ?", [newContent])
+                });
+        } catch (error) {
+            console.error('Error appending description:', error);
+            throw error;
+        }
     },
 };
 

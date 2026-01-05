@@ -36,4 +36,29 @@ router.post('/:id/bid', authMiddleware, verifyBidderEligibility, async (req, res
     }
 });
 
+import productModel from '../models/product.model.js';
+
+router.post('/reject/:id', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const bid = await bidModel.findById(id);
+        if (!bid) return res.status(404).json({ error: 'Bid not found' });
+
+        const product = await productModel.findById(bid.product_id);
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+
+        if (product.seller_id !== userId) {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+
+        await bidModel.rejectBid(id, bid.product_id);
+        res.json({ success: true, message: 'Rejected bidder successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 export default router;

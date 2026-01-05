@@ -10,7 +10,7 @@ export const productService = {
             ...(params.category && { category_id: params.category }),
             ...(params.sort && { sort: params.sort }),
         };
-        
+
         const response = await axiosInstance.get('/products', { params: apiParams });
         return response.data;
     },
@@ -81,6 +81,11 @@ export const productService = {
 
     async cancelTransaction(productId) {
         const response = await axiosInstance.post(`/products/${productId}/cancel`);
+        return response.data;
+    },
+
+    async appendDescription(productId, description) {
+        const response = await axiosInstance.patch(`/products/${productId}/description`, { description });
         return response.data;
     }
 }

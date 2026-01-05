@@ -27,6 +27,7 @@ CREATE TABLE public.bids (
   bidder_id integer,
   bid_amount numeric NOT NULL,
   bid_time timestamp without time zone DEFAULT now(),
+  status integer DEFAULT 1,
   CONSTRAINT bids_pkey PRIMARY KEY (id),
   CONSTRAINT bids_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
   CONSTRAINT bids_bidder_id_fkey FOREIGN KEY (bidder_id) REFERENCES public.users(id)
@@ -73,6 +74,14 @@ CREATE TABLE public.orders (
   status character varying,
   payment_info text,
   seller_note text,
+  shipping_address text,
+  shipping_info text,
+  buyer_rating integer,
+  buyer_comment text,
+  seller_rating integer,
+  seller_comment text,
+  cancellation_reason text,
+  is_cancelled boolean DEFAULT false,
   CONSTRAINT orders_pkey PRIMARY KEY (id),
   CONSTRAINT orders_buyer_id_fkey FOREIGN KEY (buyer_id) REFERENCES public.users(id),
   CONSTRAINT orders_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)

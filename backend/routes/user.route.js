@@ -81,4 +81,15 @@ router.delete('/delete/:id', async (req, res) => {
     }
 });
 
+router.post('/rate/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body;
+        const updatedUser = await UserModel.rate(id, note);
+        res.status(200).json({ success: true, data: updatedUser });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 export default router;

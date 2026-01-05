@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
 import { ThumbsUp, ThumbsDown, X } from 'lucide-react';
+import * as orderService from '../../../services/order';
 
 export default function BuyerRating({ order, onClose, onSuccess }) {
-    // This is a simplified rating, assuming we might call an API to update user rating
-    // Since UserModel rating implementation wasn't detailed in the plan, 
-    // we'll just show the UI and trigger onSuccess.
-
-    // In a real implementation: call updateRating API here.
-
     const handleRate = async (isPositive) => {
-        // TODO: Call API to rate user
         console.log(`Rated buyer ${order.buyer_id} ${isPositive ? 'Positive' : 'Negative'}`);
-
-        // Mock success
-        onSuccess();
+        const res = await orderService.rateBuyer(order.buyer_id, isPositive ? 'positive' : 'negative');
+        if (res.ok) {
+            onSuccess();
+            return;
+        }
+        alert(res.message || "Rating failed");
     };
 
     return (

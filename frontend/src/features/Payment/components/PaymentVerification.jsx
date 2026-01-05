@@ -2,16 +2,22 @@ import React, { useState } from 'react';
 import { X, Check, XCircle } from 'lucide-react';
 import BuyerRating from './BuyerRating';
 
-export default function PaymentVerification({ order, onClose, onConfirm, onReject }) {
+export default function PaymentVerification({ order, onClose, onConfirm, onReject, initialShowRating = false }) {
     const [rejecting, setRejecting] = useState(false);
     const [rejectNote, setRejectNote] = useState('');
-    const [showRating, setShowRating] = useState(false);
+    const [showRating, setShowRating] = useState(initialShowRating || order.status === 'shipped');
+
+    const [shippingCode, setShippingCode] = useState('');
 
     const handleConfirmClick = async () => {
+        if (!shippingCode.trim()) {
+            alert("Vui lòng nhập mã vận đơn để người mua theo dõi.");
+            return;
+        }
         // Optimistic UI or wait for API
-        const success = await onConfirm(order.id);
+        const success = await onConfirm(order.id, shippingCode);
         if (success) {
-            setShowRating(true);
+            onClose();
         }
     };
 
@@ -71,6 +77,22 @@ export default function PaymentVerification({ order, onClose, onConfirm, onRejec
                         <p className="text-sm text-gray-800 whitespace-pre-wrap">{order.payment_info || "No details provided."}</p>
                     </div>
 
+                    {/* Shipping Code Input */}
+                    {!rejecting && (
+                        <div className="mt-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Mã vận đơn / Thông tin giao hàng <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                                placeholder="Nhập mã vận đơn (VD: GHN-123456)"
+                                value={shippingCode}
+                                onChange={e => setShippingCode(e.target.value)}
+                            />
+                        </div>
+                    )}
+
                     {rejecting && (
                         <div className="mt-4">
                             <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
@@ -91,13 +113,13 @@ export default function PaymentVerification({ order, onClose, onConfirm, onRejec
                         <>
                             <button
                                 onClick={() => setRejecting(true)}
-                                className="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors"
+                                className="px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-200 !rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors"
                             >
                                 Reject Payment
                             </button>
                             <button
                                 onClick={handleConfirmClick}
-                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 !rounded-lg hover:bg-green-700 transition-colors shadow-sm"
                             >
                                 <Check className="w-4 h-4" />
                                 Confirm Payment
@@ -114,7 +136,7 @@ export default function PaymentVerification({ order, onClose, onConfirm, onRejec
                             <button
                                 onClick={handleRejectSubmit}
                                 disabled={!rejectNote.trim()}
-                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 !rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <XCircle className="w-4 h-4" />
                                 Confirm Rejection

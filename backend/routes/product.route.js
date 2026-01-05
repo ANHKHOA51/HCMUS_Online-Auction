@@ -1,6 +1,6 @@
 import express from 'express';
 import productModel from '../models/product.model.js';
-import  authMiddleware  from '../middlewares/auth.middleware.js';
+import authMiddleware from '../middlewares/auth.middleware.js';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -34,7 +34,7 @@ router.get('/top/pricing', optionalAuth, async (req, res) => {
     try {
 
         const userId = req.user ? req.user.id : null;
-        const rows = await productModel.findTopPricing(userId); 
+        const rows = await productModel.findTopPricing(userId);
         res.json({ success: true, data: rows });
     } catch (err) {
         res.status(500).json({ error: 'Lỗi server' });
@@ -230,6 +230,29 @@ router.post('/:id/feedback', auth, async (req, res) => {
     } catch (error) {
         console.error('Error submitting feedback:', error);
         res.status(500).json({ success: false, error: 'Lỗi server' });
+    }
+});
+
+router.patch('/:id/description', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { description } = req.body;
+        const userId = req.user.id;
+
+        const product = await productModel.findById(id);
+        if (!product) {
+            return res.status(404).json({ success: false, error: 'Product not found' });
+        }
+
+        if (product.seller_id !== userId) {
+            return res.status(403).json({ success: false, error: 'Unauthorized: Only seller can edit product' });
+        }
+
+        await productModel.appendDescription(id, description);
+        res.json({ success: true, message: 'Description updated successfully' });
+    } catch (error) {
+        console.error('Error appending description:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 export default router;

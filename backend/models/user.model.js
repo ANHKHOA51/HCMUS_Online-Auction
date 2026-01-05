@@ -155,8 +155,11 @@ export const UserModel = {
 
     findByIdWithPassword: (id) => {
         return db('users').where({ id }).first();
-    }
+    },
 
+    rate: async (id, note) => {
+        return db("users").where({ id }).increment(`rating_${note}`, 1);
+    },
 };
 
 export default UserModel;

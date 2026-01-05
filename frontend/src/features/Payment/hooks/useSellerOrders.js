@@ -8,9 +8,9 @@ export default function useSellerOrders() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const fetchOrders = useCallback(async () => {
+    const fetchOrders = useCallback(async (silent = false) => {
         if (!cur_user?.id) return;
-        setLoading(true);
+        if (!silent) setLoading(true);
         try {
             const res = await orderService.getSellerOrders(cur_user.id);
             if (res.ok) {
@@ -21,7 +21,7 @@ export default function useSellerOrders() {
         } catch (err) {
             setError(err.message);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     }, [cur_user]);
 
@@ -29,22 +29,24 @@ export default function useSellerOrders() {
         fetchOrders();
     }, [fetchOrders]);
 
-    const handleConfirm = async (orderId) => {
-        const res = await orderService.confirmOrder(orderId);
+    const handleConfirm = async (orderId, shippingCode) => {
+        const res = await orderService.confirmOrder(orderId, shippingCode);
         if (res.ok) {
-            await fetchOrders();
-            return { success: true };
+            await fetchOrders(true);
+            return true;
         }
-        return { success: false, message: res.message };
+        alert(res.message || "Confirmation failed");
+        return false;
     };
 
     const handleReject = async (orderId, note) => {
         const res = await orderService.rejectOrder(orderId, note);
         if (res.ok) {
-            await fetchOrders();
-            return { success: true };
+            await fetchOrders(true);
+            return true;
         }
-        return { success: false, message: res.message };
+        alert(res.message || "Rejection failed");
+        return false;
     };
 
     return {
@@ -52,6 +54,7 @@ export default function useSellerOrders() {
         loading,
         error,
         refreshOrders: fetchOrders,
+        fetchOrders, // Expose directly
         confirmOrder: handleConfirm,
         rejectOrder: handleReject
     };
