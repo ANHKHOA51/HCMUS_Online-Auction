@@ -9,11 +9,11 @@ export const optionalAuth = (req, res, next) => {
             if (token) {
                 const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET);
                 req.user = decoded;
-                console.log('✅ User authenticated:', decoded.id, 'Role:', decoded.role);
+                console.log('User authenticated:', decoded.id, 'Role:', decoded.role);
             }
         }
     } catch (error) {
-        console.log('⚠️ Auth optional, continuing without user');
+        console.log('Auth optional, continuing without user');
     }
     next();
 };

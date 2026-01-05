@@ -120,8 +120,8 @@ const ProfileSettings = () => {
                 <div className="info-main">
                     <h3>{user?.full_name || 'Chưa cập nhật tên'}</h3>
                     <span className="role-badge">
-                        {(user?.role === 'seller' || user?.role === 1) ? 'Người bán' 
-                        : (user?.role === 'admin' || user?.role === 2) ? 'Quản trị viên' 
+                        {(user?.role === 'seller' || user?.role == 2) ? 'Người bán' 
+                        : (user?.role === 'admin' || user?.role == 3) ? 'Quản trị viên' 
                         : 'Người mua'}
                     </span>
                 </div>

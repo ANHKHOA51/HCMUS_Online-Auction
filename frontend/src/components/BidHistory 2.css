@@ -1,0 +1,149 @@
+/* --- CONTAINER CHÍNH --- */
+.bid-history-container {
+  /* Không cần background/border ở đây nếu bọc ngoài div cha đã có .card-box */
+  /* Nếu chưa có thì uncomment dòng dưới: */
+  /* background: var(--ph-bg); border: 3px solid var(--ph-stroke); border-radius: 16px; padding: 20px; box-shadow: 6px 6px 0px rgba(9,64,103,0.15); */
+  width: 100%;
+}
+
+/* --- HEADER --- */
+.bid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px dashed var(--ph-secondary);
+}
+
+.bid-header .section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ph-headline);
+  margin: 0;
+}
+
+.bid-count-badge {
+  background: var(--ph-secondary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--ph-stroke);
+}
+
+/* --- DANH SÁCH --- */
+.bid-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* --- MỖI DÒNG BID (ITEM) --- */
+.bid-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #f8f9fa; /* Màu nền nhẹ */
+  border: 1px solid #e0e0e0;
+  transition: transform 0.2s;
+}
+
+/* Hiệu ứng riêng cho Top 1 */
+.bid-item.top-1 {
+  background-color: #fff5f5; /* Nền hơi hồng */
+  border: 2px solid var(--ph-tertiary); /* Viền đỏ */
+  box-shadow: 4px 4px 0px rgba(239, 69, 101, 0.15); /* Bóng cứng nhẹ */
+  transform: scale(1.01); /* To hơn xíu */
+}
+
+/* --- THÔNG TIN USER (TRÁI) --- */
+.bid-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Badge xếp hạng 1, 2, 3... */
+.rank-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: var(--ph-paragraph);
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ph-stroke);
+}
+
+/* Màu riêng cho Top 3 */
+.rank-badge.rank-1 { background: #ffd700; color: #5a4a00; border-color: #d4b106; } /* Vàng */
+.rank-badge.rank-2 { background: #c0c0c0; color: #4a4a4a; border-color: #a0a0a0; } /* Bạc */
+.rank-badge.rank-3 { background: #cd7f32; color: #5a3a1a; border-color: #a05a20; } /* Đồng */
+
+.bidder-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.bidder-name {
+  font-weight: 700;
+  color: var(--ph-headline);
+  font-size: 0.95rem;
+}
+
+.bid-time {
+  font-size: 0.75rem;
+  color: var(--ph-paragraph);
+}
+
+/* --- SỐ TIỀN (PHẢI) --- */
+.bid-amount {
+  font-weight: 800;
+  color: var(--ph-headline);
+  font-size: 1rem;
+}
+
+.bid-item.top-1 .bid-amount {
+  color: var(--ph-tertiary); /* Top 1 tiền màu đỏ */
+  font-size: 1.1rem;
+}
+
+/* --- TRẠNG THÁI KHÁC --- */
+.bid-loading, .bid-error {
+  text-align: center;
+  padding: 20px;
+  color: var(--ph-paragraph);
+  font-style: italic;
+}
+
+.no-bids {
+  text-align: center;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 2px dashed var(--ph-secondary);
+  color: var(--ph-paragraph);
+}
+
+/* Responsive cho mobile */
+@media (max-width: 480px) {
+  .bid-item {
+    padding: 10px;
+  }
+  .bidder-name {
+    font-size: 0.85rem;
+  }
+  .bid-amount {
+    font-size: 0.9rem;
+  }
+}
+
+
+/* ... (Code cũ giữ nguyên) ... */

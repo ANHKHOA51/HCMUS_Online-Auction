@@ -11,14 +11,15 @@ import ReviewsTab from './components/ReviewsTab';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
-    const { user, logout } = useAuth();
+    const { cur_user: user, logout } = useAuth();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('settings');
 
     const menuItems = [
         { id: 'settings', label: 'Hồ sơ cá nhân', icon: <FaUser /> },
-        // Hiển thị tab bán hàng nếu là Seller (role = 1 hoặc 'seller')
-        ...((user?.role === 'seller' || user?.role === 1) ? [{ id: 'selling', label: 'Sản phẩm đăng bán', icon: <FaStore /> }] : []),
+        // Hiển thị tab bán hàng nếu là Seller (role = 2 hoặc 'seller')
+        // Sử dụng so sánh lỏng (==) để chấp nhận cả chuỗi '2' và số 2
+        ...((user?.role === 'seller' || user?.role == 2) ? [{ id: 'selling', label: 'Sản phẩm đăng bán', icon: <FaStore /> }] : []),
         { id: 'watchlist', label: 'Sản phẩm yêu thích', icon: <FaHeart /> },
         { id: 'bidding', label: 'Đang đấu giá', icon: <FaGavel /> },
         { id: 'won', label: 'Đã thắng đấu giá', icon: <FaTrophy /> },
