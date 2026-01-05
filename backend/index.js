@@ -11,9 +11,13 @@ import bidRouter from './routes/bid.routes.js';
 import questionRouter from './routes/question.route.js';
 import userRouter from './routes/user.routes.js';
 import orderRouter from './routes/order.route.js';
+import { startAuctionCron } from './cron/auction.cron.js';
 
 const app = express();
 const PORT = 3000;
+
+// Start Cron Job
+startAuctionCron();
 
 // Log environment variables
 console.log('🔍 JWT_ACCESS_TOKEN_SECRET:', process.env.JWT_ACCESS_TOKEN_SECRET ? '✓ Set' : '❌ Not set');

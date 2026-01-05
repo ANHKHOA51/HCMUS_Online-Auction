@@ -10,8 +10,8 @@ export const placeBid = async (userId, productId, amount) => {
     const product = await productModel.findByIdLock(productId, trx);
 
 
-    if (!product || product.status === 0) {
-      throw new Error('Sản phẩm không khả dụng');
+    if (!product || product.status !== 'active') {
+      throw new Error('Sản phẩm không khả dụng hoặc đã kết thúc');
     }
 
     if (product.seller_id === userId) {

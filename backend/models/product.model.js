@@ -180,22 +180,27 @@ export const ProductModel = {
             .orderBy('b.bid_time', 'desc');
     },
 
-    // Refactor 3 hàm Top thành gọn hơn, có hỗ trợ userId
+    // [Done] Top sản phẩm kết thúc sớm, nhiều lượt bid, giá cao
     findTopClosing: (userId = null) => {
         return createBaseQuery(userId)
-            //.where('status', 'active') // Uncomment nếu cần
+            .where('p.status', 'active')
+            .where('p.end_time', '>', new Date())
             .orderBy('p.end_time', 'asc')
             .limit(5);
     },
 
     findTopBidding: (userId = null) => {
         return createBaseQuery(userId)
+            .where('p.status', 'active')
+            .where('p.end_time', '>', new Date())
             .orderBy('bid_count', 'desc')
             .limit(5);
     },
 
     findTopPricing: (userId = null) => {
         return createBaseQuery(userId)
+            .where('p.status', 'active')
+            .where('p.end_time', '>', new Date())
             .orderBy('p.current_price', 'desc')
             .limit(5);
     },
@@ -303,6 +308,32 @@ export const ProductModel = {
             console.error('Error appending description:', error);
             throw error;
         }
+    },
+
+    // --- CRON JOB METHODS ---
+    getExpiredActiveProducts: async () => {
+        return db('products')
+            .where('status', 'active')
+            .where('end_time', '<=', new Date())
+            .select('id', 'current_price', 'starting_price');
+    },
+
+    closeAuction: async (id, winnerId, finalPrice) => {
+        return db('products')
+            .where('id', id)
+            .update({
+                status: 'sold',
+                winner_id: winnerId,
+                current_price: finalPrice
+            });
+    },
+
+    expireAuction: async (id) => {
+        return db('products')
+            .where('id', id)
+            .update({
+                status: 'expired'
+            });
     },
 };
 
