@@ -3,7 +3,7 @@ import { db } from '../utils/db.js';
 export const CategoryModel = {
     // Lấy tất cả
     all: async () => {
-        const categories = await db('categories').select('id', 'name', 'description').orderBy('name');
+        const categories = await db('categories').select('id', 'name', 'description', 'parent_category_id').orderBy('name');
         return categories;
     },
     // Tìm theo ID
@@ -54,6 +54,18 @@ export const CategoryModel = {
     hasProducts: async (id) => {
         const product = await db('products').where({ category_id: id }).first();
         return !!product;
+    },
+
+    // Lấy danh sách ID con của một category (bao gồm cả chính nó)
+    getChildrenIds: async (parentId) => {
+        // Lấy danh sách con trực tiếp
+        const children = await db('categories')
+            .where('parent_category_id', parentId)
+            .select('id');
+        
+        const ids = children.map(c => c.id);
+        ids.push(parseInt(parentId)); // Thêm chính nó vào
+        return ids;
     }
 };
 

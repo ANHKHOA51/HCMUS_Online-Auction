@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import axiosInstance from '../../../services/axiosInstance';
-import { FaUser, FaEnvelope, FaIdCard, FaPen, FaLock, FaTimes, FaSave } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaIdCard, FaPen, FaLock, FaTimes, FaSave, FaStar, FaArrowUp } from 'react-icons/fa';
 import './ProfileSettings.css';
 
 const ProfileSettings = () => {
@@ -107,6 +107,18 @@ const ProfileSettings = () => {
         }
     };
 
+    // Xử lý yêu cầu nâng cấp
+    const handleUpgradeRequest = async () => {
+        if (!window.confirm('Bạn có chắc muốn gửi yêu cầu nâng cấp lên tài khoản người bán?')) return;
+        
+        try {
+            await axiosInstance.post('/users/upgrade-request');
+            alert('Đã gửi yêu cầu thành công! Vui lòng chờ quản trị viên xét duyệt.');
+        } catch (error) {
+            alert(error.response?.data?.message || 'Có lỗi xảy ra.');
+        }
+    };
+
     // --- RENDER: VIEW MODE (INFO CARD) ---
     const renderInfoCard = () => (
         <div className="info-card">
@@ -121,7 +133,7 @@ const ProfileSettings = () => {
                     <h3>{user?.full_name || 'Chưa cập nhật tên'}</h3>
                     <span className="role-badge">
                         {(user?.role === 'seller' || user?.role == 2) ? 'Người bán' 
-                        : (user?.role === 'admin' || user?.role == 3) ? 'Quản trị viên' 
+                        : (user?.role === 'admin' || user?.role == 1) ? 'Quản trị viên' 
                         : 'Người mua'}
                     </span>
                 </div>
@@ -142,6 +154,16 @@ const ProfileSettings = () => {
                         <p>#{user?.id}</p>
                     </div>
                 </div>
+                <div className="detail-row">
+                    <div className="detail-icon"><FaStar /></div>
+                    <div className="detail-content">
+                        <label>Điểm đánh giá</label>
+                        <p>
+                            <span style={{ color: '#27ae60', fontWeight: 'bold' }}>+{user?.rating_positive || 0}</span> / 
+                            <span style={{ color: '#e74c3c', fontWeight: 'bold' }}> -{user?.rating_negative || 0}</span>
+                        </p>
+                    </div>
+                </div>
             </div>
 
             <div className="action-buttons">
@@ -151,6 +173,12 @@ const ProfileSettings = () => {
                 <button className="btn-action btn-password" onClick={() => setMode('change_pass')}>
                     <FaLock /> Đổi mật khẩu
                 </button>
+                {/* Check if user is bidder (role 0 or 'bidder') */}
+                {(user?.role === 'bidder' || user?.role == 0) && (
+                    <button className="btn-action btn-upgrade" onClick={handleUpgradeRequest} style={{ backgroundColor: '#8e44ad', color: 'white' }}>
+                        <FaArrowUp /> Xin nâng cấp
+                    </button>
+                )}
             </div>
         </div>
     );

@@ -14,6 +14,7 @@ const productsCache = new Map();
 
 export const useProducts = (queryParams = {}) => {
   const [products, setProducts] = useState([]);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
   const [categories, setCategories] = useState(categoriesCache || []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,7 +47,9 @@ export const useProducts = (queryParams = {}) => {
 
       // Check cache first
       if (productsCache.has(queryKey)) {
-        setProducts(productsCache.get(queryKey));
+        const cached = productsCache.get(queryKey);
+        setProducts(cached.data);
+        setPagination(cached.pagination);
         setLoading(false);
         return;
       }
@@ -57,17 +60,16 @@ export const useProducts = (queryParams = {}) => {
 
         const token = getToken();
 
-        // Fetch categories always
-        const categoriesRes = await productService.getCategories();
-        if (categoriesRes.success) {
-          setCategories(categoriesRes.data);
-        }
-
-        // Fetch products with query params (search, category, sort)
+        // Fetch products with query params (search, category, sort, page)
         const productsRes = await productService.getProducts(queryParams, token);
         if (productsRes.success) {
           setProducts(productsRes.data);
-          productsCache.set(queryKey, productsRes.data);
+          setPagination(productsRes.pagination || { page: 1, limit: 12, total: productsRes.data.length, totalPages: 1 });
+          
+          productsCache.set(queryKey, { 
+            data: productsRes.data, 
+            pagination: productsRes.pagination 
+          });
         }
       } catch (err) {
         console.error('Error fetching products:', err);
@@ -80,7 +82,7 @@ export const useProducts = (queryParams = {}) => {
     fetchProducts();
   }, [JSON.stringify(queryParams)]);
 
-  return { products, categories, loading, error };
+  return { products, pagination, categories, loading, error };
 };
 
 

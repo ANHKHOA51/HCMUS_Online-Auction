@@ -1,4 +1,5 @@
 import { db } from '../utils/db.js';
+import { CategoryModel } from './category.model.js';
 
 const createBaseQuery = (userId = null) => {
     let query = db('products as p')
@@ -16,6 +17,7 @@ const createBaseQuery = (userId = null) => {
             'p.category_id',
             'p.created_at',
             'p.seller_id',
+            'p.winner_id',
             db.raw('u.full_name as seller_name'),
             db.raw('w.full_name as winner_name'),
             db.raw('(SELECT COUNT(*) FROM bids WHERE bids.product_id = p.id) as bid_count')
@@ -48,7 +50,16 @@ export const ProductModel = {
             let query = createBaseQuery(userId).where('p.status', 'active');
 
             if (category_id) {
-                query = query.where('p.category_id', category_id);
+                // Lấy danh sách category con (nếu có) để filter luôn
+                try {
+                    const categoryIds = await CategoryModel.getChildrenIds(category_id);
+                    console.log(`Filtering products for category ${category_id}. Including children:`, categoryIds);
+                    query = query.whereIn('p.category_id', categoryIds);
+                } catch (err) {
+                    console.error('Error getting category children:', err);
+                    // Fallback to just the category itself if error
+                    query = query.where('p.category_id', category_id);
+                }
             }
 
             let hasSearch = false;
@@ -81,11 +92,41 @@ export const ProductModel = {
                     }
             }
 
-            query = query.limit(50).timeout(5000);
+            // --- Pagination ---
+            const page = parseInt(queryParams.page) || 1;
+            const limit = parseInt(queryParams.limit) || 10;
+            const offset = (page - 1) * limit;
 
-            const result = await query;
-            console.log('📝 Query result sample:', result[0] ? Object.keys(result[0]) : 'empty');
-            return result;
+            // Clone query to get total count (without limit/offset)
+            const countQuery = query.clone().clearSelect().clearOrder().count('* as total').first();
+            
+            // Apply pagination
+            query = query.limit(limit).offset(offset);
+
+            // Execute both
+            const [rows, countResult] = await Promise.all([query, countQuery]);
+            const total = parseInt(countResult?.total || 0);
+
+            // --- Post-processing (Masking) ---
+            const maskName = (name) => {
+                if (!name) return null;
+                return name.split('').map((char, index) => index % 2 === 0 ? char : '*').join('');
+            };
+
+            const data = rows.map(row => ({
+                ...row,
+                winner_name: maskName(row.winner_name)
+            }));
+
+            return {
+                data,
+                pagination: {
+                    page,
+                    limit,
+                    total,
+                    totalPages: Math.ceil(total / limit)
+                }
+            };
         } catch (error) {
             console.error('Model error:', error.message);
             throw error;
@@ -94,6 +135,12 @@ export const ProductModel = {
 
     getProductDetail: async (id, userId = null) => {
         try {
+            // Helper masking
+            const maskName = (name) => {
+                if (!name) return null;
+                return name.split('').map((char, index) => index % 2 === 0 ? char : '*').join('');
+            };
+
             // Tận dụng createBaseQuery để lấy thông tin cơ bản + is_favorite
             const product = await createBaseQuery(userId)
                 .select(
@@ -110,11 +157,27 @@ export const ProductModel = {
             if (!product) {
                 return { product: null };
             }
+            
+            const isSeller = userId && String(userId) === String(product.seller_id);
+
+            // Mask winner name in product object IF NOT SELLER
+            if (product.winner_name && !isSeller) {
+                product.winner_name = maskName(product.winner_name);
+            }
 
             // (Giữ nguyên logic lấy bidder, faqs, related...)
             let highestBidder = null;
             if (product.winner_id) {
                 highestBidder = await db('users').where('id', product.winner_id).first();
+                
+                // Mask highest bidder name too if returned AND NOT SELLER
+                if (highestBidder && highestBidder.full_name && !isSeller) {
+                    highestBidder.full_name = maskName(highestBidder.full_name);
+                    // Hide sensitive info if masked
+                    delete highestBidder.email;
+                    delete highestBidder.phone;
+                    delete highestBidder.address;
+                }
             }
 
             const faqs = await db('questions_answers as qa')
@@ -125,12 +188,17 @@ export const ProductModel = {
                 .orderBy('qa.created_at', 'desc');
 
             // Related products cũng nên check is_favorite nếu được (tùy chọn)
-            const relatedProducts = await createBaseQuery(userId)
+            const relatedProductsRaw = await createBaseQuery(userId)
                 .where('p.category_id', product.category_id)
                 .whereNot('p.id', id)
                 .where('p.status', 'active')
                 .orderBy('p.created_at', 'desc')
                 .limit(5);
+            
+            const relatedProducts = relatedProductsRaw.map(p => ({
+                ...p,
+                winner_name: maskName(p.winner_name)
+            }));
 
             return { product, highestBidder, faqs, relatedProducts };
         } catch (error) {
@@ -143,12 +211,13 @@ export const ProductModel = {
     getBiddingProducts: async (userId) => {
         try {
             // Lấy các sản phẩm mà user đã bid VÀ sản phẩm đó chưa kết thúc (status = 'active')
-            // DISTINCT để tránh trùng lặp nếu user bid nhiều lần vào 1 sản phẩm
             const query = createBaseQuery(userId)
-                .join('bids as b', 'p.id', 'b.product_id')
-                .where('b.bidder_id', userId)
-                .where('p.status', 'active')
-                .distinct('p.id'); // Quan trọng: Chỉ lấy mỗi sản phẩm 1 lần
+                .whereIn('p.id', function() {
+                    this.select('product_id')
+                        .from('bids')
+                        .where('bidder_id', userId);
+                })
+                .where('p.status', 'active');
 
             return await query;
         } catch (error) {
@@ -162,7 +231,13 @@ export const ProductModel = {
         try {
             const query = createBaseQuery(userId)
                 .where('p.winner_id', userId)
-                .where('p.status', 'sold');
+                .where('p.status', 'sold')
+                .select(
+                    db.raw(
+                        'EXISTS(SELECT 1 FROM ratings r WHERE r.product_id = p.id AND r.from_user_id = ?) as is_reviewed',
+                        [userId]
+                    )
+                );
 
             return await query;
         } catch (error) {
@@ -181,28 +256,43 @@ export const ProductModel = {
     },
 
     // [Done] Top sản phẩm kết thúc sớm, nhiều lượt bid, giá cao
-    findTopClosing: (userId = null) => {
-        return createBaseQuery(userId)
+    findTopClosing: async (userId = null) => {
+        const rows = await createBaseQuery(userId)
             .where('p.status', 'active')
             .where('p.end_time', '>', new Date())
             .orderBy('p.end_time', 'asc')
             .limit(5);
+        
+        return rows.map(row => ({
+            ...row,
+            winner_name: row.winner_name ? row.winner_name.split('').map((c, i) => i % 2 === 0 ? c : '*').join('') : null
+        }));
     },
 
-    findTopBidding: (userId = null) => {
-        return createBaseQuery(userId)
+    findTopBidding: async (userId = null) => {
+        const rows = await createBaseQuery(userId)
             .where('p.status', 'active')
             .where('p.end_time', '>', new Date())
             .orderBy('bid_count', 'desc')
             .limit(5);
+
+        return rows.map(row => ({
+            ...row,
+            winner_name: row.winner_name ? row.winner_name.split('').map((c, i) => i % 2 === 0 ? c : '*').join('') : null
+        }));
     },
 
-    findTopPricing: (userId = null) => {
-        return createBaseQuery(userId)
+    findTopPricing: async (userId = null) => {
+        const rows = await createBaseQuery(userId)
             .where('p.status', 'active')
             .where('p.end_time', '>', new Date())
             .orderBy('p.current_price', 'desc')
             .limit(5);
+
+        return rows.map(row => ({
+            ...row,
+            winner_name: row.winner_name ? row.winner_name.split('').map((c, i) => i % 2 === 0 ? c : '*').join('') : null
+        }));
     },
 
     findByIdLock: (id, trx) => {
@@ -213,8 +303,11 @@ export const ProductModel = {
         return db('products').where('id', id).first();
     },
 
-    updatePrice: (id, newPrice, trx) => {
-        return trx('products').where('id', id).update({ current_price: newPrice });
+    updatePrice: (id, newPrice, winnerId, trx) => {
+        return trx('products').where('id', id).update({ 
+            current_price: newPrice,
+            winner_id: winnerId
+        });
     },
 
 

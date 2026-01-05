@@ -151,18 +151,33 @@ const ProductDetail = () => {
 
             {!isEnded && (
               <div className="bidding-area" style={{marginTop: '20px'}}>
-                {bidError && <div className="bid-error"> {bidError}</div>}
-                {bidSuccess && <div className="bid-success"> Đặt giá thành công!</div>}
+                {bidError && <div className="bid-error">⚠️ {bidError}</div>}
+                {bidSuccess && <div className="bid-success">✅ Đặt giá thành công!</div>}
 
                 <div className="bid-input-group">
                   <input
-                    type="number"
+                    type="text"
                     value={bidAmount}
-                    onChange={(e) => setBidAmount(e.target.value)}
-                    placeholder={`Tối thiểu: ${formatPriceVN(product.current_price + (product.step_price || 100000))}`}
+                    onChange={setBidAmount}
+                    placeholder="Nhập giá muốn đặt..."
                     className="bid-input"
                     disabled={isPlacingBid}
                   />
+                  <div 
+                    className="min-bid-hint" 
+                    onClick={() => {
+                        const currentPrice = Number(product.current_price) || Number(product.starting_price);
+                        const stepPrice = Number(product.step_price) || 100000;
+                        const minBid = currentPrice + stepPrice;
+                        setBidAmount({ target: { value: String(minBid) } });
+                    }}
+                  >
+                    <span className="hint-label">💡 Giá thấp nhất hợp lệ:</span> 
+                    <strong className="hint-value">
+                        {formatPriceVN((Number(product.current_price) || Number(product.starting_price)) + (Number(product.step_price) || 100000))}
+                    </strong>
+                    <span className="apply-btn">Áp dụng</span>
+                  </div>
                 </div>
 
                 <button

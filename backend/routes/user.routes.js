@@ -4,6 +4,7 @@ import { hashPassword, comparePassword } from '../utils/password.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import { ProductModel } from '../models/product.model.js';
 import { ReviewModel } from '../models/review.model.js';
+import { db } from '../utils/db.js';
 
 const router = express.Router();
 
@@ -81,6 +82,35 @@ router.patch('/change-password', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Change password error:', error);
         res.status(500).json({ message: 'Lỗi server khi đổi mật khẩu.' });
+    }
+});
+
+// Request Upgrade to Seller
+router.post('/upgrade-request', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        console.log(`User ${userId} requested upgrade to seller.`);
+        
+        // Check if request already exists
+        const existingRequest = await db('upgrade_requests')
+            .where({ user_id: userId, status: 'pending' })
+            .first();
+
+        if (existingRequest) {
+            return res.status(400).json({ message: 'Bạn đã có yêu cầu đang chờ duyệt.' });
+        }
+
+        // Insert into upgrade_requests table
+        await db('upgrade_requests').insert({
+            user_id: userId,
+            reason: 'User requested upgrade via profile',
+            status: 'pending'
+        });
+        
+        res.json({ message: 'Yêu cầu nâng cấp đã được gửi thành công.' });
+    } catch (error) {
+        console.error('Upgrade request error:', error);
+        res.status(500).json({ message: 'Lỗi server khi gửi yêu cầu.' });
     }
 });
 

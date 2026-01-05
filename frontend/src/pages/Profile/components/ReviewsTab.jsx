@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../services/axiosInstance';
 import './ReviewsTab.css';
 
 const ReviewsTab = () => {
+    const navigate = useNavigate();
     const [reviews, setReviews] = useState([]);
     const [stats, setStats] = useState({ total: 0, likes: 0, dislikes: 0 });
     const [loading, setLoading] = useState(true);
@@ -86,7 +88,13 @@ const ReviewsTab = () => {
                             </div>
                             
                             <div className="review-footer">
-                                Sản phẩm: <span className="product-link">{review.product_name}</span>
+                                Sản phẩm: <span 
+                                    className="product-link" 
+                                    onClick={() => navigate(`/products/${review.product_id}`)}
+                                    style={{ cursor: 'pointer', color: '#3da9fc', fontWeight: 'bold' }}
+                                >
+                                    {review.product_name}
+                                </span>
                             </div>
                         </div>
                     ))}

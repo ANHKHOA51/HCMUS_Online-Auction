@@ -9,6 +9,8 @@ export const productService = {
             ...(params.category_id && { category_id: params.category_id }),
             ...(params.category && { category_id: params.category }),
             ...(params.sort && { sort: params.sort }),
+            ...(params.page && { page: params.page }),
+            ...(params.limit && { limit: params.limit }),
         };
 
         const response = await axiosInstance.get('/products', { params: apiParams });

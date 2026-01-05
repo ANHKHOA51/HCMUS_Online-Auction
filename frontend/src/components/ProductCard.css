@@ -89,6 +89,10 @@ justify-content: space-between; /* Đẩy 2 phần tử ra 2 đầu (Badge trái
   background-color: var(--ph-button); /* Màu xanh dương */
 }
 
+.status-badge.holding {
+  background-color: #27ae60; /* Green for winning status */
+}
+
 /* --- NỘI DUNG THẺ --- */
 .product-card-body {
   padding: 16px;

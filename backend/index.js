@@ -19,6 +19,9 @@ const PORT = 3000;
 // Start Cron Job
 startAuctionCron();
 
+// Trigger restart
+console.log('🔄 Server updated');
+
 // Log environment variables
 console.log('🔍 JWT_ACCESS_TOKEN_SECRET:', process.env.JWT_ACCESS_TOKEN_SECRET ? '✓ Set' : '❌ Not set');
 console.log('🔍 JWT_REFRESH_TOKEN_SECRET:', process.env.JWT_REFRESH_TOKEN_SECRET ? '✓ Set' : '❌ Not set');

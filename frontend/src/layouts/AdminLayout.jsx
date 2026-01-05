@@ -1,5 +1,4 @@
 import { Outlet, NavLink, useNavigate } from "react-router";
-import { ShoppingBag, List, Users, ArrowLeft, LogOut } from 'lucide-react';
 import { useAuth } from "../contexts/AuthContext";
 
 export default function AdminLayout() {
@@ -7,10 +6,10 @@ export default function AdminLayout() {
     const navigate = useNavigate();
 
     const navItems = [
-        { path: "/admin/products", icon: ShoppingBag, label: "Products" },
-        { path: "/admin/categories", icon: List, label: "Categories" },
-        { path: "/admin/users", icon: Users, label: "Users" },
-        { path: "/", icon: ArrowLeft, label: "Back" },
+        { path: "/admin/products", label: "Products" },
+        { path: "/admin/categories", label: "Categories" },
+        { path: "/admin/users", label: "Users" },
+        { path: "/", label: "Back to Home" },
     ];
 
     const handleLogout = async () => {
@@ -18,55 +17,51 @@ export default function AdminLayout() {
         navigate('/login');
     };
 
-    console.log(cur_user);
-
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex">
+        <div className="d-flex min-vh-100 bg-light">
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-[#E2E8F0] fixed h-full z-10 hidden md:flex flex-col">
-                <div className="h-16 flex items-center px-6 border-b border-[#E2E8F0]">
-                    <span className="text-xl font-bold text-[#1E293B]">Admin Panel</span>
+            <aside className="bg-white border-end d-none d-md-flex flex-column flex-shrink-0 sticky-top vh-100" style={{ width: '280px' }}>
+                <div className="d-flex align-items-center px-4 border-bottom" style={{ height: '64px' }}>
+                    <span className="h5 fw-bold text-dark mb-0">Admin Panel</span>
                 </div>
-                <nav className="p-4 space-y-1 flex-1">
-                    {navItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            end={item.end}
-                            className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-3 !rounded-lg transition-colors duration-200 ${isActive
-                                    ? "bg-[#EFF6FF] text-[#3B82F6]"
-                                    : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#1E293B]"
-                                }`
-                            }
-                        >
-                            <item.icon className="w-5 h-5" />
-                            <span className="font-medium">{item.label}</span>
-                        </NavLink>
-                    ))}
+                <nav className="p-3 flex-grow-1 overflow-auto">
+                    <ul className="nav nav-pills flex-column mb-auto">
+                        {navItems.map((item) => (
+                            <li className="nav-item mb-1" key={item.path}>
+                                <NavLink
+                                    to={item.path}
+                                    end={item.end}
+                                    className={({ isActive }) =>
+                                        `nav-link ${isActive ? "active" : "link-dark"}`
+                                    }
+                                >
+                                    {item.label}
+                                </NavLink>
+                            </li>
+                        ))}
+                    </ul>
                 </nav>
 
                 {/* User Info & Logout */}
                 {cur_user && (
-                    <div className="p-4 border-t border-[#E2E8F0]">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
+                    <div className="p-3 border-top mt-auto">
+                        <div className="d-flex align-items-center gap-3 mb-3">
+                            <div className="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center fw-bold text-primary" style={{ width: '40px', height: '40px' }}>
                                 {cur_user.username ? cur_user.username.charAt(0).toUpperCase() : 'A'}
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-gray-900 mb-1">
+                            <div className="overflow-hidden">
+                                <p className="fw-semibold text-dark mb-0 text-truncate">
                                     {cur_user.username || 'Admin'}
                                 </p>
-                                <p className="text-xs text-gray-500 mb-1">
+                                <p className="small text-muted mb-0 text-truncate">
                                     {cur_user.email || ''}
                                 </p>
                             </div>
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 !rounded-lg transition-colors"
+                            className="btn btn-outline-danger w-100 btn-sm"
                         >
-                            <LogOut className="w-4 h-4" />
                             Logout
                         </button>
                     </div>
@@ -74,7 +69,7 @@ export default function AdminLayout() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 md:ml-64 p-8">
+            <main className="flex-grow-1 p-4 overflow-auto">
                 <Outlet />
             </main>
         </div>

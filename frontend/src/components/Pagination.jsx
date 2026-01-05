@@ -2,7 +2,7 @@ import React from 'react';
 import './Pagination.css';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
+  // if (totalPages <= 1) return null; // Always show pagination
 
   // Logic để tính toán các trang cần hiển thị (có dấu ...)
   const getVisiblePages = () => {

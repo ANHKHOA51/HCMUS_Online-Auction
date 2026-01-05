@@ -43,11 +43,10 @@ router.get('/top/pricing', optionalAuth, async (req, res) => {
 
 router.get('/', optionalAuth, async (req, res) => {
     try {
-
         const userId = req.user ? req.user.id : null;
-        const rows = await productModel.getAllProducts(req.query, userId);
-        console.log('Found', rows.length, 'products');
-        res.json({ success: true, data: rows });
+        const result = await productModel.getAllProducts(req.query, userId);
+        console.log('Found', result.data.length, 'products');
+        res.json({ success: true, ...result }); // { success: true, data: [...], pagination: {...} }
     } catch (error) {
         console.error('Error fetching products:', error.message);
         console.error('Stack:', error.stack);

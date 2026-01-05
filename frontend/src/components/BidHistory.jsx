@@ -4,19 +4,22 @@ import { getRelativeTime } from '../utils/timeUtil';
 import { useBidHistory } from '../hooks/useBidHistory';
 import Pagination from './Pagination';
 import { bidService } from '../services/bid';
+import UserReviewsModal from './UserReviewsModal'; // Import Modal
 import './BidHistory.css';
 
 const BidHistory = ({ productId, isSeller }) => {
   const { bidHistory, isLoading, error, refreshBidHistory } = useBidHistory(productId);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedBidder, setSelectedBidder] = useState(null); // State for modal
   const itemsPerPage = 5;
 
   const bids = bidHistory;
 
   const maskName = (name) => {
     if (!name) return 'Ẩn danh';
-    if (name.length <= 3) return name;
-    return name.substring(0, 3) + '****';
+    if (isSeller) return name; // Show full name if seller
+    // Masking logic matching backend
+    return name.split('').map((char, index) => index % 2 === 0 ? char : '*').join('');
   };
 
   const handleReject = async (bidId, bidderName) => {
@@ -53,6 +56,7 @@ const BidHistory = ({ productId, isSeller }) => {
           <div className="bid-list">
             {currentBids.map((bid, index) => {
               const realRank = indexOfFirstItem + index + 1;
+              const displayName = maskName(bid.full_name || bid.username);
 
               return (
                 <div key={bid.id} className={`bid-item ${realRank === 1 ? 'top-1' : ''}`}>
@@ -61,8 +65,13 @@ const BidHistory = ({ productId, isSeller }) => {
                       {realRank}
                     </div>
                     <div className="bidder-details">
-                      <span className="bidder-name">
-                        {maskName(bid.full_name || bid.username)}
+                      <span 
+                        className={`bidder-name ${isSeller ? 'clickable' : ''}`}
+                        onClick={() => isSeller && setSelectedBidder({id: bid.bidder_id, name: bid.full_name || bid.username})}
+                        title={isSeller ? "Xem đánh giá người này" : ""}
+                        style={isSeller ? {cursor: 'pointer', textDecoration: 'underline'} : {}}
+                      >
+                        {displayName}
                         {realRank === 1 && <span className="crown-icon"> 👑</span>}
                       </span>
                       <span className="bid-time">{new Date(bid.time).toLocaleString('vi-VN')}</span>
@@ -96,6 +105,15 @@ const BidHistory = ({ productId, isSeller }) => {
             onPageChange={paginate} 
           />
         </>
+      )}
+
+      {/* Modal Review */}
+      {selectedBidder && (
+        <UserReviewsModal 
+            userId={selectedBidder.id} 
+            userName={selectedBidder.name}
+            onClose={() => setSelectedBidder(null)} 
+        />
       )}
     </div>
   );

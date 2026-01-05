@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import './ProductCard.css';
 import { getRelativeTime, shouldShowRelativeTime } from '../utils/timeUtil';
 import { formatPriceVN } from '../utils/formatCurrency';
@@ -7,6 +8,7 @@ import HeartButton from './HeartButton';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+  const { cur_user } = useAuth();
 
   if (!product) return null;
 
@@ -18,6 +20,25 @@ const ProductCard = ({ product }) => {
   const productImage = (product.images && product.images.length > 0) 
     ? product.images[0] 
     : 'https://via.placeholder.com/300x300?text=No+Image'; 
+
+  // Logic hiển thị Badge
+  const isNew = (new Date() - new Date(product.created_at)) < 60 * 60 * 1000; // < 60 minutes
+  const isHot = product.bid_count > 0;
+  const isHoldingPrice = cur_user && product.winner_id === cur_user.id;
+
+  let badgeLabel = '';
+  let badgeClass = '';
+
+  if (isHoldingPrice) {
+      badgeLabel = 'ĐANG GIỮ GIÁ';
+      badgeClass = 'holding';
+  } else if (isNew) {
+      badgeLabel = 'NEW';
+      badgeClass = 'new';
+  } else if (isHot) {
+      badgeLabel = 'HOT';
+      badgeClass = 'hot';
+  }
 
   return (
     <div className="product-card-wrapper" onClick={handleClick}>
@@ -32,10 +53,11 @@ const ProductCard = ({ product }) => {
         />
         
         <div className="card-badges">
-            {/* Logic hiển thị Badge: Nếu có bid thì là HOT, không thì là NEW */}
-            <span className={`status-badge ${product.bid_count > 0 ? 'hot' : 'new'}`}>
-                {product.bid_count > 0 ? 'HOT' : 'NEW'}
-            </span>
+            {badgeLabel && (
+                <span className={`status-badge ${badgeClass}`}>
+                    {badgeLabel}
+                </span>
+            )}
             {/* Heart Button */}
             <div className="heart-button-container" onClick={(e) => e.stopPropagation()}>
               <HeartButton productId={product.id} initialState={product.is_favorite || false} />

@@ -67,7 +67,7 @@ export default function useAddProduct() {
             newErrors.end_time = "Ngày kết thúc phải sau ngày bắt đầu";
         }
 
-        if (photos.length < 3) {
+        if (photosRef.current.length < 3) {
             newErrors.photos = "Vui lòng chọn ít nhất 3 ảnh";
         }
 

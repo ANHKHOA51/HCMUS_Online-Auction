@@ -5,7 +5,8 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  /* Force Light Mode for Happy Hues */
+  color-scheme: light; 
   color: #5f6c7b;
 
   background-color: #fffffe;

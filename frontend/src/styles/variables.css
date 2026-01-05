@@ -1,22 +1,22 @@
 /* Happy Hues Palette 3 - CSS Variables */
 :root {
   /* Primary Colors */
-  --color-primary: #FF6B6B;      /* Coral Red */
-  --color-secondary: #4ECDC4;    /* Teal */
-  --color-accent: #FFE66D;       /* Golden Yellow */
+  --color-primary: #3da9fc;      /* Button Blue */
+  --color-secondary: #ef4565;    /* Tertiary Red/Pink */
+  --color-accent: #90b4ce;       /* Secondary Light Blue */
   
   /* Neutral Colors */
-  --color-dark: #2C3E50;         /* Dark Blue */
-  --color-light: #F7FFEE;        /* Off White */
-  --color-gray: #E8E8E8;         /* Light Gray */
-  --color-gray-600: #A0A0A0;     /* Medium Gray */
-  --color-white: #FFFFFF;
+  --color-dark: #094067;         /* Headline Dark Blue */
+  --color-light: #d8eefe;        /* Light Blue Background (Optional) or keep White */
+  --color-gray: #5f6c7b;         /* Paragraph Gray */
+  --color-gray-light: #90b4ce;   /* Light Gray/Blue */
+  --color-white: #fffffe;        /* Background White */
   
   /* Semantic Colors */
-  --color-success: #95E1D3;      /* Light Teal */
-  --color-danger: #FF6B6B;       /* Coral (same as primary) */
-  --color-warning: #FFE66D;      /* Yellow (same as accent) */
-  --color-info: #4ECDC4;         /* Teal (same as secondary) */
+  --color-success: #3da9fc;      
+  --color-danger: #ef4565;       
+  --color-warning: #ffd803;      /* Keeping a yellow just in case, though not in palette */
+  --color-info: #90b4ce;         
   
   /* Shadows */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);

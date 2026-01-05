@@ -6,6 +6,17 @@ export const placeBid = async (userId, productId, amount) => {
   // Khởi tạo Transaction tại Service
   return await db.transaction(async (trx) => {
     
+    // 1. Check User Rating
+    const user = await trx('users').where('id', userId).first();
+    if (!user) throw new Error('Người dùng không tồn tại');
+
+    const totalRatings = (user.rating_positive || 0) + (user.rating_negative || 0);
+    if (totalRatings > 0) {
+        const ratingScore = (user.rating_positive || 0) / totalRatings;
+        if (ratingScore < 0.8) {
+            throw new Error(`Điểm đánh giá của bạn thấp (${(ratingScore * 100).toFixed(1)}%). Cần tối thiểu 80% để đấu giá.`);
+        }
+    }
 
     const product = await productModel.findByIdLock(productId, trx);
 
@@ -32,7 +43,8 @@ export const placeBid = async (userId, productId, amount) => {
       bid_time: new Date()
     }, trx);
 
-    await productModel.updatePrice(productId, amount, trx);
+    // Cập nhật giá hiện tại VÀ người thắng tạm thời (winner_id)
+    await productModel.updatePrice(productId, amount, userId, trx);
 
     return true; // Commit tự động nếu không có lỗi
   });
