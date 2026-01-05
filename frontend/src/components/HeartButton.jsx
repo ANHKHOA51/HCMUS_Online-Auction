@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import useWatchlist from '../hooks/useWatchlist';
 import './HeartButton.css'; // Nhớ import file CSS bên dưới
 
-function HeartButton({ productId, initialState = false }) {
+function HeartButton({ productId, initialState = false, onToggle }) {
   const [isWatched, setIsWatched] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -30,7 +30,12 @@ function HeartButton({ productId, initialState = false }) {
       
       const result = await toggleWatch(productId);
       // Nếu API trả về kết quả thực tế (trong trường hợp lỗi hoặc logic khác)
-      setIsWatched(!isWatched);
+      const newState = !isWatched;
+      setIsWatched(newState);
+      
+      if (onToggle) {
+        onToggle(newState);
+      }
 
     } catch (err) {
       console.error('Lỗi toggle watchlist:', err);

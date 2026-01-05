@@ -338,21 +338,23 @@ export const ProductModel = {
 
     findBySellerId: async (sellerId, status) => {
         let query = createBaseQuery().where('p.seller_id', sellerId);
+        const now = new Date();
 
         if (status === 'active') {
             // Đang đăng & còn hạn
-            query = query.where('p.status', 'active').andWhere('p.end_time', '>', new Date());
+            query = query.where('p.status', 'active').andWhere('p.end_time', '>', now);
         } else if (status === 'sold') {
             // Đã có người thắng (status = sold HOẶC hết hạn mà có winner)
             query = query.where(function() {
                 this.where('p.status', 'sold')
                     .orWhere(function() {
-                        this.where('p.end_time', '<=', new Date())
+                        this.where('p.end_time', '<=', now)
                             .andWhereNotNull('p.winner_id');
                     });
             });
         }
-
+        
+        // console.log(`[findBySellerId] Status: ${status}, Query: ${query.toString()}`);
         return query.orderBy('p.created_at', 'desc');
     },
 
