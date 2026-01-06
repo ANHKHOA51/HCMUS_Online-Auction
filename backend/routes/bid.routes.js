@@ -3,7 +3,7 @@ import authMiddleware, { verifyBidderEligibility } from '../middlewares/auth.mid
 const router = express.Router();
 import * as bidService from '../services/bid.service.js';
 import bidModel from '../models/bid.model.js';
-
+import { sendRejectMail } from '../utils/mail.js';
 
 // GET lịch sử bid của sản phẩm
 router.get('/:productId/history', async (req, res) => {
@@ -54,6 +54,7 @@ router.post('/reject/:id', authMiddleware, async (req, res) => {
         }
 
         await bidModel.rejectBid(id, bid.product_id);
+        await sendRejectMail(bid.email, product.name);
         res.json({ success: true, message: 'Rejected bidder successfully' });
     } catch (err) {
         console.error(err);

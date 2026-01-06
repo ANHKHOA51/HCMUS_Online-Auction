@@ -5,7 +5,7 @@ export default {
     return trx('bids').insert(entity);
   },
 
-  findById: (id) => db('bids').where('id', id).first(),
+  findById: (id) => db('bids').where('bids.id', id).join('users', 'bids.bidder_id', 'users.id').first(),
 
   // Lấy lịch sử bid của sản phẩm
   async getByProductId(productId) {

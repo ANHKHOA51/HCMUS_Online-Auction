@@ -96,4 +96,24 @@ export async function sendResetPasswordMail(toEmail, password) {
     }
 }
 
+export async function sendRejectMail(toEmail, productName) {
+    try {
+        console.log('📧 Sending reject email to:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: "Lượt ra giá bị từ chối",
+            text: `Lượt ra giá của bạn đã bị từ chối`,
+            html: `<p>Xin chào,</p>
+             <p>Lượt ra giá của bạn đã bị từ chối cho sản phẩm "${productName}"</p>
+             <p>Trân trọng,<br/>Đội ngũ hỗ trợ Online Auction</p>`
+        });
+        console.log('Email sent successfully:', result.response);
+
+    } catch (error) {
+        console.error('Email send error:', error.message);
+        throw error
+    }
+}
+
 export default transporter;
