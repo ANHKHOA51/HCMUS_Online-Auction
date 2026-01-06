@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import { optionalAuth } from '../middlewares/optionalAuth.middleware.js';
 import auth from '../middlewares/auth.middleware.js';
+import bidModel from '../models/bid.model.js';
 import { ReviewModel } from '../models/review.model.js';
 
 const router = express.Router();
@@ -248,7 +249,8 @@ router.patch('/:id/description', authMiddleware, async (req, res) => {
         }
 
         await productModel.appendDescription(id, description);
-        // await sendDescriptionMail(product.email, product.name);
+        // const highestBid = await bidModel.findHighestBid(id);
+        // await sendDescriptionMail(highestBid.email, product.name);
         res.json({ success: true, message: 'Description updated successfully' });
     } catch (error) {
         console.error('Error appending description:', error);
