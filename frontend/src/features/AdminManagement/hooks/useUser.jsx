@@ -18,8 +18,12 @@ export function useUser() {
         setLoading(true);
         try {
             const response = await userService.getUsers();
-            console.log("Fetched users:", response.data.data);
-            setUsers(response.data.data);
+            if (response.ok) {
+                 console.log("Fetched users:", response.data.data);
+                 setUsers(response.data.data);
+            } else {
+                 setError(response.message || "Failed to fetch users");
+            }
         } catch (error) {
             console.error("Failed to fetch users", error);
             setError("Failed to fetch users");
@@ -32,8 +36,12 @@ export function useUser() {
         setLoading(true);
         try {
             const response = await userService.getUpgradeRequests();
-            console.log("Fetched upgrade requests:", response.data);
-            setUpgradeRequests(response.data.data);
+             if (response.ok) {
+                 console.log("Fetched upgrade requests:", response.data);
+                 setUpgradeRequests(response.data.data);
+            } else {
+                 setError(response.message || "Failed to fetch upgrade requests");
+            }
         } catch (error) {
             console.error("Failed to fetch upgrade requests", error);
             setError("Failed to fetch upgrade requests");

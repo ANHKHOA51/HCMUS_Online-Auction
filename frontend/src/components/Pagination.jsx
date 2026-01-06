@@ -1,5 +1,5 @@
 import React from 'react';
-import './Pagination.css';
+// Đã xóa import './Pagination.css';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   // if (totalPages <= 1) return null; // Always show pagination
@@ -45,10 +45,22 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
   const visiblePages = getVisiblePages();
 
+  // Class cơ bản dùng chung cho mọi nút (Base styles + Mobile responsive)
+  const baseBtnClass = "w-[36px] h-[36px] rounded-[8px] border-[2px] border-solid border-[var(--ph-stroke,#094067)] font-bold text-[0.9rem] flex items-center justify-center transition-all duration-[200ms] ease-out cursor-pointer max-[480px]:w-[32px] max-[480px]:h-[32px] max-[480px]:text-[0.8rem]";
+
+  // Class cho trạng thái bình thường (Normal State + Hover)
+  const normalBtnClass = "bg-white text-[var(--ph-headline,#094067)] shadow-[2px_2px_0px_rgba(9,64,103,0.2)] hover:enabled:-translate-x-[2px] hover:enabled:-translate-y-[2px] hover:enabled:shadow-[4px_4px_0px_var(--ph-stroke,#094067)] hover:enabled:bg-[#f0f8ff]";
+
+  // Class cho trạng thái Active (Đang chọn)
+  const activeBtnClass = "bg-[var(--color-primary,#3da9fc)] text-[var(--ph-headline,#094067)] translate-x-[1px] translate-y-[1px] shadow-[1px_1px_0px_var(--ph-stroke,#094067)]";
+
+  // Class cho trạng thái Disabled
+  const disabledBtnClass = "disabled:bg-[#f0f0f0] disabled:text-[#ccc] disabled:border-[#ccc] disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none";
+
   return (
-    <div className="pagination-container">
+    <div className="flex justify-center gap-[8px] mt-[24px] pt-[16px] border-t-[2px] border-dashed border-[var(--ph-secondary,#90b4ce)]">
       <button 
-        className="page-btn prev"
+        className={`${baseBtnClass} ${normalBtnClass} ${disabledBtnClass}`}
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
@@ -59,10 +71,10 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       {visiblePages.map((page, index) => (
         <React.Fragment key={index}>
             {page === '...' ? (
-                <span className="pagination-dots">...</span>
+                <span className="flex items-end justify-center px-[4px] text-[var(--ph-paragraph,#5f6c7b)] font-bold h-[36px] leading-[36px]">...</span>
             ) : (
                 <button
-                  className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                  className={`${baseBtnClass} ${currentPage === page ? activeBtnClass : normalBtnClass}`}
                   onClick={() => onPageChange(page)}
                 >
                   {page}
@@ -72,7 +84,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       ))}
 
       <button 
-        className="page-btn next"
+        className={`${baseBtnClass} ${normalBtnClass} ${disabledBtnClass}`}
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >

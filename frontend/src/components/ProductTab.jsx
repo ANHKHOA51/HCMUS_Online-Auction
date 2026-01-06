@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import './ProductTab.css';
+// Đã xóa import './ProductTab.css';
 import QAHistory from './QAHistory';
 import QuestionForm from './QuestionForm';
 import BidHistory from './BidHistory';
@@ -42,24 +42,31 @@ const ProductTabs = ({
     }
   };
 
+  // Class chung cho Button Tab
+  const tabBtnBase = "flex-[0_1_auto] p-[12px_20px] bg-transparent border-none border-b-[3px] border-solid text-[15px] font-semibold cursor-pointer transition-all duration-[300ms] ease-out whitespace-nowrap";
+  const tabBtnInactive = "border-transparent text-[var(--pg-paragraph,#5f6c7b)] hover:text-[var(--pg-headline,#094067)] hover:bg-[#f9f9f9]";
+  const tabBtnActive = "text-[var(--pg-headline,#094067)] border-b-[var(--pg-highlight,#3da9fc)] bg-white";
+
   return (
-    <div className="product-tabs card-box">
+    // .product-tabs + .card-box styles (kết hợp style từ file css và style card-box từ context trước)
+    <div className="mt-[30px] bg-[var(--pg-main,#fffffe)] ml-auto w-full border-[3px] border-solid border-[var(--pg-stroke,#094067)] rounded-[16px] shadow-[6px_6px_0px_rgba(9,64,103,0.15)] overflow-hidden">
+      
       {/* Tab Header */}
-      <div className="tabs-header">
+      <div className="flex border-b-[2px] border-solid border-[#eee] mb-[20px]">
         <button
-          className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`}
+          className={`${tabBtnBase} ${activeTab === 'description' ? tabBtnActive : tabBtnInactive}`}
           onClick={() => setActiveTab('description')}
         >
           Mô tả sản phẩm
         </button>
         <button
-          className={`tab-btn ${activeTab === 'qa' ? 'active' : ''}`}
+          className={`${tabBtnBase} ${activeTab === 'qa' ? tabBtnActive : tabBtnInactive}`}
           onClick={() => setActiveTab('qa')}
         >
           Hỏi đáp ({questions.length})
         </button>
         <button
-          className={`tab-btn ${activeTab === 'his' ? 'active' : ''}`}
+          className={`${tabBtnBase} ${activeTab === 'his' ? tabBtnActive : tabBtnInactive}`}
           onClick={() => setActiveTab('his')}
         >
           Lịch sử đặt giá
@@ -67,38 +74,46 @@ const ProductTabs = ({
       </div>
 
       {/* Tab Content */}
-      <div className="tab-content">
+      <div className="p-[10px] min-h-[200px]">
         {activeTab === 'description' && (
           <div className="description-content">
-            <h4 className="section-title">Chi tiết sản phẩm</h4>
-            <div dangerouslySetInnerHTML={{ __html: product.description }} />
+            {/* .section-title (giữ style từ context trước: font size 20px, margin bottom 15px) */}
+            <h4 className="text-[20px] font-bold mb-[15px] text-[var(--pg-headline,#094067)] flex items-center gap-[10px] before:content-[''] before:block before:w-[8px] before:h-[24px] before:bg-[var(--pg-tertiary,#ef4565)] before:rounded-[4px]">
+              Chi tiết sản phẩm
+            </h4>
+            
+            {/* Nội dung HTML description */}
+            <div 
+              className="text-[var(--pg-paragraph,#5f6c7b)] leading-[1.6]"
+              dangerouslySetInnerHTML={{ __html: product.description }} 
+            />
 
             {/* Append Description Section */}
             {currentUserId && sellerId && String(currentUserId) === String(sellerId) && (
-              <div className="mt-8 border-t pt-4">
+              <div className="mt-[32px] border-t-[1px] border-solid border-[#e5e7eb] pt-[16px]">
                 {!isAppending ? (
                   <button
-                    className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-blue-700 transition"
+                    className="bg-[#2563eb] text-white px-[16px] py-[8px] rounded-[4px] text-[14px] font-medium hover:bg-[#1d4ed8] transition-colors"
                     onClick={() => setIsAppending(true)}
                   >
                     + Thêm mô tả
                   </button>
                 ) : (
-                  <div className="append-editor mt-4">
-                    <h5 className="font-semibold mb-2 text-sm text-gray-700">Thêm thông tin bổ sung:</h5>
-                    <div className="bg-white border rounded-md overflow-hidden">
+                  <div className="mt-[16px]">
+                    <h5 className="font-semibold mb-[8px] text-[14px] text-[#374151]">Thêm thông tin bổ sung:</h5>
+                    <div className="bg-white border-[1px] border-solid border-[#e5e7eb] rounded-[6px] overflow-hidden">
                       <Editor ref={editorRef} />
                     </div>
-                    <div className="flex gap-2 mt-3 justify-end">
+                    <div className="flex gap-[8px] mt-[12px] justify-end">
                       <button
-                        className="px-3 py-1.5 text-sm text-gray-600 border rounded hover:bg-gray-50"
+                        className="px-[12px] py-[6px] text-[14px] text-[#4b5563] border-[1px] border-solid border-[#e5e7eb] rounded-[4px] hover:bg-[#f9fafb]"
                         onClick={() => setIsAppending(false)}
                         disabled={loadingAppend}
                       >
                         Hủy
                       </button>
                       <button
-                        className="px-3 py-1.5 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                        className="px-[12px] py-[6px] text-[14px] bg-[#16a34a] text-white rounded-[4px] hover:bg-[#15803d] disabled:opacity-[0.5]"
                         onClick={handleSaveDescription}
                         disabled={loadingAppend}
                       >

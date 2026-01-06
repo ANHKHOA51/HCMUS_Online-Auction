@@ -77,9 +77,10 @@ export const UserModel = {
     },
 
     getBidderRequests: async () => {
-        return db("bidder_requests")
-            .join("users", "users.id", "bidder_requests.bidder_id")
-            .select("users.id", "users.full_name as name", "users.email", "users.role", "bidder_requests.created_at");
+        return db("upgrade_requests")
+            .join("users", "users.id", "upgrade_requests.user_id")
+            .where("upgrade_requests.status", "pending")
+            .select("users.id", "users.full_name as name", "users.email", "users.role", "upgrade_requests.created_at", "upgrade_requests.reason");
     },
 
     updateRole: async (id, role) => {
@@ -89,13 +90,13 @@ export const UserModel = {
     acceptUpgrade: async (id) => {
         // transaction
         return db.transaction(async (trx) => {
-            await trx("bidder_requests").where("bidder_id", id).delete();
+            await trx("upgrade_requests").where("user_id", id).update({ status: 'approved' });
             await trx("users").where({ id }).update({ role: 2, expired_time: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) });
         });
     },
 
     rejectUpgrade: async (id) => {
-        return db("bidder_requests").where("bidder_id", id).delete();
+        return db("upgrade_requests").where("user_id", id).update({ status: 'rejected' });
     },
 
     getUserById: async (id) => {

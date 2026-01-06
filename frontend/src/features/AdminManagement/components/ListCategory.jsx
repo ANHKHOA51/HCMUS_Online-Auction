@@ -1,16 +1,52 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, Form } from "react-router";
-import { Plus, Pencil, Trash2, Search, Filter } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Filter, ChevronRight, CornerDownRight } from 'lucide-react';
 import useCategory from "../hooks/useCategory.jsx";
 
 export default function ListCategories() {
     // Mock data for UI preview
     const { categories, deleteConfirm, handleDeleteClick, hideDeleteConfirmDialog, handleDelete, error } = useCategory();
 
+    const sortedCategories = useMemo(() => {
+        if (!categories || categories.length === 0) return [];
+
+        const categoryMap = new Map();
+        // Create nodes
+        categories.forEach(c => categoryMap.set(c.id, { ...c, children: [] }));
+
+        const roots = [];
+        categories.forEach(c => {
+            const node = categoryMap.get(c.id);
+            if (c.parent_category_id) {
+                const parent = categoryMap.get(c.parent_category_id);
+                if (parent) {
+                    parent.children.push(node);
+                } else {
+                    roots.push(node); // Orphan treated as root
+                }
+            } else {
+                roots.push(node);
+            }
+        });
+
+        const flatten = (nodes, level = 0) => {
+            let result = [];
+            nodes.forEach(node => {
+                result.push({ ...node, level });
+                if (node.children.length > 0) {
+                    result = result.concat(flatten(node.children, level + 1));
+                }
+            });
+            return result;
+        };
+
+        return flatten(roots);
+    }, [categories]);
+
     return (
         <div className="w-full">
             {error && (
-                <div className="block border border-red-500 !rounded-lg p-4 bg-red-50 absolute top-10 left-1/2 text-red-500 mb-4">
+                <div className="block border border-red-500 !rounded-lg p-4 bg-red-50 absolute top-10 left-1/2 text-red-500 mb-4 transform -translate-x-1/2 z-50 shadow-lg">
                     {error}
                 </div>
             )}
@@ -45,10 +81,10 @@ export default function ListCategories() {
                     <thead>
                         <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC]">
                             <th className="text-left px-6 py-4 text-sm font-semibold text-[#64748B] uppercase tracking-wider">
-                                ID
+                                Name
                             </th>
                             <th className="text-left px-6 py-4 text-sm font-semibold text-[#64748B] uppercase tracking-wider">
-                                Name
+                                Type
                             </th>
                             <th className="flex justify-end text-right px-10 py-4 text-sm font-semibold text-[#64748B] uppercase tracking-wider">
                                 Actions
@@ -56,17 +92,30 @@ export default function ListCategories() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#E2E8F0]">
-                        {categories.length > 0 ? (
-                            categories.map(category => (
+                        {sortedCategories.length > 0 ? (
+                            sortedCategories.map(category => (
                                 <tr
                                     key={category.id}
-                                    className="group hover:bg-[#F8FAFC] transition-colors duration-200"
+                                    className={`group hover:bg-[#F8FAFC] transition-colors duration-200 ${category.level === 0 ? 'bg-white' : 'bg-gray-50/30'}`}
                                 >
-                                    <td className="px-6 py-4 text-sm text-[#64748B] text-left">
-                                        {category.id}
-                                    </td>
                                     <td className="px-6 py-4 text-base text-[#1E293B] font-medium text-left">
-                                        {category.name}
+                                        <div className="flex items-center" style={{ paddingLeft: `${category.level * 24}px` }}>
+                                            {category.level > 0 && (
+                                                <CornerDownRight className="w-4 h-4 text-gray-400 mr-2" />
+                                            )}
+                                            {category.name}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-sm text-[#64748B] text-left">
+                                        {category.level === 0 ? (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                Parent
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                Sub-category
+                                            </span>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-3">

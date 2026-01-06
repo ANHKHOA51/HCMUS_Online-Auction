@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useProducts, useFilters } from '../hooks/useProduct';
 import { useAuth } from '../contexts/AuthContext.jsx';
-import { BiChevronDown, BiMenu, BiX, BiUser, BiLogOut, BiShoppingBag, BiPlusCircle } from 'react-icons/bi';
+import { BiChevronDown, BiMenu, BiX, BiUser, BiLogOut, BiShoppingBag, BiPlusCircle, BiShield } from 'react-icons/bi';
 
 export default function Header() {
     const navigate = useNavigate();
@@ -285,6 +285,13 @@ export default function Header() {
                                         boxShadow: `6px 6px 0px ${colors.border}` 
                                     }}>
                                     <div className="px-5 py-3 bg-gray-50 border-b-2 border-gray-100"><p className="text-xs uppercase font-bold tracking-wider opacity-60">Tài khoản</p><p className="font-bold truncate" style={{ color: colors.text }}>{cur_user.username}</p></div>
+                                    
+                                    {(cur_user.role === 'admin' || cur_user.role === 1) && (
+                                        <button onClick={() => navigate('/admin')} className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-medium" style={{ color: colors.primary }}>
+                                            <BiShield size={18} /> Quản trị hệ thống
+                                        </button>
+                                    )}
+
                                     <button onClick={() => navigate('/profile')} className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-medium" style={{ color: colors.text }}><BiUser size={18} /> Hồ sơ cá nhân</button>
                                     {cur_user.role === 2 && (<><button onClick={() => navigate('/products/add-product')} className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-medium" style={{ color: colors.text }}><BiPlusCircle size={18} /> Đăng bán</button><button onClick={() => navigate('/seller/orders')} className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-medium" style={{ color: colors.text }}><BiShoppingBag size={18} /> Quản lý đơn</button></>)}
                                     <div className="border-t-2 border-gray-100 my-1"></div>

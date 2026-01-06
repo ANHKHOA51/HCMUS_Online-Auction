@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/HomePage";
 import SearchResultsPage from "../components/SearchResults";
@@ -56,6 +56,8 @@ const router = createBrowserRouter([
         path: "/admin",
         Component: AdminLayout,
         children: [
+            { index: true, 
+               element: <Navigate to="products" replace /> },
             {
                 path: "products",
                 children: [

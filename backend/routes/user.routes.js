@@ -2,11 +2,105 @@ import express from 'express';
 import { UserModel } from '../models/user.model.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
+import { roleMiddleware } from '../middlewares/role.middleware.js';
 import { ProductModel } from '../models/product.model.js';
 import { ReviewModel } from '../models/review.model.js';
+import { sendResetPasswordMail } from '../utils/mail.js';
 import { db } from '../utils/db.js';
 
 const router = express.Router();
+
+// --- ADMIN ROUTES (Must be before dynamic :id routes if conflicts exist) ---
+
+// Get all users (Admin only)
+router.get('/', authMiddleware, roleMiddleware([1]), async (req, res) => {
+    try {
+        const users = await UserModel.getAllUsers();
+        res.status(200).json({ success: true, data: users });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get bidder upgrade requests (Admin only)
+router.get('/bidder-requests', authMiddleware, roleMiddleware([1]), async (req, res) => {
+    try {
+        const users = await UserModel.getBidderRequests();
+        res.status(200).json({ success: true, data: users });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Update User Role (Admin only)
+router.post('/update-role', authMiddleware, roleMiddleware([1]), async (req, res) => {
+    try {
+        const { id, role } = req.body;
+        const updatedUser = await UserModel.updateRole(id, role);
+        res.status(200).json({ success: true, data: updatedUser });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Accept Upgrade (Admin only)
+router.post('/accept-upgrade', authMiddleware, roleMiddleware([1]), async (req, res) => {
+    try {
+        const { id } = req.body;
+        const updatedUser = await UserModel.acceptUpgrade(id);
+        res.status(200).json({ success: true, data: updatedUser });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Reject Upgrade (Admin only)
+router.post('/reject-upgrade', authMiddleware, roleMiddleware([1]), async (req, res) => {
+    try {
+        const { id } = req.body;
+        const updatedUser = await UserModel.rejectUpgrade(id);
+        res.status(200).json({ success: true, data: updatedUser });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Reset User Password (Admin only)
+router.post('/reset-password', authMiddleware, roleMiddleware([1]), async (req, res) => {
+    try {
+        const { id } = req.body;
+        const updatedUser = await UserModel.resetPassword(id);
+        console.log(updatedUser);
+        sendResetPasswordMail(updatedUser.email, updatedUser.password);
+        res.status(200).json({ success: true, data: updatedUser }); 
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Delete User (Admin only)
+router.delete('/delete/:id', authMiddleware, roleMiddleware([1]), async (req, res) => {
+    try {
+        const user = await UserModel.deleteUser(req.params.id);
+        res.status(200).json({ success: true, data: user });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Rate User (Admin/System?) -> kept as is from original source
+router.post('/rate/:id', authMiddleware, roleMiddleware([1]), async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body;
+        const updatedUser = await UserModel.rate(id, note);
+        res.status(200).json({ success: true, data: updatedUser });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// --- USER PROFILE ROUTES ---
 
 // Update Profile Info
 router.patch('/update', authMiddleware, async (req, res) => {

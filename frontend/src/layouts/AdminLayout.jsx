@@ -18,21 +18,25 @@ export default function AdminLayout() {
     };
 
     return (
-        <div className="d-flex min-vh-100 bg-light">
+        <div className="flex min-h-screen bg-gray-50">
             {/* Sidebar */}
-            <aside className="bg-white border-end d-none d-md-flex flex-column flex-shrink-0 sticky-top vh-100" style={{ width: '280px' }}>
-                <div className="d-flex align-items-center px-4 border-bottom" style={{ height: '64px' }}>
-                    <span className="h5 fw-bold text-dark mb-0">Admin Panel</span>
+            <aside className="bg-white border-r border-gray-200 hidden md:flex flex-col flex-shrink-0 sticky top-0 h-screen w-[280px]">
+                <div className="flex items-center px-6 h-16 border-b border-gray-200">
+                    <span className="text-xl font-black text-gray-800 uppercase tracking-wide">Admin Panel</span>
                 </div>
-                <nav className="p-3 flex-grow-1 overflow-auto">
-                    <ul className="nav nav-pills flex-column mb-auto">
+                <nav className="p-4 flex-grow overflow-y-auto">
+                    <ul className="flex flex-col space-y-1">
                         {navItems.map((item) => (
-                            <li className="nav-item mb-1" key={item.path}>
+                            <li key={item.path}>
                                 <NavLink
                                     to={item.path}
                                     end={item.end}
                                     className={({ isActive }) =>
-                                        `nav-link ${isActive ? "active" : "link-dark"}`
+                                        `block px-4 py-3 rounded-lg font-medium transition-all ${
+                                            isActive 
+                                            ? "bg-blue-600 text-white shadow-md" 
+                                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                        }`
                                     }
                                 >
                                     {item.label}
@@ -44,23 +48,23 @@ export default function AdminLayout() {
 
                 {/* User Info & Logout */}
                 {cur_user && (
-                    <div className="p-3 border-top mt-auto">
-                        <div className="d-flex align-items-center gap-3 mb-3">
-                            <div className="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center fw-bold text-primary" style={{ width: '40px', height: '40px' }}>
+                    <div className="p-4 border-t border-gray-200 mt-auto bg-gray-50">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center font-bold text-blue-600 text-lg">
                                 {cur_user.username ? cur_user.username.charAt(0).toUpperCase() : 'A'}
                             </div>
                             <div className="overflow-hidden">
-                                <p className="fw-semibold text-dark mb-0 text-truncate">
+                                <p className="font-bold text-gray-800 truncate">
                                     {cur_user.username || 'Admin'}
                                 </p>
-                                <p className="small text-muted mb-0 text-truncate">
+                                <p className="text-xs text-gray-500 truncate">
                                     {cur_user.email || ''}
                                 </p>
                             </div>
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="btn btn-outline-danger w-100 btn-sm"
+                            className="w-full px-4 py-2 border border-red-500 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-bold"
                         >
                             Logout
                         </button>
@@ -69,7 +73,7 @@ export default function AdminLayout() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-grow-1 p-4 overflow-auto">
+            <main className="flex-grow p-8 overflow-auto">
                 <Outlet />
             </main>
         </div>

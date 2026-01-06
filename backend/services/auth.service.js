@@ -77,7 +77,7 @@ export const AuthService = {
                     username: pending.username,
                     email: pending.email,
                     password_hash: pending.password ? `[${pending.password.substring(0, 20)}...]` : 'UNDEFINED',
-                    role: 1,
+                    role: 0,
                     address: pending.address
                 });
 
@@ -87,7 +87,7 @@ export const AuthService = {
                         username: pending.username,
                         email: pending.email,
                         password_hash: pending.password,
-                        role: 1,
+                        role: 0,
                         address: pending.address
                     })
                     .returning('id'); // postgres trả mảng id

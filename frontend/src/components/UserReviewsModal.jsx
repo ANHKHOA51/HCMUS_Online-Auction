@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../services/axiosInstance';
-import { FaTimes } from 'react-icons/fa';
-import '../pages/Profile/components/ReviewsTab.css'; // Reuse CSS
-import './UserReviewsModal.css'; // Additional modal styles
+import { FaTimes, FaThumbsUp, FaThumbsDown, FaQuoteLeft } from 'react-icons/fa';
+import { BiTime } from 'react-icons/bi';
 
 const UserReviewsModal = ({ userId, userName, onClose }) => {
     const [reviews, setReviews] = useState([]);
@@ -29,87 +28,118 @@ const UserReviewsModal = ({ userId, userName, onClose }) => {
         }
     }, [userId]);
 
+    // --- HAPPY HUES COLORS ---
+    const colors = {
+        bg: 'var(--color-white)',
+        text: 'var(--color-dark)',
+        primary: 'var(--color-primary)',
+        secondary: 'var(--color-secondary)',
+        border: 'var(--color-dark)',
+        light: 'var(--color-light)',
+        gray: 'var(--color-gray)',
+    };
+
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content reviews-modal" onClick={e => e.stopPropagation()}>
-                <button className="modal-close" onClick={onClose}>
-                    <FaTimes />
-                </button>
-                
-                <h2 className="modal-title">
-                    Đánh giá của {userName}
-                </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn" onClick={onClose}>
+            <div 
+                className="w-full max-w-3xl max-h-[90vh] bg-white rounded-xl border-2 border-[var(--color-dark)] shadow-[8px_8px_0px_var(--color-dark)] overflow-hidden flex flex-col"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* HEADER */}
+                <div className="p-4 border-b-2 border-[var(--color-dark)] flex justify-between items-center bg-gray-50">
+                    <h2 className="font-black text-xl text-[var(--color-dark)] uppercase flex items-center gap-2">
+                        Đánh giá của <span className="text-[var(--color-primary)]">{userName}</span>
+                    </h2>
+                    <button 
+                        onClick={onClose}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border-2 border-[var(--color-dark)] hover:bg-[var(--color-secondary)] hover:text-white transition-colors cursor-pointer"
+                    >
+                        <FaTimes />
+                    </button>
+                </div>
 
-                {loading ? (
-                    <div className="loading-spinner">Đang tải...</div>
-                ) : error ? (
-                    <div className="error-message">{error}</div>
-                ) : (
-                    <div className="reviews-tab"> {/* Reuse class for styling */}
-                        {/* Stats Card */}
-                        <div className="reviews-stats">
-                            <div className="stat-item">
-                                <div className="stat-label">Tổng cộng</div>
-                                <div className="stat-value">{stats.total}</div>
-                            </div>
-                            <div className="stat-item">
-                                <div className="stat-label">Hài lòng</div>
-                                <div className="stat-value success">
-                                    {stats.likes}
+                {/* BODY */}
+                <div className="flex-1 overflow-y-auto p-6">
+                    {loading ? (
+                        <div className="text-center py-10 font-bold text-[var(--color-gray)]">Đang tải...</div>
+                    ) : error ? (
+                        <div className="text-center py-10 font-bold text-[var(--color-secondary)]">{error}</div>
+                    ) : (
+                        <div className="flex flex-col gap-6">
+                            {/* STATS */}
+                            <div className="bg-[var(--color-white)] rounded-xl border-2 border-[var(--color-dark)] p-4 flex justify-around items-center shadow-sm">
+                                <div className="text-center">
+                                    <div className="text-xs font-bold text-[var(--color-gray)] uppercase tracking-wider mb-1">Hài lòng</div>
+                                    <div className="text-3xl font-black text-[#00b894] flex items-center justify-center gap-2">
+                                        <FaThumbsUp /> {stats.likes}
+                                    </div>
+                                </div>
+                                <div className="w-[2px] h-10 bg-[var(--color-dark)] opacity-10"></div>
+                                <div className="text-center">
+                                    <div className="text-xs font-bold text-[var(--color-gray)] uppercase tracking-wider mb-1">Không hài lòng</div>
+                                    <div className="text-3xl font-black text-[var(--color-secondary)] flex items-center justify-center gap-2">
+                                        <FaThumbsDown /> {stats.dislikes}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="stat-item">
-                                <div className="stat-label">Không hài lòng</div>
-                                <div className="stat-value danger">
-                                    {stats.dislikes}
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Reviews List */}
-                        <div className="reviews-scroll-container">
-                            {reviews.length === 0 ? (
-                                <div className="empty-reviews">
-                                    <p>Người dùng này chưa có đánh giá nào.</p>
-                                </div>
-                            ) : (
-                                <div className="reviews-list">
-                                    {reviews.map((review) => (
-                                        <div key={review.id} className="review-item">
-                                            <div className="review-header">
-                                                <div className="review-user-info">
-                                                    {review.score === '+1' || review.score === '1' ? (
-                                                        <span className="review-badge like">
-                                                            Hài lòng (+1)
-                                                        </span>
-                                    ) : (
-                                                        <span className="review-badge dislike">
-                                                            Không hài lòng (-1)
-                                                        </span>
-                                    )}
-                                                    <span className="review-author">
-                                                        từ <strong>{review.reviewer_name || review.reviewer_username}</strong>
-                                                    </span>
+                            {/* LIST */}
+                            <div className="space-y-4">
+                                {reviews.length === 0 ? (
+                                    <div className="text-center py-8 text-[var(--color-gray)] italic border-2 border-dashed border-[var(--color-dark)] rounded-xl">
+                                        Chưa có đánh giá nào.
+                                    </div>
+                                ) : (
+                                    reviews.map((review) => (
+                                        <div key={review.id} className="bg-white border-2 border-[var(--color-dark)] rounded-lg p-4 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] hover:shadow-[4px_4px_0px_var(--color-dark)] transition-all">
+                                            <div className="flex items-start gap-4">
+                                                {/* Icon */}
+                                                <div className="mt-1 flex-shrink-0">
+                                                    {review.score === 1 || review.score === '+1' ? (
+                                                        <div className="w-10 h-10 rounded-full bg-[#00b894]/10 text-[#00b894] flex items-center justify-center border-2 border-[#00b894]">
+                                                            <FaThumbsUp />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="w-10 h-10 rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] flex items-center justify-center border-2 border-[var(--color-secondary)]">
+                                                            <FaThumbsDown />
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <small className="review-date">
-                                                    {new Date(review.created_at).toLocaleDateString('vi-VN')}
-                                                </small>
-                                            </div>
-                                            
-                                            <div className="review-content">
-                                                "{review.comment}"
-                                            </div>
-                                            
-                                            <div className="review-footer">
-                                                Sản phẩm: <span className="product-link">{review.product_name}</span>
+
+                                                {/* Content */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div className="text-sm">
+                                                            <span className="font-bold text-[var(--color-dark)]">
+                                                                {review.reviewer_name || review.reviewer_username || 'Người dùng ẩn danh'}
+                                                            </span>
+                                                            <span className="text-[var(--color-gray)] mx-1">đã đánh giá</span>
+                                                        </div>
+                                                        <div className="text-xs font-medium text-[var(--color-gray)] flex items-center gap-1 bg-gray-100 px-2 py-1 rounded whitespace-nowrap">
+                                                            <BiTime />
+                                                            {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="relative bg-gray-50 p-3 rounded-lg border border-gray-200 mb-2">
+                                                        <FaQuoteLeft className="absolute top-2 left-2 text-gray-300 text-xl" />
+                                                        <p className="text-sm text-[var(--color-dark)] relative z-10 pl-5 italic break-words">
+                                                            "{review.comment}"
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="text-xs text-[var(--color-gray)] truncate">
+                                                        Sản phẩm: <span className="font-bold text-[var(--color-primary)]">{review.product_name}</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                    ))
+                                )}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

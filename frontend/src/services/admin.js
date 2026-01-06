@@ -1,13 +1,11 @@
+import axiosInstance from './axiosInstance';
+
 export function getCategories() {
-    return fetch("http://localhost:3000/categories/all", {
-        method: "GET",
-        credentials: "include"
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.get("/categories/all")
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -20,15 +18,11 @@ export function getCategories() {
 }
 
 export function getCategoryById(id) {
-    return fetch(`http://localhost:3000/categories/${id}`, {
-        method: "GET",
-        credentials: "include"
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.get(`/categories/${id}`)
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -202,15 +196,11 @@ export function deleteProduct(id) {
 }
 
 export function getUsers() {
-    return fetch("http://localhost:3000/users", {
-        method: "GET",
-        credentials: "include"
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.get("/users")
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -223,15 +213,11 @@ export function getUsers() {
 }
 
 export function getUpgradeRequests() {
-    return fetch("http://localhost:3000/users/bidder-requests", {
-        method: "GET",
-        credentials: "include"
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.get("/users/bidder-requests")
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -244,19 +230,11 @@ export function getUpgradeRequests() {
 }
 
 export function acceptUpgrade(id) {
-    return fetch(`http://localhost:3000/users/accept-upgrade`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ id })
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.post(`/users/accept-upgrade`, { id })
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -269,19 +247,11 @@ export function acceptUpgrade(id) {
 }
 
 export function rejectUpgrade(id) {
-    return fetch(`http://localhost:3000/users/reject-upgrade`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ id })
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.post(`/users/reject-upgrade`, { id })
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -294,19 +264,11 @@ export function rejectUpgrade(id) {
 }
 
 export function resetUserPassword(id) {
-    return fetch(`http://localhost:3000/users/reset-password`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ id })
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.post(`/users/reset-password`, { id })
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -319,15 +281,11 @@ export function resetUserPassword(id) {
 }
 
 export function getUserById(id) {
-    return fetch(`http://localhost:3000/users/${id}`, {
-        method: "GET",
-        credentials: "include"
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.get(`/users/${id}`)
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -340,19 +298,11 @@ export function getUserById(id) {
 }
 
 export function updateUserRole(id, role) {
-    return fetch(`http://localhost:3000/users/update-role`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ id, role })
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.post(`/users/update-role`, { id, role })
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {
@@ -365,15 +315,11 @@ export function updateUserRole(id, role) {
 }
 
 export function deleteUser(id) {
-    return fetch(`http://localhost:3000/users/delete/${id}`, {
-        method: "DELETE",
-        credentials: "include"
-    })
-        .then(response => response.json())
-        .then(data => {
+    return axiosInstance.delete(`/users/delete/${id}`)
+        .then(response => {
             return {
                 ok: true,
-                data: data
+                data: response.data
             };
         })
         .catch(error => {

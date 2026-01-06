@@ -81,13 +81,15 @@ export default function ListProduct() {
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-3">
-                                            <Link
-                                                to={`/admin/products/edit/${product.id}`}
+                                            <a
+                                                href={`/products/${product.id}`}
+                                                target="_blank"
+                                                rel="noreferrer"
                                                 className="p-2 border border-[#E2E8F0] !rounded hover:bg-[#3B82F6] hover:border-[#3B82F6] text-[#64748B] hover:text-white transition-all duration-200"
-                                                title="Edit"
+                                                title="View Detail"
                                             >
                                                 <Eye className="w-4 h-4" />
-                                            </Link>
+                                            </a>
                                             <button
                                                 onClick={() => setDeleteConfirm(product)}
                                                 className="p-2 border border-[#E2E8F0] !rounded hover:bg-[#EF4444] hover:border-[#EF4444] text-[#64748B] hover:text-white transition-all duration-200"

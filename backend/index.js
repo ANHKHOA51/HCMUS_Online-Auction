@@ -9,7 +9,7 @@ import categoryRouter from './routes/category.route.js';
 import watchlistRouter from './routes/watchlist.route.js';
 import bidRouter from './routes/bid.routes.js';
 import questionRouter from './routes/question.route.js';
-import userRouter from './routes/user.routes.js';
+import userRouter from './routes/user.route.js';
 import orderRouter from './routes/order.route.js';
 import { startAuctionCron } from './cron/auction.cron.js';
 

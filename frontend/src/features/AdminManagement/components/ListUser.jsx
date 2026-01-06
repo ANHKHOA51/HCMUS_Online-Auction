@@ -13,10 +13,10 @@ import { useUser } from "../hooks/useUser";
 import { displayDate } from '../../../utils/formatDate';
 
 const mappingRole = {
-    0: 'Guest',
-    1: 'Bidder',
+    0: 'Bidder',
+    1: 'Admin',
     2: 'Seller',
-    3: 'Admin',
+    3: 'Guest',
 };
 
 export default function ListUser() {
@@ -109,6 +109,29 @@ export default function ListUser() {
 }
 
 function UsersTable({ users, setDeleteConfirm }) {
+    console.log("Rendering UsersTable with:", users);
+    
+    // Helper to determine role styling and label safely
+    const getRoleInfo = (role) => {
+        const labels = { 0: 'Bidder', 1: 'Admin', 2: 'Seller', 3: 'Guest' };
+        // Try mapping by int
+        let label = labels[role];
+        
+        // If not found, maybe role is string?
+        if (!label) {
+            // Capitalize if string
+            if (typeof role === 'string') label = role.charAt(0).toUpperCase() + role.slice(1);
+            else label = `Unknown (${role})`;
+        }
+
+        let className = 'bg-gray-100 text-gray-800';
+        if (role === 1 || role === 'admin') className = 'bg-purple-100 text-purple-800';
+        else if (role === 2 || role === 'seller') className = 'bg-blue-100 text-blue-800';
+        else if (role === 0 || role === 'bidder') className = 'bg-green-100 text-green-800';
+        
+        return { label, className };
+    };
+
     return (
         <table className="w-full">
             <thead>
@@ -121,31 +144,30 @@ function UsersTable({ users, setDeleteConfirm }) {
                 </tr>
             </thead>
             <tbody className="divide-y divide-[#E2E8F0]">
-                {users.length > 0 ? (
-                    users.map((user) => (
+                {users && users.length > 0 ? (
+                    users.map((user) => {
+                        const { label, className } = getRoleInfo(user.role);
+                        return (
                         <tr key={user.id} className="hover:bg-[#F8FAFC]">
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 !rounded-full bg-[#E2E8F0] flex items-center justify-center text-[#64748B] font-bold">
-                                        {user.name.charAt(0)}
+                                        {user.name ? user.name.charAt(0).toUpperCase() : '?'}
                                     </div>
-                                    <span className="font-medium text-[#1E293B]">{user.name}</span>
+                                    <span className="font-medium text-[#1E293B]">{user.name || 'No Name'}</span>
                                 </div>
                             </td>
                             <td className="px-6 py-4 text-sm text-[#64748B]">{user.email}</td>
                             <td className="px-6 py-4">
-                                <span className={`inline-flex items-center px-2.5 py-0.5 !rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
-                                    user.role === 'seller' ? 'bg-blue-100 text-blue-800' :
-                                        'bg-gray-100 text-gray-800'
-                                    }`}>
-                                    {mappingRole[user.role]}
+                                <span className={`inline-flex items-center px-2.5 py-0.5 !rounded-full text-xs font-medium ${className}`}>
+                                    {label}
                                 </span>
                             </td>
                             <td className="px-6 py-4">
-                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 !rounded-full text-xs font-medium ${user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 !rounded-full text-xs font-medium ${user.status === 'active' || !user.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                     }`}>
-                                    <span className={`w-1.5 h-1.5 !rounded-full ${user.status === 'active' ? 'bg-green-600' : 'bg-red-600'}`}></span>
-                                    {user.status}
+                                    <span className={`w-1.5 h-1.5 !rounded-full ${user.status === 'active' || !user.status ? 'bg-green-600' : 'bg-red-600'}`}></span>
+                                    {user.status || 'active'}
                                 </span>
                             </td>
                             <td className="px-6 py-4 text-right">
@@ -160,7 +182,7 @@ function UsersTable({ users, setDeleteConfirm }) {
                                 </div>
                             </td>
                         </tr>
-                    ))
+                    )})
                 ) : (
                     <tr>
                         <td colSpan="5" className="px-6 py-12 text-center text-[#94A3B8]">
