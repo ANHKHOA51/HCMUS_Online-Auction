@@ -248,6 +248,7 @@ router.patch('/:id/description', authMiddleware, async (req, res) => {
         }
 
         await productModel.appendDescription(id, description);
+        // await sendDescriptionMail(product.email, product.name);
         res.json({ success: true, message: 'Description updated successfully' });
     } catch (error) {
         console.error('Error appending description:', error);

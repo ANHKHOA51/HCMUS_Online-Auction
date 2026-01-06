@@ -116,4 +116,24 @@ export async function sendRejectMail(toEmail, productName) {
     }
 }
 
+export async function sendAppendDescription(toEmail, productName) {
+    try {
+        console.log('📧 Sending append description email to:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: "Mô tả sản phẩm đã được thêm",
+            text: `Mô tả sản phẩm bạn đang đặt đã được thêm một số thông tin`,
+            html: `<p>Xin chào,</p>
+             <p>Mô tả sản phẩm của cho sản phẩm "${productName}" đã được thêm thông tin</p>
+             <p>Trân trọng,<br/>Đội ngũ hỗ trợ Online Auction</p>`
+        });
+        console.log('Email sent successfully:', result.response);
+
+    } catch (error) {
+        console.error('Email send error:', error.message);
+        throw error
+    }
+}
+
 export default transporter;

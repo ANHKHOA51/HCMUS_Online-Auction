@@ -50,5 +50,12 @@ export default {
         });
       }
     });
-  }
+  },
+
+  async findHighestBid(productId) {
+    // return db('bids')
+    //   .where({ product_id: productId, status: 1 })
+    //   .orderBy('bid_amount', 'desc')
+    //   .first();
+  },
 };
