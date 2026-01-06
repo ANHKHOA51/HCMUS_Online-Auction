@@ -72,7 +72,7 @@ const ProductDetail = () => {
         <div className="flex flex-col sticky top-[25px] max-[1024px]:static">
 
           {/* 1. Gallery (Đã được CSS chỉnh to ra) */}
-          <ProductGallery images={product.images} />
+          <ProductGallery images={images} />
 
           {/* 2. Tabs: Mô tả, Hỏi đáp, Vận chuyển */}
           <ProductTabs 

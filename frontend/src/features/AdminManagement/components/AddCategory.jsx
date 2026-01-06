@@ -52,7 +52,7 @@ export default function AddCategory() {
               placeholder="Enter parent id"
             >
               <option value="">-- No parent --</option>
-              {categories.map((cat) => (
+              {categories.filter((cat) => cat.parent_category_id === null).map((cat) => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
