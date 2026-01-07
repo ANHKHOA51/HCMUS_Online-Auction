@@ -25,13 +25,11 @@ CREATE TABLE public.auto_bids (
 );
 CREATE TABLE public.bidder_requests (
   id integer NOT NULL DEFAULT nextval('bidder_requests_id_seq'::regclass),
-  product_id integer NOT NULL,
   bidder_id integer NOT NULL,
   message text,
   status character varying DEFAULT 'PENDING'::character varying CHECK (status::text = ANY (ARRAY['PENDING'::character varying, 'ACCEPTED'::character varying, 'DENIED'::character varying]::text[])),
   created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT bidder_requests_pkey PRIMARY KEY (id),
-  CONSTRAINT bidder_requests_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
   CONSTRAINT bidder_requests_bidder_id_fkey FOREIGN KEY (bidder_id) REFERENCES public.users(id)
 );
 CREATE TABLE public.bids (
@@ -106,6 +104,8 @@ CREATE TABLE public.orders (
   seller_comment text,
   cancellation_reason text,
   is_cancelled boolean DEFAULT false,
+  tracking_number text,
+  payment_proof text,
   CONSTRAINT orders_pkey PRIMARY KEY (id),
   CONSTRAINT orders_buyer_id_fkey FOREIGN KEY (buyer_id) REFERENCES public.users(id),
   CONSTRAINT orders_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id)
@@ -218,4 +218,4 @@ CREATE TABLE public.watch_lists (
   CONSTRAINT watch_lists_pkey PRIMARY KEY (id),
   CONSTRAINT watch_lists_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id),
   CONSTRAINT watch_lists_product_id_foreign FOREIGN KEY (product_id) REFERENCES public.products(id)
-);t
+);

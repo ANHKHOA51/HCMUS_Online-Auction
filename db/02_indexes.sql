@@ -26,7 +26,6 @@ CREATE INDEX idx_ratings_product ON ratings(product_id);
 
 CREATE INDEX idx_orders_product_id ON orders(product_id);
 CREATE INDEX idx_orders_buyer_id ON orders(buyer_id);
-CREATE INDEX idx_orders_seller_id ON orders(seller_id);
 CREATE INDEX idx_orders_status ON orders(status);
 
 CREATE INDEX idx_order_messages_order_id ON order_messages(order_id);

@@ -242,14 +242,10 @@ CREATE TABLE orders (
     id BIGINT DEFAULT nextval('orders_id_seq'::regclass),
     product_id INTEGER,
     buyer_id INTEGER,
-    seller_id INTEGER,
-    final_price NUMERIC(14, 2),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     status VARCHAR(50) DEFAULT 'pending'::character varying,
     payment_proof TEXT,
     payment_info TEXT,
-    payment_address TEXT,
-    shipping_proof TEXT,
     seller_note TEXT,
     shipping_address TEXT,
     shipping_info TEXT,
@@ -259,12 +255,9 @@ CREATE TABLE orders (
     seller_comment TEXT,
     cancellation_reason TEXT,
     is_cancelled BOOLEAN DEFAULT false,
-    seller_rated BOOLEAN DEFAULT false,
-    buyer_rated BOOLEAN DEFAULT false,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+    tracking_number TEXT,
     CONSTRAINT orders_pkey PRIMARY KEY (id),
     CONSTRAINT orders_buyer_id_fkey FOREIGN KEY (buyer_id) REFERENCES users(id) ON DELETE SET NULL,
-    CONSTRAINT orders_seller_id_fkey FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE SET NULL,
     CONSTRAINT orders_product_id_fkey FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
