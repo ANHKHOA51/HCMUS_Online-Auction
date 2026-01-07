@@ -34,14 +34,14 @@ export async function sendOtpMail(toEmail, otp) {
 
 export async function sendQuestionMail(sellerEmail, sellerName, productName, askerName, questionContent, productId) {
     try {
-        console.log('📧 Sending question notification to seller:', sellerEmail);
+        console.log(' Sending question notification to seller:', sellerEmail);
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        const productLink = `${frontendUrl}/product/${productId}`;
+        const productLink = `${frontendUrl}/products/${productId}`;
 
         const result = await transporter.sendMail({
             from: "Online Auction",
             to: sellerEmail,
-            subject: `❓ Có câu hỏi mới về sản phẩm "${productName}"`,
+            subject: ` Có câu hỏi mới về sản phẩm "${productName}"`,
             html: `
                 <p>Xin chào ${sellerName},</p>
                 <p>Bạn có một câu hỏi mới về sản phẩm của mình:</p>
@@ -167,17 +167,22 @@ export async function sendNewBidNotificationToSeller(toEmail, sellerName, produc
     }
 }
 
-export async function sendOutbidNotification(toEmail, userName, productName, newPrice) {
+export async function sendOutbidNotification(toEmail, userName, productName, newPrice, productId) {
     try {
         console.log('📧 Sending Outbid mail to Previous Bidder:', toEmail);
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const productLink = `${frontendUrl}/products/${productId}`;
         const result = await transporter.sendMail({
             from: "Online Auction",
             to: toEmail,
-            subject: `⚠️ Bạn đã bị vượt giá: ${productName}`,
+            subject: ` Bạn đã bị vượt giá: ${productName}`,
             html: `
                 <p>Xin chào ${userName},</p>
                 <p>Có người vừa đặt giá cao hơn bạn cho sản phẩm <strong>${productName}</strong>.</p>
                 <p>Giá hiện tại: <strong style="color: #d63384;">${Number(newPrice).toLocaleString('vi-VN')} VNĐ</strong></p>
+                <p>
+                    <a href="${productLink}" style="display: inline-block; background: #0d6efd; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Xem sản phẩm & Đặt giá lại</a>
+                </p>
                 <p>Hãy đặt giá lại ngay để giành chiến thắng!</p>
             `
         });
@@ -190,7 +195,7 @@ export async function sendOutbidNotification(toEmail, userName, productName, new
 
 export async function sendBidRejectedMail(toEmail, userName, productName) {
     try {
-        console.log('📧 Sending Reject mail to Bidder:', toEmail);
+        console.log(' Sending Reject mail to Bidder:', toEmail);
         const result = await transporter.sendMail({
             from: "Online Auction",
             to: toEmail,
@@ -209,11 +214,11 @@ export async function sendBidRejectedMail(toEmail, userName, productName) {
 
 export async function sendNewAnswerNotification(toEmail, userName, productName, question, answer) {
     try {
-        console.log('📧 Sending New Answer mail to:', toEmail);
+        console.log(' Sending New Answer mail to:', toEmail);
         const result = await transporter.sendMail({
             from: "Online Auction",
             to: toEmail,
-            subject: `💬 Phản hồi mới về sản phẩm: ${productName}`,
+            subject: ` Phản hồi mới về sản phẩm: ${productName}`,
             html: `
                 <p>Xin chào ${userName},</p>
                 <p>Người bán đã trả lời câu hỏi về sản phẩm <strong>${productName}</strong>:</p>
@@ -237,7 +242,7 @@ export async function sendAuctionEndWinnerMail(toEmail, userName, productName, p
         const result = await transporter.sendMail({
             from: "Online Auction",
             to: toEmail,
-            subject: `🏆 CHÚC MỪNG CHIẾN THẮNG: ${productName}`,
+            subject: ` CHÚC MỪNG CHIẾN THẮNG: ${productName}`,
             html: `
                 <div style="text-align: center; border: 2px solid #ffd803; padding: 20px;">
                     <h2 style="color: #e67e22;">Chúc mừng ${userName}!</h2>
@@ -261,7 +266,7 @@ export async function sendAuctionEndSellerMail(toEmail, userName, productName, w
         const result = await transporter.sendMail({
             from: "Online Auction",
             to: toEmail,
-            subject: `📦 Đấu giá kết thúc: ${productName}`,
+            subject: ` Đấu giá kết thúc: ${productName}`,
             html: `
                 <p>Xin chào ${userName},</p>
                 <p>Sản phẩm <strong>${productName}</strong> đã kết thúc đấu giá.</p>
@@ -280,7 +285,7 @@ export async function sendAuctionEndSellerMail(toEmail, userName, productName, w
 
 export async function sendRejectMail(toEmail, productName) {
     try {
-        console.log('📧 Sending reject email to:', toEmail);
+        console.log(' Sending reject email to:', toEmail);
         const result = await transporter.sendMail({
             from: "Online Auction",
             to: toEmail,

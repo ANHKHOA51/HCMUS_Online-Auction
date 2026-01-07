@@ -1,6 +1,6 @@
+// src/hooks/useBidding.js
 import { useState } from 'react';
 import { formatPriceVN } from '../utils/formatCurrency';
-import { productService } from '../services/product';
 import { bidService } from '../services/bid';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -11,15 +11,22 @@ export const useBidding = (product, onBidSuccess = null) => {
   const [bidError, setBidError] = useState(null);
   const [bidSuccess, setBidSuccess] = useState(false);
 
-  // Helper: Format number with dots (1.000.000)
+  // State quản lý Modal xác nhận
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    isDanger: false
+  });
+
+  // ... (Giữ nguyên các hàm formatNumber, parseNumber, handleBidAmountChange) ...
   const formatNumber = (value) => {
     if (!value) return '';
-    // Remove non-digits
     const rawValue = value.toString().replace(/\D/g, '');
     return rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
-  // Helper: Parse formatted string back to number
   const parseNumber = (value) => {
     if (!value) return 0;
     return parseInt(value.toString().replace(/\./g, ''), 10);
@@ -27,120 +34,112 @@ export const useBidding = (product, onBidSuccess = null) => {
 
   const handleBidAmountChange = (e) => {
     const rawValue = e.target.value;
-    // Prevent user from entering non-digits (except for dots which we handle)
-    // Actually, input type="text" allows anything, so we strip non-digits in formatNumber
     setBidAmount(formatNumber(rawValue));
-    setBidError(null); // Clear error on typing
+    setBidError(null);
   };
+  // ... (Kết thúc giữ nguyên) ...
 
-  // Validate bid amount
   const validateBidAmount = () => {
     if (!cur_user) {
       setBidError('Bạn cần đăng nhập để đấu giá');
       return false;
     }
-
-    // 1. Check Rating > 80%
+    // ... (Giữ nguyên logic validate Rating như cũ) ...
     const totalRatings = (cur_user.rating_positive || 0) + (cur_user.rating_negative || 0);
     if (totalRatings > 0) {
         const ratingScore = (cur_user.rating_positive || 0) / totalRatings;
         if (ratingScore < 0.8) {
-            setBidError(`Điểm đánh giá của bạn thấp (${(ratingScore * 100).toFixed(1)}%). Cần tối thiểu 80% để đấu giá.`);
+            setBidError(`Điểm đánh giá thấp (${(ratingScore * 100).toFixed(1)}%). Cần tối thiểu 80%.`);
             return false;
         }
     }
 
     const amount = parseNumber(bidAmount);
-
-    // 2. Check Valid Amount
     if (!amount || amount <= 0) {
       setBidError('Vui lòng nhập số tiền hợp lệ');
       return false;
     }
 
-    const stepPrice = Number(product.step_price) || 100000; // Default step if missing
+    const stepPrice = Number(product.step_price) || 100000;
     const minBid = (Number(product.current_price) || Number(product.starting_price)) + stepPrice;
 
     if (amount < minBid) {
-      setBidError(`Giá đặt phải tối thiểu là ${formatPriceVN(minBid)} (Giá hiện tại + Bước giá)`);
+      setBidError(`Giá đặt phải tối thiểu là ${formatPriceVN(minBid)}`);
       return false;
     }
-
-    setBidError(null);
     return true;
   };
 
-  // Place bid
-  const handlePlaceBid = async (isAutoBid = true) => {
-    if (!validateBidAmount()) return;
-    
-    // Default to strict manual if not specified, or respect the flag passed from UI
-    // Note: The UI now passes true for Auto, false for Manual.
-
-    const amount = parseNumber(bidAmount);
-
-    // 3. Confirmation
-    const modeText = isAutoBid ? "TỰ ĐỘNG (Max Bid)" : "TRUYỀN THỐNG (Giá chốt)";
-    const confirmMsg = `[Chế độ: ${modeText}]\nBạn có chắc chắn muốn đặt giá ${formatPriceVN(amount)}?`;
-    
-    if (!window.confirm(confirmMsg)) return;
-
+  // Hàm thực sự gọi API (sẽ được truyền vào onConfirm của Modal)
+  const executePlaceBid = async (amount, isAutoBid) => {
     try {
       setIsPlacingBid(true);
-      // Lấy token NGAY LÚC GỌI (không phải khi mount)
-      // const token = sessionStorage.getItem('accessToken'); // Service now uses axiosInstance
+      setConfirmModal(prev => ({ ...prev, isOpen: false })); // Đóng modal
+
       const result = await bidService.placeBid(product.id, amount, isAutoBid);
-      console.log('Placing bid:', amount, 'Auto:', isAutoBid, 'Result:', result);
+      console.log('Bid success:', result);
       
       setBidSuccess(true);
       setBidAmount('');
       
-      // Refresh bid history WITHOUT navigating away
-      if (onBidSuccess) {
-        setTimeout(() => onBidSuccess(), 800);
-      }
-      
-      // Keep success message visible longer
+      if (onBidSuccess) setTimeout(() => onBidSuccess(), 800);
       setTimeout(() => setBidSuccess(false), 4500);
     } catch (err) {
       setBidError(err.response?.data?.error || 'Lỗi khi đặt giá. Vui lòng thử lại.');
-      console.error('Error placing bid:', err);
     } finally {
       setIsPlacingBid(false);
     }
   };
 
-  // Buy now
-  const handleBuyNow = async () => {
-    if (!cur_user) {
-        setBidError('Bạn cần đăng nhập để mua ngay');
-        return;
-    }
-    
-    if (!window.confirm(`Bạn có chắc chắn muốn MUA NGAY với giá ${formatPriceVN(product.buy_now_price)}?`)) return;
-
-    try {
+  const executeBuyNow = async () => {
+     try {
       setIsPlacingBid(true);
+      setConfirmModal(prev => ({ ...prev, isOpen: false })); // Đóng modal
+
       const token = sessionStorage.getItem('accessToken');
-      const result = await bidService.buyNow(product.id, token);
-      console.log('Buying now product:', product.id);
+      await bidService.buyNow(product.id, token);
       
       setBidSuccess(true);
       setTimeout(() => setBidSuccess(false), 3000);
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
-      setBidError(err.response?.data?.error || 'Lỗi khi mua ngay. Vui lòng thử lại.');
-      console.error('Error buying now:', err);
+      setBidError(err.response?.data?.error || 'Lỗi khi mua ngay.');
     } finally {
       setIsPlacingBid(false);
     }
   };
 
+  // Hàm kích hoạt Modal Đặt Giá
+  const handlePlaceBid = (isAutoBid = true) => {
+    if (!validateBidAmount()) return;
+    const amount = parseNumber(bidAmount);
 
-  // Clear messages
-  const clearMessages = () => {
-    setBidError(null);
-    setBidSuccess(false);
+    setConfirmModal({
+      isOpen: true,
+      title: 'Xác nhận đặt giá',
+      message: `Bạn đang chọn chế độ: ${isAutoBid ? "TỰ ĐỘNG (Max Bid)" : "TRUYỀN THỐNG"}\n\nBạn có chắc chắn muốn đặt mức giá:\n${formatPriceVN(amount)}?`,
+      onConfirm: () => executePlaceBid(amount, isAutoBid),
+      isDanger: false
+    });
+  };
+
+  // Hàm kích hoạt Modal Mua Ngay
+  const handleBuyNow = () => {
+    if (!cur_user) {
+        setBidError('Bạn cần đăng nhập để mua ngay');
+        return;
+    }
+    setConfirmModal({
+      isOpen: true,
+      title: 'Xác nhận Mua Ngay',
+      message: `Bạn có chắc chắn muốn mua ngay sản phẩm này với giá:\n${formatPriceVN(product.buy_now_price)}?`,
+      onConfirm: () => executeBuyNow(),
+      isDanger: true // Màu đỏ để cảnh báo tiền lớn
+    });
+  };
+
+  const closeConfirmModal = () => {
+    setConfirmModal(prev => ({ ...prev, isOpen: false }));
   };
 
   return {
@@ -151,7 +150,8 @@ export const useBidding = (product, onBidSuccess = null) => {
     bidSuccess,
     handlePlaceBid,
     handleBuyNow,
-    clearMessages,
-    formatNumber // Expose helper
+    confirmModal,      // State modal để truyền xuống UI
+    closeConfirmModal, // Hàm đóng modal
+    formatNumber
   };
 };

@@ -112,45 +112,45 @@ export const useProductDetail = (productId) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchDetails = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchDetails = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const token = getToken();
-        // Fetch product details
-
-        const result = await productService.getProductDetail(productId, token);
-        if (!result.success) {
-          throw new Error(result.error || 'Lỗi không xác định');
-        }
-
-        const { product, highestBidder, faqs, relatedProducts } = result.data;
-
-        const sellerInfo = {
-          id: product.seller_id,
-          full_name: product.seller_name,
-          email: product.seller_email,
-          avatar: product.seller_avatar,
-          rating_positive: product.rating_positive,
-          rating_negative: product.rating_negative,
-        };
-
-        setProduct(product);
-        setSeller(sellerInfo);
-        setHighestBidder(highestBidder);
-        setFaqs(faqs || []);
-        setRelatedProducts(relatedProducts || []);
-      } catch (err) {
-        console.error('Error fetching product details:', err);
-        setError(err.message || 'Không thể tải thông tin sản phẩm');
-      } finally {
-        setLoading(false);
+      const token = getToken();
+      // Fetch product details
+      const result = await productService.getProductDetail(productId, token);
+      if (!result.success) {
+        throw new Error(result.error || 'Lỗi không xác định');
       }
-    };
 
+      const { product, highestBidder, faqs, relatedProducts } = result.data;
+
+      const sellerInfo = {
+        id: product.seller_id,
+        full_name: product.seller_name,
+        email: product.seller_email,
+        avatar: product.seller_avatar,
+        rating_positive: product.rating_positive,
+        rating_negative: product.rating_negative,
+      };
+
+      setProduct(product);
+      setSeller(sellerInfo);
+      setHighestBidder(highestBidder);
+      setFaqs(faqs || []);
+      setRelatedProducts(relatedProducts || []);
+    } catch (err) {
+      console.error('Error fetching product details:', err);
+      setError(err.message || 'Không thể tải thông tin sản phẩm');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchDetails();
+    // eslint-disable-next-line
   }, [productId]);
 
   return {
@@ -161,5 +161,6 @@ export const useProductDetail = (productId) => {
     relatedProducts,
     loading,
     error,
+    refreshProductDetail: fetchDetails,
   };
 };

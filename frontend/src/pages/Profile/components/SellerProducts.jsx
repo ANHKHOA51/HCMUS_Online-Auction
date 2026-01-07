@@ -27,6 +27,10 @@ const SellerProducts = () => {
         fetchProducts();
     }, [activeTab]);
 
+    useEffect(() => {
+        console.log('Dữ liệu products/orders trả về:', products);
+    }, [products]);
+
     const fetchProducts = async () => {
         setLoading(true);
         try {
@@ -95,48 +99,60 @@ const SellerProducts = () => {
     const columns = [
         {
             header: 'Sản phẩm',
-            render: (product) => (
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded border border-[var(--color-dark)] overflow-hidden flex-shrink-0 bg-white shadow-[2px_2px_0px_var(--color-dark)]">
-                        <img 
-                            src={getImageUrl(product.images)} 
-                            alt={product.name} 
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                    <div className="min-w-0 max-w-[180px]">
-                        <h4 
-                            className="font-bold text-[var(--color-dark)] truncate cursor-pointer hover:underline transition-colors text-sm"
-                            onClick={() => navigate(`/products/${product.id}`)}
-                            title={product.name}
-                        >
-                            {product.name}
-                        </h4>
-                        <div className="text-[10px] text-[var(--color-gray)] flex items-center gap-1 font-medium">
-                            <BiTime size={10} /> 
-                            {activeTab === 'active' 
-                                ? `Kết thúc: ${new Date(product.end_time).toLocaleDateString('vi-VN')}`
-                                : `Đăng: ${new Date(product.created_at).toLocaleDateString('vi-VN')}`
-                            }
+            render: (product) => {
+                const name = activeTab === 'orders' ? product.product_name : product.name;
+                const images = activeTab === 'orders' ? product.product_images : product.images;
+                return (
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded border border-[var(--color-dark)] overflow-hidden flex-shrink-0 bg-white shadow-[2px_2px_0px_var(--color-dark)]">
+                            <img 
+                                src={getImageUrl(images)} 
+                                alt={name} 
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                        <div className="min-w-0 max-w-[180px]">
+                            <h4 
+                                className="font-bold text-[var(--color-dark)] truncate cursor-pointer hover:underline transition-colors text-sm"
+                                onClick={() => navigate(`/products/${product.id}`)}
+                                title={name}
+                            >
+                                {name}
+                            </h4>
+                            <div className="text-[10px] text-[var(--color-gray)] flex items-center gap-1 font-medium">
+                                <BiTime size={10} /> 
+                                {activeTab === 'active' 
+                                    ? `Kết thúc: ${new Date(product.end_time).toLocaleDateString('vi-VN')}`
+                                    : `Đăng: ${new Date(product.created_at).toLocaleDateString('vi-VN')}`
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
-            )
+                );
+            }
         },
         {
             header: 'Giá',
-            render: (product) => (
-                <div>
-                    <div className="font-black text-[var(--color-primary)] text-sm">
-                        {Number(product.current_price).toLocaleString()}đ
-                    </div>
-                    {product.bid_count > 0 && (
-                        <div className="text-[10px] font-bold text-[var(--color-gray)] bg-gray-100 px-1 rounded border border-[var(--color-dark)] inline-block mt-0.5">
-                            {product.bid_count} bid
+            render: (product) => {
+                let price;
+                if (activeTab === 'orders') {
+                    price = product.final_price || product.amount || 0;
+                } else {
+                    price = product.current_price || 0;
+                }
+                return (
+                    <div>
+                        <div className="font-black text-[var(--color-primary)] text-sm">
+                            {Number(price).toLocaleString()}đ
                         </div>
-                    )}
-                </div>
-            )
+                        {product.bid_count > 0 && (
+                            <div className="text-[10px] font-bold text-[var(--color-gray)] bg-gray-100 px-1 rounded border border-[var(--color-dark)] inline-block mt-0.5">
+                                {product.bid_count} bid
+                            </div>
+                        )}
+                    </div>
+                );
+            }
         },
         {
             header: 'Trạng thái',
@@ -238,7 +254,7 @@ const SellerProducts = () => {
                         : 'text-[var(--color-dark)] hover:bg-gray-200 border-r-2 border-[var(--color-dark)]'
                     }`}
                 >
-                    🔥 Đang bán ({activeTab === 'active' ? products.length : '...'})
+                     Đang bán ({activeTab === 'active' ? products.length : '...'})
                 </button>
                 <button 
                     onClick={() => setActiveTab('orders')}
