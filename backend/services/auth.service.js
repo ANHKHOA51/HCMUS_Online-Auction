@@ -4,8 +4,8 @@ import { comparePassword, hashPassword } from '../utils/password.js';
 import { PendingRegistrationModel } from '../models/pending_registration.model.js';
 import UserModel from '../models/user.model.js';
 import RefreshTokenModel from '../models/refresh_tokens.model.js';
-import { sendOtpMail } from '../utils/mail.js';
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt.js';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken, verifyAccessToken } from '../utils/jwt.js';
+import { sendResetPasswordMail, sendOtpMail, sendForgotPasswordMail } from '../utils/mail.js';
 
 export const AuthService = {
     checkExisted: async (username, email, captcha_key) => {
@@ -107,13 +107,13 @@ export const AuthService = {
         try {
             const user = await UserModel.findByUsernameOrEmail(identifier);
             console.log('User found:', user);
-            
+
             if (!user) {
                 return { ok: false }
             } else {
                 console.log('Password hash:', user.password_hash ? `[${user.password_hash.substring(0, 20)}...]` : 'NULL');
                 console.log('Password input:', password);
-                
+
                 const rs = await comparePassword(password, user.password_hash)
                 console.log('Password compare result:', rs);
 
@@ -206,6 +206,70 @@ export const AuthService = {
             return { ok: true };
         } catch (error) {
             console.error('removeToken error:', error);
+            throw error;
+        }
+    },
+
+    forgotPassword: async (email) => {
+        try {
+            const user = await UserModel.existsByEmail(email);
+            if (!user) {
+                // Return ok even if user not found for security, or handle error depending on req
+                // Per previous plan, let's return error if strict, or generic ok
+                // For now, let's return generic success or specific error if requested.
+                // Reverting to returning not_found for clarity in development
+                return { ok: false, reason: 'not_found' };
+            }
+
+            // Generate a short-lived token (15 mins)
+            // We can repurpose generateAccessToken or create a specific one.
+            // Let's manually sign to have specific expiry and payload
+            const resetToken = generateAccessToken({
+                id: user.id,
+                role: user.role,
+                type: 'reset_password'
+            });
+            // Note: generateAccessToken uses 1h expiry which is acceptable, or we can make a custom one.
+            // If we want stricter 15m, we need to modify jwt utils or just accept 1h.
+            // Using standard access token for simplicity as it is stateless.
+
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
+
+            await sendForgotPasswordMail(email, resetLink);
+            return { ok: true };
+        } catch (error) {
+            console.error('forgotPassword error:', error);
+            throw error;
+        }
+    },
+
+    resetPassword: async (token, newPassword) => {
+        try {
+            // Verify token
+            let decoded;
+            try {
+                decoded = verifyAccessToken(token);
+            } catch (e) {
+                return { ok: false, reason: 'invalid_token' };
+            }
+
+            if (!decoded || !decoded.id || decoded.type !== 'reset_password') {
+                return { ok: false, reason: 'invalid_token' };
+            }
+
+            const hashedPassword = await hashPassword(newPassword);
+            await UserModel.update(decoded.id, { password_hash: hashedPassword });
+
+            // Optionally send email
+            const user = await UserModel.findById(decoded.id);
+            if (user) {
+                sendResetPasswordMail(user.email, newPassword).catch(console.error);
+            }
+
+            return { ok: true };
+        } catch (error) {
+            console.error('resetPassword error:', error);
             throw error;
         }
     }

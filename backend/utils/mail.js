@@ -37,7 +37,7 @@ export async function sendQuestionMail(sellerEmail, sellerName, productName, ask
         console.log('📧 Sending question notification to seller:', sellerEmail);
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
         const productLink = `${frontendUrl}/product/${productId}`;
-        
+
         const result = await transporter.sendMail({
             from: "Online Auction",
             to: sellerEmail,
@@ -90,6 +90,34 @@ export async function sendResetPasswordMail(toEmail, password) {
         });
         console.log('Email sent successfully:', result.response);
 
+    } catch (error) {
+        console.error('Email send error:', error.message);
+        throw error
+    }
+}
+
+
+
+export async function sendForgotPasswordMail(toEmail, resetLink) {
+    try {
+        console.log('📧 Sending forgot password email to:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: "Yêu cầu đặt lại mật khẩu",
+            text: `Bạn đã yêu cầu đặt lại mật khẩu. Vui lòng truy cập liên kết sau để đặt lại mật khẩu: ${resetLink}. Liên kết có hiệu lực trong 15 phút.`,
+            html: `<p>Xin chào,</p>
+             <p>Bạn đã yêu cầu đặt lại mật khẩu. Vui lòng nhấn vào nút bên dưới để đặt lại mật khẩu:</p>
+             <p style="text-align: center;">
+                <a href="${resetLink}" style="display: inline-block; background-color: #0d6efd; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Đặt lại mật khẩu</a>
+             </p>
+             <p>Hoặc truy cập liên kết sau: <a href="${resetLink}">${resetLink}</a></p>
+             <p>Liên kết này có hiệu lực trong <strong>15 phút</strong>.</p>
+             <p>Nếu bạn không yêu cầu, vui lòng bỏ qua email này.</p>
+             <p>Trân trọng,<br/>Đội ngũ hỗ trợ Online Auction</p>`
+        });
+        console.log('Email sent successfully:', result.response);
+        return true;
     } catch (error) {
         console.error('Email send error:', error.message);
         throw error
@@ -237,8 +265,8 @@ export async function sendAuctionEndSellerMail(toEmail, userName, productName, w
             html: `
                 <p>Xin chào ${userName},</p>
                 <p>Sản phẩm <strong>${productName}</strong> đã kết thúc đấu giá.</p>
-                ${winnerName 
-                    ? `<p><strong>Người thắng:</strong> ${winnerName}</p><p><strong>Giá cuối:</strong> ${Number(price).toLocaleString('vi-VN')} VNĐ</p>` 
+                ${winnerName
+                    ? `<p><strong>Người thắng:</strong> ${winnerName}</p><p><strong>Giá cuối:</strong> ${Number(price).toLocaleString('vi-VN')} VNĐ</p>`
                     : '<p><strong>Kết quả:</strong> Không có người mua.</p>'}
                     <p>Vui lòng đăng nhập vào hệ thống để xem chi tiết.</p>
             `

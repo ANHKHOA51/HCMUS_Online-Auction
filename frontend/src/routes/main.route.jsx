@@ -12,6 +12,8 @@ import OtpPage from "../pages/OtpPage";
 import AddProductPage from "../pages/AddProductPage";
 import AdminLayout from "../layouts/AdminLayout";
 import Page404 from "../pages/404";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
 import ListProduct from "../features/AdminManagement/components/ListProduct";
 import ListCategory from "../features/AdminManagement/components/ListCategory";
 import AddCategory from "../features/AdminManagement/components/AddCategory";
@@ -44,6 +46,8 @@ const router = createBrowserRouter([
         Component: AuthLayout,
         children: [
             { path: "/login", Component: LoginPage },
+            { path: "/forgot-password", Component: ForgotPasswordPage },
+            { path: "/reset-password", Component: ResetPasswordPage },
             {
                 path: "/register", Component: RegisterPage,
                 children: [
@@ -58,8 +62,10 @@ const router = createBrowserRouter([
         path: "/admin",
         Component: AdminLayout,
         children: [
-            { index: true, 
-               element: <Navigate to="products" replace /> },
+            {
+                index: true,
+                element: <Navigate to="products" replace />
+            },
             {
                 path: "products",
                 children: [

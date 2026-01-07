@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
     console.log('Registering user:', { firstname, lastname, username, email });
 
     try {
-        
+
         await AuthService.add2Pending({ firstname, lastname, username, email, password })
 
         return res.status(201).json({
@@ -31,6 +31,44 @@ router.post("/register", async (req, res) => {
     }
 })
 
+router.post("/forgot-password", async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    try {
+        const rs = await AuthService.forgotPassword(email);
+        if (rs.ok) {
+            return res.json({ message: "Reset link has been sent to your email" });
+        } else {
+            if (rs.reason === 'not_found') {
+                return res.status(404).json({ message: "Email not found" });
+            }
+            return res.status(400).json({ message: "Error processing request" });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
+
+router.post("/reset-password", async (req, res) => {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) return res.status(400).json({ message: "Token and new password required" });
+
+    if (newPassword.length < 6) return res.status(400).json({ message: "Password must be at least 6 characters" });
+
+    try {
+        const rs = await AuthService.resetPassword(token, newPassword);
+        if (rs.ok) {
+            return res.json({ message: "Password reset successful" });
+        } else {
+            return res.status(400).json({ message: "Invalid or expired token" });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
+});
 router.post("/register/otp", async (req, res) => {
     const { email, otp } = req.body
     try {
