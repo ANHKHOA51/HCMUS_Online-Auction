@@ -247,6 +247,8 @@ export async function sendAuctionEndSellerMail(toEmail, userName, productName, w
     } catch (error) {
         console.error('Seller email error:', error.message);
         return false;
+    }
+}
 
 export async function sendRejectMail(toEmail, productName) {
     try {
