@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { getRelativeTime, shouldShowRelativeTime } from '../utils/timeUtil';
+import { getRelativeTime, shouldShowRelativeTime, isAuctionEnded, formatDate } from '../utils/timeUtil';
 import { formatPriceVN } from '../utils/formatCurrency';
 import HeartButton from './HeartButton';
 
@@ -107,7 +107,7 @@ const ProductCard = ({ product }) => {
             </div>
             {product.winner_name && (
                 <div className="flex items-center gap-[6px] mb-[2px] last:mb-0">
-                    <span className="text-[#094067]">👑 Top: <b>{product.winner_name}</b></span>
+                    <span className="text-[#094067]"> Top: <b>{product.winner_name}</b></span>
                 </div>
             )}
         </div>
@@ -119,13 +119,21 @@ const ProductCard = ({ product }) => {
             </div>
             
             <div>
-                {shouldShowRelativeTime(product.end_time) ? (
+                {/* Nhớ import isAuctionEnded từ timeUtil nhé */}
+                {isAuctionEnded(product.end_time) ? (
+                    // CASE 1: Đã hết hạn
+                    <span className="text-[#5f6c7b] italic font-bold">
+                        Đã kết thúc
+                    </span>
+                ) : shouldShowRelativeTime(product.end_time) ? (
+                    // CASE 2: Còn dưới 3 ngày -> Hiện đếm ngược
                     <span className="text-[#ef4565] font-bold bg-[#ffe3e3] px-[6px] py-[2px] rounded-[4px]">
-                        ⏳ {getRelativeTime(product.end_time)}
+                         {getRelativeTime(product.end_time)}
                     </span>
                 ) : (
-                    <span className="text-[#5f6c7b] italic">
-                        Đã kết thúc
+                    // CASE 3: Còn trên 3 ngày -> Hiện ngày tháng
+                    <span className="text-[#094067] font-medium">
+                         {formatDate(product.end_time)}
                     </span>
                 )}
             </div>

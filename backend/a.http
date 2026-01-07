@@ -1,58 +1,28 @@
 @host = http://localhost:3000
-@username = sv01
-@password = 12345678
 
 ### 1-Login
-POST http://localhost:3000/auths/login
+POST {{host}}/auths/login
 Content-Type: application/json
 
 {
-  "identifier": "sv01",
-  "password": "12345678"
+  "identifier": "bidder_john",
+  "password": "123456"
 }
 
 ###
 @token = {{1-Login.response.body.accessToken}}
-@userId = {{1-Login.response.body.user.id}}
 
-### Get Watchlist - Lấy danh sách yêu thích
+### Get Won Orders
+GET {{host}}/orders/won
+Authorization: Bearer {{token}}
+
+### Get Watchlist
 GET {{host}}/watchlists
 Authorization: Bearer {{token}}
 
-### Toggle Watchlist - Thêm/Xóa sản phẩm yêu thích (productId = 1)
-POST {{host}}/watchlists/1
-Authorization: Bearer {{token}}
-
-### Toggle Watchlist - Kiểm tra với productId = 2
-POST {{host}}/watchlists/2
-Authorization: Bearer {{token}}
-
-### Get Products - Kiểm tra danh sách sản phẩm
-GET {{host}}/products
-Authorization: Bearer {{token}}
-
-### Get Products Without Auth - Không cần đăng nhập
+### Get Products
 GET {{host}}/products
 
-### Get Products With Auth - Có đăng nhập
-GET {{host}}/products
-Authorization: Bearer {{token}}
-
-### Get Top Closing - Sắp kết thúc
-GET {{host}}/products/top/closing
-Authorization: Bearer {{token}}
-### Get Top Bidding - Nhiều đơn giá nhất
-GET {{host}}/products/top/bidding
-
-### Get Top Pricing - Giá cao nhất
-GET {{host}}/products/top/pricing
-
-### Get Product Detail - Chi tiết sản phẩm (productId = 1)
+### Get Product Detail
 GET {{host}}/products/13
 Authorization: Bearer {{token}}
-
-### Get Product Detail Without Auth - Chi tiết không đăng nhập
-GET {{host}}/products/1
-
-
-

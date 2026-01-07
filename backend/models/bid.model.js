@@ -7,10 +7,12 @@ export default {
 
   findById: (id) => db('bids').where('bids.id', id).join('users', 'bids.bidder_id', 'users.id').first(),
 
-  // Lấy lịch sử bid của sản phẩm
+  // Lấy lịch sử bid của sản phẩm (CÔNG KHAI - không lộ max_auto_bid)
+  // Hiển thị TẤT CẢ bids kể cả những bids thua cuộc
   async getByProductId(productId) {
     return db('bids')
-      .where({ product_id: productId, status: 1 }) // Only active bids
+      .where({ product_id: productId })
+      .whereIn('status', [0, 1]) // Include both active (1) and inactive/lost (0)
       .join('users', 'bids.bidder_id', 'users.id')
       .select(
         'bids.id',
@@ -18,10 +20,13 @@ export default {
         'bids.product_id',
         'bids.bid_amount as amount',
         'bids.bid_time as time',
+        'bids.is_auto_bid',
+        'bids.status',
         'users.full_name',
         'users.username'
       )
-      .orderBy('bids.bid_time', 'desc');
+      .orderBy('bids.bid_amount', 'desc')
+      .orderBy('bids.bid_time', 'asc');
   },
 
   async rejectBid(bidId, productId) {

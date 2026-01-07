@@ -8,6 +8,7 @@ import { optionalAuth } from '../middlewares/optionalAuth.middleware.js';
 import auth from '../middlewares/auth.middleware.js';
 import bidModel from '../models/bid.model.js';
 import { ReviewModel } from '../models/review.model.js';
+import { db } from '../utils/db.js';
 
 const router = express.Router();
 
@@ -61,11 +62,20 @@ router.get('/', optionalAuth, async (req, res) => {
 router.get('/seller/active', auth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const products = await productModel.findBySellerId(userId, 'active');
+        const now = new Date();
+        
+        const products = await db('products as p')
+            .select('p.*')
+            .join('users as u', 'p.seller_id', 'u.id')
+            .where('p.seller_id', userId)
+            .where('p.status', 'active')
+            .andWhere('p.end_time', '>', now)
+            .orderBy('p.created_at', 'desc');
+        
         res.json({ success: true, data: products });
     } catch (error) {
         console.error('Error fetching active products:', error);
-        res.status(500).json({ success: false, error: 'Lỗi server' });
+        res.status(500).json({ success: false, error: error.message || 'Lỗi server' });
     }
 });
 
@@ -73,11 +83,20 @@ router.get('/seller/active', auth, async (req, res) => {
 router.get('/seller/sold', auth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const products = await productModel.findBySellerId(userId, 'sold');
+        console.log('[/seller/sold] Fetching sold products for seller:', userId);
+        
+        // Direct query to test
+        const products = await db('products as p')
+            .select('p.*')
+            .join('users as u', 'p.seller_id', 'u.id')
+            .where('p.seller_id', userId)
+            .where('p.status', 'sold')
+            .orderBy('p.created_at', 'desc');
+        
         res.json({ success: true, data: products });
     } catch (error) {
-        console.error('Error fetching sold products:', error);
-        res.status(500).json({ success: false, error: 'Lỗi server' });
+        console.error('[/seller/sold] Error fetching sold products:', error.message, error.stack);
+        res.status(500).json({ success: false, error: error.message || 'Lỗi server' });
     }
 });
 

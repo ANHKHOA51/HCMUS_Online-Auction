@@ -1,106 +1,134 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../../services/axiosInstance';
+import { getWonOrders, markOrderDelivered } from '../../../services/order';
 import CompactProductTable from '../../../components/CompactProductTable';
-import { BiStar, BiTime, BiTrophy, BiCheckDouble } from 'react-icons/bi';
+import { BiStar, BiTrophy, BiCheckDouble, BiCreditCard } from 'react-icons/bi';
 import ReviewModal from './ReviewModal';
 
 const ITEMS_PER_PAGE = 5;
 
 const WonListTab = () => {
     const navigate = useNavigate();
-    const [products, setProducts] = useState([]);
+    const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        fetchWonProducts();
+        fetchWonOrders();
     }, []);
 
-    const fetchWonProducts = async () => {
+    const fetchWonOrders = async () => {
         try {
             setLoading(true);
-            const response = await axiosInstance.get('/users/won');
-            setProducts(response.data);
+            const res = await getWonOrders();
+            if (res.ok) {
+                setOrders(res.data);
+            } else {
+                console.error('Error fetching won orders:', res);
+            }
         } catch (err) {
-            console.error('Error fetching won products:', err);
+            console.error('Error fetching won orders:', err);
         } finally {
             setLoading(false);
         }
     };
 
     const getImageUrl = (images) => {
+        // Handle both stringified JSON and array
+        if (typeof images === 'string') {
+             try { return JSON.parse(images)[0]; } catch(e) { return images; }
+        }
         if (Array.isArray(images) && images.length > 0) return images[0];
-        if (typeof images === 'string') return images; 
         return 'https://via.placeholder.com/100';
+    };
+
+    const statusBadge = (status) => {
+        switch(status) {
+            case 'pending': return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-bold text-xs uppercase">Chờ thanh toán</span>;
+            case 'paid': return <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded font-bold text-xs uppercase">Đã thanh toán</span>;
+            case 'shipped': return <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded font-bold text-xs uppercase">Đã gửi hàng</span>;
+            case 'completed': return <span className="px-2 py-1 bg-green-100 text-green-800 rounded font-bold text-xs uppercase">Hoàn tất</span>;
+            case 'cancelled': return <span className="px-2 py-1 bg-red-100 text-red-800 rounded font-bold text-xs uppercase">Đã hủy</span>;
+            default: return <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded font-bold text-xs uppercase">{status}</span>;
+        }
+    };
+
+    // --- XÁC NHẬN ĐÃ NHẬN HÀNG ---
+    const handleConfirmReceived = async (orderId) => {
+        if (!window.confirm('Xác nhận đã nhận hàng?')) return;
+        const res = await markOrderDelivered(orderId);
+        if (res.ok) {
+            alert('Đã xác nhận nhận hàng!');
+            fetchWonOrders();
+        } else {
+            alert(res.message || 'Có lỗi xảy ra!');
+        }
     };
 
     // --- CẤU HÌNH CỘT (HAPPY HUES STYLE) ---
     const columns = [
         {
             header: 'Sản phẩm',
-            render: (product) => (
+            render: (item) => (
                 <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg border-2 border-[var(--color-dark)] overflow-hidden flex-shrink-0 bg-white shadow-[2px_2px_0px_var(--color-dark)]">
                         <img 
-                            src={getImageUrl(product.images)} 
-                            alt={product.name} 
+                            src={getImageUrl(item.product_images)} 
+                            alt={item.product_name} 
                             className="w-full h-full object-cover"
                         />
                     </div>
-                    <div className="min-w-0 max-w-[200px]">
-                        <h4 
-                            className="font-bold text-[var(--color-dark)] truncate cursor-pointer hover:underline text-sm mb-0.5"
-                            onClick={() => navigate(`/products/${product.id}`)}
-                            title={product.name}
-                        >
-                            {product.name}
-                        </h4>
-                        <div className="text-[11px] font-medium text-[var(--color-gray)] flex items-center gap-1">
-                            <BiTime /> 
-                            {`Kết thúc: ${new Date(product.end_time).toLocaleDateString('vi-VN')}`}
+                    <div>
+                        <div className="text-[var(--color-dark)] font-bold truncate max-w-[200px]" title={item.product_name}>
+                            {item.product_name}
+                        </div>
+                        <div className="text-xs text-[var(--color-paragraph)] font-medium">
+                            Người bán: {item.seller_name}
                         </div>
                     </div>
                 </div>
             )
         },
         {
-            header: 'Giá thắng',
-            render: (product) => (
-                <div>
-                    <div className="font-black text-[var(--color-primary)] text-sm">
-                        {Number(product.current_price).toLocaleString()}đ
-                    </div>
-                    <div className="text-[10px] font-bold text-[var(--color-gray)] mt-0.5">
-                        Seller: <span className="text-[var(--color-dark)]">{product.seller_name}</span>
-                    </div>
+            header: 'Trạng thái',
+            render: (item) => statusBadge(item.status)
+        },
+        {
+            header: 'Thời gian',
+            render: (order) => (
+                <div className="flex items-center gap-1 text-[var(--color-paragraph)] font-medium">
+                    <BiTrophy className="text-yellow-600" />
+                    <span>{new Date(order.created_at).toLocaleDateString()}</span>
                 </div>
             )
         },
         {
-            header: 'Trạng thái',
-            render: () => (
-                <span className="text-[10px] font-bold text-white bg-[#00b894] px-2 py-1 rounded-md border border-[var(--color-dark)] shadow-[1px_1px_0px_var(--color-dark)] whitespace-nowrap">
-                    CHIẾN THẮNG
-                </span>
-            )
-        },
-        {
-            header: 'Hành động',
-            className: 'text-right',
-            render: (product) => (
-                <div className="flex items-center justify-end gap-2">
-                    {product.is_reviewed ? (
-                         <span className="text-[10px] font-bold text-[var(--color-gray)] flex items-center gap-1 border-2 border-[var(--color-gray-light)] px-2 py-1 rounded-lg bg-gray-50 opacity-70">
-                            <BiCheckDouble size={14} /> Đã đánh giá
-                        </span>
-                    ) : (
-                        <button 
-                            onClick={() => setSelectedProduct(product)}
-                            className="text-xs font-bold text-[var(--color-dark)] bg-[#ffd803] border-2 border-[var(--color-dark)] px-3 py-1.5 rounded-lg hover:-translate-y-0.5 transition-all shadow-[2px_2px_0px_var(--color-dark)] active:translate-y-0 active:shadow-none flex items-center gap-1"
+            header: 'Thao tác',
+            render: (item) => (
+                <div className="flex gap-2">
+                    {item.status === 'pending' && (
+                        <button
+                            onClick={() => navigate(`/checkout/${item.id}`)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-[#3da9fc] text-white rounded-[6px] text-xs font-bold border-2 border-[#094067] shadow-[2px_2px_0px_#094067] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#094067] transition-all"
                         >
-                            <BiStar /> Đánh giá
+                            <BiCreditCard /> Thanh toán
+                        </button>
+                    )}
+                    {item.status === 'shipped' && (
+                        <button
+                            onClick={() => handleConfirmReceived(item.id)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-[#38b000] text-white rounded-[6px] text-xs font-bold border-2 border-[#094067] shadow-[2px_2px_0px_#094067] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#094067] transition-all"
+                        >
+                            <BiCheckDouble /> Xác nhận đã nhận hàng
+                        </button>
+                    )}
+                    {item.status === 'completed' && !item.is_rated && (
+                        <button 
+                            onClick={() => setSelectedProduct({ ...item, name: item.product_name, id: item.product_id })}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-[var(--color-button)] text-[var(--color-button-text)] rounded-[6px] text-xs font-bold border-2 border-[var(--color-dark)] shadow-[2px_2px_0px_var(--color-dark)] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_var(--color-dark)] active:translate-y-0 active:shadow-[1px_1px_0px_var(--color-dark)] transition-all"
+                        >
+                            <BiStar /> Nhận xét
                         </button>
                     )}
                 </div>
@@ -108,47 +136,36 @@ const WonListTab = () => {
         }
     ];
 
-    // Pagination Logic
-    const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
-    const paginatedProducts = products.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
     return (
-        <div className="w-full bg-[var(--color-white)] rounded-xl border-2 border-[var(--color-dark)] shadow-[6px_6px_0px_var(--color-dark)] overflow-hidden">
-             {/* Header Tab */}
-             <div className="p-4 border-b-2 border-[var(--color-dark)] bg-gray-100">
-                <h3 className="font-black text-lg text-[var(--color-dark)] uppercase flex items-center gap-2">
-                    <BiTrophy className="text-[#ffd803]" /> Sản phẩm đã thắng ({products.length})
+        <div className="bg-[var(--color-background)] rounded-xl border-2 border-[var(--color-dark)] shadow-[4px_4px_0px_var(--color-dark)] overflow-hidden">
+            <div className="p-4 border-b-2 border-[var(--color-dark)] bg-[#e0f2fe]">
+                <h3 className="text-lg font-black text-[var(--color-dark)] flex items-center gap-2 uppercase tracking-wide">
+                    <BiCheckDouble className="text-2xl" /> 
+                    Danh sách đơn hàng (Orders)
                 </h3>
             </div>
             
-            {/* Table */}
-            <div className="p-0">
-                <CompactProductTable 
-                    data={paginatedProducts}
-                    loading={loading}
-                    columns={columns}
-                    emptyMessage="Bạn chưa chiến thắng sản phẩm nào."
-                    pagination={{
-                        currentPage,
-                        totalPages,
-                        onPageChange: setCurrentPage
-                    }}
-                />
+            <div className="p-4">
+                {loading ? (
+                    <div className="text-center py-8 font-bold text-[var(--color-paragraph)]">Đang tải...</div>
+                ) : (
+                    <CompactProductTable 
+                        data={orders} 
+                        columns={columns}
+                        pagination={{
+                            currentPage,
+                            totalPages: Math.ceil(orders.length / ITEMS_PER_PAGE),
+                            onPageChange: setCurrentPage
+                        }}
+                        emptyMessage="Bạn chưa có đơn hàng nào."
+                    />
+                )}
             </div>
 
-            {/* Modal Đánh giá (Vẫn giữ logic cũ, UI modal nếu cần chỉnh sẽ ở file ReviewModal) */}
             {selectedProduct && (
                 <ReviewModal 
                     product={selectedProduct} 
-                    onClose={() => setSelectedProduct(null)}
-                    onSuccess={() => {
-                        alert('Cảm ơn bạn đã đánh giá!');
-                        fetchWonProducts();
-                        setSelectedProduct(null);
-                    }}
+                    onClose={() => setSelectedProduct(null)} 
                 />
             )}
         </div>

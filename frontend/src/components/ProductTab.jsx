@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 // Đã xóa import './ProductTab.css';
 import QAHistory from './QAHistory';
 import QuestionForm from './QuestionForm';
@@ -6,7 +6,7 @@ import BidHistory from './BidHistory';
 import Editor from './Editor';
 import productService from '../services/product';
 
-const ProductTabs = ({
+const ProductTabs = forwardRef(({
   product,
   faqs,
   questions = [],
@@ -15,12 +15,19 @@ const ProductTabs = ({
   onAskQuestion = () => { },
   isAskingQuestion = false,
   currentUserId = null,
-  sellerId = null
-}) => {
+  sellerId = null,
+  onBidSuccess = null
+}, ref) => {
   const [activeTab, setActiveTab] = useState('description');
   const [isAppending, setIsAppending] = useState(false);
   const [loadingAppend, setLoadingAppend] = useState(false);
   const editorRef = useRef(null);
+  const bidHistoryRef = useRef(null);
+
+  // Expose refreshBidHistory to parent via ref
+  useImperativeHandle(ref, () => ({
+    refreshBidHistory: () => bidHistoryRef.current?.refreshBidHistory?.()
+  }), []);
 
   const handleSaveDescription = async () => {
     if (!editorRef.current) return;
@@ -148,6 +155,7 @@ const ProductTabs = ({
         {activeTab === 'his' && (
           <div className="his-content">
             <BidHistory
+              ref={bidHistoryRef}
               productId={product.id}
               isSeller={currentUserId && sellerId && String(currentUserId) === String(sellerId)}
             />
@@ -156,6 +164,8 @@ const ProductTabs = ({
       </div>
     </div>
   );
-};
+});
+
+ProductTabs.displayName = 'ProductTabs';
 
 export default ProductTabs;

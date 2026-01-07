@@ -186,18 +186,19 @@ router.post('/upgrade-request', authMiddleware, async (req, res) => {
         console.log(`User ${userId} requested upgrade to seller.`);
         
         // Check if request already exists
-        const existingRequest = await db('bidder_requests')
-            .where({ bidder_id: userId })
+        const existingRequest = await db('upgrade_requests')
+            .where({ user_id: userId, status: 'pending' })
             .first();
 
         if (existingRequest) {
             return res.status(400).json({ message: 'Bạn đã có yêu cầu đang chờ duyệt.' });
         }
 
-        // Insert into bidder_requests table
-        await db('bidder_requests').insert({
-            bidder_id: userId,
-            created_at: new Date()
+        // Insert into upgrade_requests table
+        await db('upgrade_requests').insert({
+            user_id: userId,
+            reason: 'User requested upgrade via profile',
+            status: 'pending'
         });
         
         res.json({ message: 'Yêu cầu nâng cấp đã được gửi thành công.' });

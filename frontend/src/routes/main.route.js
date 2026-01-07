@@ -1,10 +1,9 @@
-import { createBrowserRouter, Navigate } from "react-router";
+import { createBrowserRouter } from "react-router";
 import MainLayout from "../layouts/MainLayout";
 import HomePage from "../pages/HomePage";
 import SearchResultsPage from "../components/SearchResults";
 import ProductDetailPage from "../pages/ProductDetailPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
-import CheckoutPage from "../pages/CheckoutPage";
 import AuthLayout from "../layouts/AuthLayout";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
@@ -20,6 +19,7 @@ import ListUser from "../features/AdminManagement/components/ListUser";
 import ProductDetail from "../features/AdminManagement/components/ProductDetail";
 import SellerOrderList from "../features/Payment/components/SellerOrderList";
 // import BuyerOrderList from "../features/Payment/components/BuyerOrderList";
+import CheckoutPage from "../pages/CheckoutPage";
 import UserDetail from "../features/AdminManagement/components/UserDetail";
 
 // ... existing imports
@@ -32,10 +32,10 @@ const router = createBrowserRouter([
             { index: true, Component: HomePage },
             { path: "search", Component: SearchResultsPage },
             { path: "products/:id", Component: ProductDetailPage },
+            { path: "checkout/:orderId", Component: CheckoutPage },
             { path: "products/add-product", Component: AddProductPage },
             { path: "seller/orders", Component: SellerOrderList },
             { path: "profile", Component: ProfilePage },
-            { path: "checkout/:orderId", Component: CheckoutPage },
             // { path: "buyer/orders", Component: BuyerOrderList }
         ]
     },
@@ -58,8 +58,6 @@ const router = createBrowserRouter([
         path: "/admin",
         Component: AdminLayout,
         children: [
-            { index: true, 
-               element: <Navigate to="products" replace /> },
             {
                 path: "products",
                 children: [

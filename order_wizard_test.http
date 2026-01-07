@@ -1,0 +1,216 @@
+### ORDER COMPLETION WIZARD - API TEST ENDPOINTS
+
+# Variables
+@baseUrl = http://localhost:3000
+@contentType = application/json
+
+# Test Users (from seed data)
+# User 4: bidder_john (buyer) - password: password123
+# User 5: bidder_jane (buyer) - password: password123
+# User 2: seller_tech (seller) - password: password123
+
+### ========== AUTHENTICATION ==========
+
+# Login as John (Buyer)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "bidder_john",
+  "password": "123456"
+}
+
+> {%
+  client.global.set("john_token", response.body.data.accessToken);
+  console.log("John Token:", response.body.data.accessToken);
+%}
+
+### 
+
+# Login as Jane (Buyer)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "jane@gmail.com",
+  "password": "password123"
+}
+
+> {%
+  client.global.set("jane_token", response.body.data.accessToken);
+  console.log("Jane Token:", response.body.data.accessToken);
+%}
+
+###
+
+# Login as Tech Store (Seller)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "seller1@store.com",
+  "password": "password123"
+}
+
+> {%
+  client.global.set("seller_token", response.body.data.accessToken);
+  console.log("Seller Token:", response.body.data.accessToken);
+%}
+
+### ========== BUYER FLOW: CHECKOUT WIZARD ==========
+
+### Step 1: Get order details (Order #1000 - John's pending order)
+GET {{baseUrl}}/orders/1000
+Authorization: Bearer {{john_token}}
+
+###
+
+### Step 2: Complete payment form (Buyer submits address + payment method)
+POST {{baseUrl}}/orders/pay/1000
+Authorization: Bearer {{john_token}}
+Content-Type: {{contentType}}
+
+{
+  "shipping_address": "John Doe, 123 Main Street, Ward 1, District 1, HCMC",
+  "payment_method": "banking",
+  "note": "Please deliver during working hours"
+}
+
+> {%
+  console.log("Payment Status:", response.body.message);
+  console.log("Order should now be 'paid' status");
+%}
+
+###
+
+### Check order status after payment
+GET {{baseUrl}}/orders/1000
+Authorization: Bearer {{john_token}}
+
+###
+
+### ========== SELLER FLOW: ORDER MANAGEMENT ==========
+
+### Get all seller orders (both pending and paid)
+GET {{baseUrl}}/orders/seller
+Authorization: Bearer {{seller_token}}
+
+###
+
+### Seller confirms payment + uploads shipping code for Order #1002
+POST {{baseUrl}}/orders/confirm/1002
+Authorization: Bearer {{seller_token}}
+Content-Type: {{contentType}}
+
+{
+  "shipping_info": "GHN-2024-555666-777"
+}
+
+> {%
+  console.log("Confirmation Status:", response.body.message);
+  console.log("Order should now be 'shipped' status");
+%}
+
+###
+
+### Check order after seller confirms
+GET {{baseUrl}}/orders/1002
+Authorization: Bearer {{john_token}}
+
+###
+
+### ========== BUYER COMPLETION FLOW: WON ORDERS ==========
+
+### Get all won orders for buyer (via profile page)
+GET {{baseUrl}}/user/won
+Authorization: Bearer {{john_token}}
+
+###
+
+### Get won orders with more details
+GET {{baseUrl}}/orders/won
+Authorization: Bearer {{john_token}}
+
+###
+
+### Get specific won order
+GET {{baseUrl}}/orders/1003
+Authorization: Bearer {{jane_token}}
+
+###
+
+### ========== ORDER REJECTION FLOW (Alternative) ==========
+
+### Seller rejects order (for invalid payment)
+POST {{baseUrl}}/orders/reject/1001
+Authorization: Bearer {{seller_token}}
+Content-Type: {{contentType}}
+
+{
+  "note": "Payment amount mismatch. Expected 18,500,000 VNĐ but received 18,000,000 VNĐ"
+}
+
+###
+
+### ========== ORDER CANCELLATION FLOW ==========
+
+### Buyer cancels order (results in negative rating)
+POST {{baseUrl}}/orders/cancel/1001
+Authorization: Bearer {{john_token}}
+Content-Type: {{contentType}}
+
+{
+  "reason": "Changed my mind about this purchase"
+}
+
+###
+
+### ========== DEBUG: Check all orders in database ==========
+
+# Get order 1000
+GET {{baseUrl}}/orders/1000
+Authorization: Bearer {{john_token}}
+
+###
+
+# Get order 1001
+GET {{baseUrl}}/orders/1001
+Authorization: Bearer {{jane_token}}
+
+###
+
+# Get order 1002
+GET {{baseUrl}}/orders/1002
+Authorization: Bearer {{john_token}}
+
+###
+
+# Get order 1003
+GET {{baseUrl}}/orders/1003
+Authorization: Bearer {{jane_token}}
+
+### ========== TEST DATA INFO ==========
+
+# ORDER #1000 - John (Buyer) - PENDING
+# Product: iPhone 15 Pro (ID: 100)
+# Seller: Tech Store (ID: 2)
+# Status: PENDING → needs payment
+# Expected Flow: Checkout wizard Steps 1-4
+
+# ORDER #1001 - Jane (Buyer) - PENDING  
+# Product: Samsung S24 (ID: 101)
+# Seller: Tech Store (ID: 2)
+# Status: PENDING → needs payment
+# Expected Flow: Same as #1000
+
+# ORDER #1002 - John (Buyer) - PAID
+# Product: iPhone 15 Pro (ID: 100) [different product]
+# Seller: Tech Store (ID: 2)
+# Status: PAID → waiting for seller shipping code
+# Expected Flow: Seller confirms + uploads code → becomes SHIPPED
+
+# ORDER #1003 - Jane (Buyer) - SHIPPED
+# Product: Samsung S24 (ID: 101) [different product]
+# Seller: Tech Store (ID: 2)
+# Status: SHIPPED → ready for buyer confirmation
+# Expected Flow: Show in WonListTab, buyer can rate seller

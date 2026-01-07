@@ -61,15 +61,14 @@ export const ReviewModel = {
             .select('rating_positive', 'rating_negative')
             .first();
             
-        if (!user) return { total: 0, likes: 0, dislikes: 0 };
+        if (!user) return { like_count: 0, dislike_count: 0 };
         
-        const likes = user.rating_positive || 0;
-        const dislikes = user.rating_negative || 0;
+        const like_count = user.rating_positive || 0;
+        const dislike_count = user.rating_negative || 0;
         
         return {
-            total: likes + dislikes,
-            likes: likes,
-            dislikes: dislikes
+            like_count: like_count,
+            dislike_count: dislike_count
         };
     }
 };

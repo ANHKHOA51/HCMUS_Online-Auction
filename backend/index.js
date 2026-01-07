@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import cookieParser from 'cookie-parser';
-import authRouter from './routes/auth.routes.js';
+import authRouter from './routes/auth.route.js';
 import productRouter from './routes/product.route.js';
 import categoryRouter from './routes/category.route.js';
 //import bidRouter from './routes/bid.route.js';
@@ -11,6 +11,7 @@ import bidRouter from './routes/bid.routes.js';
 import questionRouter from './routes/question.route.js';
 import userRouter from './routes/user.route.js';
 import orderRouter from './routes/order.route.js';
+import reviewRouter from './routes/review.route.js';
 import { startAuctionCron } from './cron/auction.cron.js';
 
 const app = express();
@@ -18,15 +19,6 @@ const PORT = 3000;
 
 // Start Cron Job
 startAuctionCron();
-
-// Trigger restart
-console.log('🔄 Server updated');
-
-// Log environment variables
-console.log('🔍 JWT_ACCESS_TOKEN_SECRET:', process.env.JWT_ACCESS_TOKEN_SECRET ? '✓ Set' : '❌ Not set');
-console.log('🔍 JWT_REFRESH_TOKEN_SECRET:', process.env.JWT_REFRESH_TOKEN_SECRET ? '✓ Set' : '❌ Not set');
-
-console.log('🚀 Starting server...');
 
 // CORS trước mọi route, và enable preflight
 app.use(cors({
@@ -48,8 +40,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-console.log('✓ Middleware configured');
-
 // register routes AFTER cors/json
 app.use('/auths', authRouter);
 app.use('/products', productRouter);
@@ -59,11 +49,8 @@ app.use('/watchlists', watchlistRouter);
 app.use('/bids', bidRouter);
 app.use('/questions', questionRouter);
 app.use('/users', userRouter);
-
-
-
-app.use('/users', userRouter);
 app.use('/orders', orderRouter);
+app.use('/reviews', reviewRouter);
 
 
 app.get('/', (req, res) => {
@@ -72,13 +59,10 @@ app.get('/', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
-  console.log('✓ GET /test called');
   res.json({ message: 'Test endpoint working' });
 });
 
-console.log('✓ Routes configured');
-
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✓ Server is running on http://localhost:${PORT}`);
+  console.log(`✓ Server running on port ${PORT}`);
 });
 
