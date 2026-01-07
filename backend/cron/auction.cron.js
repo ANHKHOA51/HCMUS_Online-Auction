@@ -32,7 +32,18 @@ const checkAuctions = async () => {
                 // 3a. Có người mua -> Cập nhật winner và status = 'sold'
                 await ProductModel.closeAuction(product.id, highestBid.bidder_id, highestBid.bid_amount);
                 console.log(`✅ Auction ${product.id} SOLD to user ${highestBid.bidder_id} for ${highestBid.bid_amount}`);
-                
+
+                // Tạo order cho người thắng
+                await db('orders').insert({
+                    product_id: product.id,
+                    buyer_id: highestBid.bidder_id,
+                    status: 'pending',
+                    created_at: new Date(),
+                    final_price: highestBid.bid_amount,
+                    product_name: product.name,
+                    product_images: JSON.stringify(product.images)
+                });
+
                 // Gửi email
                 const winner = await db('users').where('id', highestBid.bidder_id).first();
                 if (winner) {
@@ -41,7 +52,6 @@ const checkAuctions = async () => {
                 if (seller) {
                      sendAuctionEndSellerMail(seller.email, seller.full_name, product.name, winner ? winner.full_name : 'Winner', highestBid.bid_amount).catch(console.error);
                 }
-
             } else {
                 // 3b. Không có người mua
                 await ProductModel.expireAuction(product.id);

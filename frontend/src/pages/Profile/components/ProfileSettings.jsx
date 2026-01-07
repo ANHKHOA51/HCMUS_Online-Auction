@@ -166,16 +166,6 @@ const ProfileSettings = () => {
                         <p className="m-0 font-[600] text-[var(--color-dark)]">#{user?.id}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-[var(--spacing-md)] p-[var(--spacing-md)] bg-[var(--color-white)] rounded-[var(--radius-md)] border-[1px] border-solid border-[var(--color-dark)]">
-                    <div className="w-[40px] h-[40px] bg-[var(--color-white)] border-[2px] border-solid border-[var(--color-dark)] rounded-[50%] flex items-center justify-center text-[var(--color-dark)]"><FaStar /></div>
-                    <div className="flex-1">
-                        <label className="block text-[var(--font-size-sm)] text-[var(--color-gray-600)] font-[700] uppercase">Điểm đánh giá</label>
-                        <p className="m-0 font-[600] text-[var(--color-dark)]">
-                            <span style={{ color: '#27ae60', fontWeight: 'bold' }}>+{user?.rating_positive || 0}</span> / 
-                            <span style={{ color: '#e74c3c', fontWeight: 'bold' }}> -{user?.rating_negative || 0}</span>
-                        </p>
-                    </div>
-                </div>
             </div>
 
             <div className="flex gap-[var(--spacing-md)] mt-[var(--spacing-md)]">

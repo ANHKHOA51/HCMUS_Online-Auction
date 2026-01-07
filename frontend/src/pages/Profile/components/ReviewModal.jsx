@@ -39,16 +39,26 @@ const ReviewModal = ({ product, onClose, onSuccess }) => {
         }
     };
 
-    // --- HAPPY HUES COLORS ---
     const colors = {
         dark: '#094067',
         primary: '#3da9fc',
         secondary: '#ef4565', // Red
         success: '#3da9fc',   // Green/Blueish for success in this palette context, or use a custom green
         white: '#fffffe',
-        gray: '#5f6c7b',
+        gray: '#878d94ff',
         bgInput: '#f4f6f8'
     };
+
+    if (!product) {
+        return (
+            <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                <div className="bg-[var(--color-white)] w-full max-w-lg rounded-xl relative animate-in zoom-in duration-200 overflow-hidden p-10 text-center font-bold text-red-600">
+                    Không có thông tin sản phẩm để đánh giá.
+                    <button onClick={onClose} className="mt-6 px-4 py-2 bg-red-500 text-white rounded-xl font-black">Đóng</button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
@@ -77,10 +87,14 @@ const ReviewModal = ({ product, onClose, onSuccess }) => {
                     {/* Info Product */}
                     <div className="mb-6 p-4 rounded-lg border-2 border-dashed bg-[#f9f9f9]" style={{ borderColor: colors.dark }}>
                         <p className="text-sm mb-1" style={{ color: colors.gray }}>Sản phẩm:</p>
-                        <p className="font-black text-lg mb-2" style={{ color: colors.primary }}>{product.name}</p>
+                        <p className="font-black text-lg mb-2" style={{ color: colors.primary }}>
+                          {product.product_name || product.name || 'Không có tên'}
+                        </p>
                         <div className="flex items-center gap-2 text-sm font-bold" style={{ color: colors.dark }}>
                             <span>Người bán:</span>
-                            <span className="bg-[var(--color-light)] px-2 py-0.5 rounded border border-[var(--color-dark)]">{product.seller_name}</span>
+                            <span className="bg-[var(--color-light)] px-2 py-0.5 rounded border border-[var(--color-dark)]">
+                              {product.seller_name || product.seller_id || 'Không có tên'}
+                            </span>
                         </div>
                     </div>
 

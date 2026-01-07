@@ -9,6 +9,7 @@ import auth from '../middlewares/auth.middleware.js';
 import bidModel from '../models/bid.model.js';
 import { ReviewModel } from '../models/review.model.js';
 import { db } from '../utils/db.js';
+import { sendAppendDescription } from '../utils/mail.js';
 
 const router = express.Router();
 
@@ -272,13 +273,22 @@ router.patch('/:id/description', authMiddleware, async (req, res) => {
             return res.status(404).json({ success: false, error: 'Product not found' });
         }
 
+        console.log('[PATCH /:id/description] userId:', userId, 'product.seller_id:', product.seller_id, 'product:', product);
         if (product.seller_id !== userId) {
-            return res.status(403).json({ success: false, error: 'Unauthorized: Only seller can edit product' });
+            return res.status(403).json({ success: false, error: 'Unauthorized: Only seller can edit product', debug: { userId, seller_id: product.seller_id, product } });
         }
 
         await productModel.appendDescription(id, description);
-        // const highestBid = await bidModel.findHighestBid(id);
-        // await sendDescriptionMail(highestBid.email, product.name);
+
+        // Gửi email cho tất cả bidder đã từng đặt giá (truy vấn trực tiếp bảng users)
+        const db = (await import('../utils/db.js')).db;
+        const bidderUsers = await db('users')
+            .whereIn('id', db('bids').where({ product_id: id }).select('bidder_id'));
+        const emails = Array.from(new Set(bidderUsers.map(u => u.email).filter(Boolean)));
+        for (const email of emails) {
+            sendAppendDescription(email, product.name).catch(console.error);
+        }
+
         res.json({ success: true, message: 'Description updated successfully' });
     } catch (error) {
         console.error('Error appending description:', error);

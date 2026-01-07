@@ -281,7 +281,7 @@ const CheckoutPage = () => {
 
             {showReviewModal && (
                 <ReviewModal 
-                    order={order}
+                    product={order}
                     onClose={() => setShowReviewModal(false)}
                     onSuccess={() => { setShowReviewModal(false); loadOrder(); }}
                 />

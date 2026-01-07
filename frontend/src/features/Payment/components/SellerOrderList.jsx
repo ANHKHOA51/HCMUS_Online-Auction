@@ -25,9 +25,14 @@ export default function SellerOrderList() {
     };
 
     const getImageUrl = (images) => {
+        if (!images) return 'https://via.placeholder.com/100';
         if (Array.isArray(images) && images.length > 0) return images[0];
         if (typeof images === 'string') {
-            try { return JSON.parse(images)[0]; } catch(e) { return images; }
+            try {
+                const arr = JSON.parse(images);
+                if (Array.isArray(arr)) return arr[0];
+                return arr;
+            } catch(e) { return images; }
         }
         return 'https://via.placeholder.com/100';
     };
@@ -79,15 +84,15 @@ export default function SellerOrderList() {
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-12 h-12 rounded-lg border-2 border-[var(--color-dark)] overflow-hidden flex-shrink-0 bg-white shadow-[2px_2px_0px_var(--color-dark)]">
-                                                        <img src={getImageUrl(item.product_images)} alt={item.product_name} className="w-full h-full object-cover" />
+                                                        <img src={getImageUrl(item.product_images)} alt={item.product_name || item.product_name} className="w-full h-full object-cover" />
                                                     </div>
                                                     <div>
-                                                        <div className="text-[var(--color-dark)] font-bold truncate max-w-[150px]" title={item.product_name}>{item.product_name}</div>
+                                                        <div className="text-[var(--color-dark)] font-bold truncate max-w-[150px]" title={item.product_name || item.product_name}>{item.product_name || item.product_name}</div>
                                                         <div className="text-xs text-[var(--color-paragraph)] font-medium">Người mua: {item.buyer_name}</div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3 text-[var(--color-dark)] font-bold">{formatPriceVN(Number(item.amount))}</td>
+                                            <td className="px-4 py-3 text-[var(--color-dark)] font-bold">{formatPriceVN(Number(item.final_price || item.amount))}</td>
                                             <td className="px-4 py-3">{statusBadge(item.status)}</td>
                                             <td className="px-4 py-3 flex items-center gap-1 text-[var(--color-paragraph)] font-medium">
                                                 <BiTime className="text-blue-600" />
