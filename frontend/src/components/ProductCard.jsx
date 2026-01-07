@@ -19,6 +19,9 @@ const ProductCard = ({ product }) => {
     ? product.images[0] 
     : 'https://via.placeholder.com/300x300?text=No+Image'; 
 
+  const image = (typeof productImage === 'string') ? 
+    (productImage.startsWith('https://') || productImage.startsWith('http://')) ? productImage : `http://localhost:3000/static/images/products/${product.id}/${productImage}` : null;
+
   const isNew = (new Date() - new Date(product.created_at)) < 60 * 60 * 1000;
   const isHot = product.bid_count > 0;
   const isHoldingPrice = cur_user && product.winner_id === cur_user.id;
@@ -47,7 +50,7 @@ const ProductCard = ({ product }) => {
       {/* --- ẢNH & BADGE --- */}
       <div className="w-full aspect-square bg-[#f4f6f8] relative overflow-hidden border-b-2 border-[#094067] group">
         <img
-          src={productImage}
+          src={image}
           alt={product.name}
           className="w-full h-full object-cover block transition-transform duration-500 ease-out group-hover:scale-105"
           loading="lazy"

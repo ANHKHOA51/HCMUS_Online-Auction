@@ -86,9 +86,9 @@ router.post('/:id/cancel', auth, async (req, res) => {
     try {
         const productId = req.params.id;
         const sellerId = req.user.id;
-        
+
         await productModel.cancelTransaction(productId, sellerId);
-        
+
         res.json({ success: true, message: 'Đã huỷ giao dịch thành công' });
     } catch (error) {
         console.error('Error cancelling transaction:', error);
@@ -137,6 +137,15 @@ router.get('/:id/bids', async (req, res) => {
 router.post('/add', authMiddleware, async (req, res) => {
     try {
         req.body.seller_id = req.user.id;
+
+        // Handle optional numeric fields
+        if (req.body.buy_now_price === '') {
+            req.body.buy_now_price = null;
+        }
+        if (req.body.step_price === '') {
+            req.body.step_price = null;
+        }
+
         const result = await productModel.addProduct(req.body);
         const dirpath = path.join('static', 'images', 'products', result[0].id.toString());
         if (!fs.existsSync(dirpath)) {
