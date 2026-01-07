@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaThumbsUp, FaThumbsDown, FaTimes } from 'react-icons/fa';
-import axiosInstance from '../../../services/axiosInstance';
+import { reviewService } from '../../../services/review';
 import { BiCheckCircle, BiErrorCircle } from 'react-icons/bi';
 
 const ReviewModal = ({ product, onClose, onSuccess }) => {
@@ -24,14 +24,16 @@ const ReviewModal = ({ product, onClose, onSuccess }) => {
         setError('');
 
         try {
-            await axiosInstance.post(`/products/${product.id}/feedback`, {
+            await reviewService.addReview({
+                to_user_id: product.seller_id,
+                product_id: product.id,
                 score: rating === 1 ? '+1' : '-1',
                 comment
             });
-            onSuccess();
-            onClose();
+            onSuccess && onSuccess();
+            onClose && onClose();
         } catch (err) {
-            setError(err.response?.data?.message || 'Có lỗi xảy ra khi gửi đánh giá.');
+            setError(err.response?.data?.message || err.message || 'Có lỗi xảy ra khi gửi đánh giá.');
         } finally {
             setLoading(false);
         }

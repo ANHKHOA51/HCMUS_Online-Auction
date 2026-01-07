@@ -293,7 +293,7 @@ export default function Header() {
                                     )}
 
                                     <button onClick={() => navigate('/profile')} className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-medium" style={{ color: colors.text }}><BiUser size={18} /> Hồ sơ cá nhân</button>
-                                    {cur_user.role === 2 && (<><button onClick={() => navigate('/products/add-product')} className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-medium" style={{ color: colors.text }}><BiPlusCircle size={18} /> Đăng bán</button><button onClick={() => navigate('/seller/orders')} className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-medium" style={{ color: colors.text }}><BiShoppingBag size={18} /> Quản lý đơn</button></>)}
+                                    {cur_user.role === 2 && (<button onClick={() => navigate('/products/add-product')} className="w-full px-5 py-3 text-left hover:bg-gray-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-medium" style={{ color: colors.text }}><BiPlusCircle size={18} /> Đăng bán</button>)}
                                     <div className="border-t-2 border-gray-100 my-1"></div>
                                     <button onClick={() => { logout(); navigate('/login'); }} className="w-full px-5 py-3 text-left hover:bg-red-50 flex items-center gap-3 bg-transparent border-none cursor-pointer font-bold" style={{ color: colors.secondary }}><BiLogOut size={18} /> Đăng xuất</button>
                                 </div>

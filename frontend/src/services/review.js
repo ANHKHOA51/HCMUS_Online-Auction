@@ -13,12 +13,12 @@ export const reviewService = {
 
     getUserReviews: async () => {
         const response = await axiosInstance.get('/reviews/user/reviews');
-        return response.data;
+        return response.data.data || response.data;
     },
 
     getUserStats: async () => {
         const response = await axiosInstance.get('/reviews/user/stats');
-        return response.data;
+        return response.data.data || response.data;
     }
 };
 

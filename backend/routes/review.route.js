@@ -1,4 +1,4 @@
-import ReviewModel from '../models/review.model.js';
+import { ReviewModel } from '../models/review.model.js';
 import express from 'express';
 import authMiddleware from '../middlewares/auth.middleware.js';
 

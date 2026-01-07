@@ -67,6 +67,11 @@ export const OrderModel = {
             status,
             payment_info
         }).returning('id');
+    },
+
+    // Cập nhật thông tin order (generic update)
+    update: async (id, data) => {
+        return db('orders').where({ id }).update(data);
     }
 };
 

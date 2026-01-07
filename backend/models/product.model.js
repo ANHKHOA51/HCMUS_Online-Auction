@@ -355,7 +355,7 @@ export const ProductModel = {
         }
         
         // console.log(`[findBySellerId] Status: ${status}, Query: ${query.toString()}`);
-        return query.orderBy('p.created_at', 'desc');
+        return await query.orderBy('p.created_at', 'desc');
     },
 
     cancelTransaction: async (productId, sellerId) => {
@@ -410,7 +410,7 @@ export const ProductModel = {
         return db('products')
             .where('status', 'active')
             .where('end_time', '<=', new Date())
-            .select('id', 'current_price', 'starting_price');
+            .select('id', 'name', 'current_price', 'starting_price', 'seller_id');
     },
 
     closeAuction: async (id, winnerId, finalPrice) => {

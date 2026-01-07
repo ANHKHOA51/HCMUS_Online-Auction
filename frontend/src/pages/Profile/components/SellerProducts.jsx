@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { productService } from '../../../services/product';
+import { getSellerOrders } from '../../../services/order';
 import { reviewService } from '../../../services/review';
-import { BiTrash, BiStar, BiCheckCircle, BiX, BiTime, BiShoppingBag } from 'react-icons/bi';
+import { BiTrash, BiStar, BiCheckCircle, BiX, BiTime, BiShoppingBag, BiPackage } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import CompactProductTable from '../../../components/CompactProductTable';
 
@@ -33,7 +34,8 @@ const SellerProducts = () => {
             if (activeTab === 'active') {
                 data = await productService.getSellerActiveProducts();
             } else {
-                data = await productService.getSellerSoldProducts();
+                // Tab "orders" - fetch seller orders instead
+                data = await getSellerOrders();
             }
             // Đảm bảo dữ liệu là mảng và không trùng lặp ID
             const uniqueProducts = data.data ? Array.from(new Map(data.data.map(item => [item.id, item])).values()) : [];
@@ -138,14 +140,26 @@ const SellerProducts = () => {
         },
         {
             header: 'Trạng thái',
-            render: (product) => activeTab === 'sold' ? (
-                <div className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-white bg-[var(--color-gray)] px-2 py-0.5 rounded border border-[var(--color-dark)] w-fit shadow-[1px_1px_0px_var(--color-dark)]">
-                        ĐÃ BÁN
+            render: (product) => activeTab === 'orders' ? (
+                <div className="flex flex-col gap-1 text-[10px]">
+                    <span className={`font-bold text-white px-2 py-0.5 rounded border border-[var(--color-dark)] shadow-[1px_1px_0px_var(--color-dark)] ${
+                        product.status === 'pending' ? 'bg-yellow-500' :
+                        product.status === 'paid' ? 'bg-blue-500' :
+                        product.status === 'shipped' ? 'bg-purple-500' :
+                        product.status === 'completed' ? 'bg-green-500' :
+                        'bg-gray-500'
+                    }`}>
+                        {
+                            product.status === 'pending' ? '⏳ Chờ thanh toán' :
+                            product.status === 'paid' ? '💳 Chờ gửi hàng' :
+                            product.status === 'shipped' ? '📦 Chờ nhận hàng' :
+                            product.status === 'completed' ? '✅ Hoàn tất' :
+                            '❓ ' + product.status?.toUpperCase()
+                        }
                     </span>
-                    <span className="text-[10px] font-bold text-[var(--color-dark)] truncate max-w-[100px]" title={product.winner_name}>
-                        👑 {product.winner_name}
-                    </span>
+                    {product.buyer_name && (
+                        <span className="text-[var(--color-gray)] font-medium">👤 {product.buyer_name}</span>
+                    )}
                 </div>
             ) : (
                 <span className="text-[10px] font-bold text-[var(--color-dark)] bg-[#a3ffac] px-2 py-0.5 rounded border border-[var(--color-dark)] shadow-[1px_1px_0px_var(--color-dark)]">
@@ -156,21 +170,41 @@ const SellerProducts = () => {
         {
             header: 'Hành động',
             className: 'text-right',
-            render: (product) => activeTab === 'sold' ? (
-                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            render: (product) => activeTab === 'orders' ? (
+                <div className="flex items-center justify-end gap-2">
+                    {product.status === 'pending' ? (
+                        <button 
+                            onClick={() => navigate(`/checkout/${product.id}`)}
+                            className="text-[10px] font-bold text-white bg-orange-500 border-2 border-[var(--color-dark)] px-3 py-1 rounded hover:bg-opacity-90 transition-all hover:-translate-y-0.5 shadow-[2px_2px_0px_var(--color-dark)] active:shadow-none active:translate-y-0"
+                            title="Cung cấp thông tin thanh toán"
+                        >
+                            💳 Cung cấp TT
+                        </button>
+                    ) : (
+                        <button 
+                            onClick={() => navigate(`/checkout/${product.id}`)}
+                            className="text-[10px] font-bold text-white bg-[var(--color-primary)] border-2 border-[var(--color-dark)] px-3 py-1 rounded hover:bg-opacity-90 transition-all hover:-translate-y-0.5 shadow-[2px_2px_0px_var(--color-dark)] active:shadow-none active:translate-y-0"
+                        >
+                            Xử lý
+                        </button>
+                    )}
                     <button 
                         onClick={() => openRateModal(product)}
                         className="p-1.5 text-[var(--color-dark)] bg-[#ffd803] border-2 border-[var(--color-dark)] rounded hover:-translate-y-0.5 transition-all shadow-[2px_2px_0px_var(--color-dark)]"
-                        title="Đánh giá"
+                        title="Đánh giá người mua"
                     >
                         <BiStar size={14} />
                     </button>
                     <button 
-                        onClick={() => handleCancelTransaction(product.id)}
-                        className="p-1.5 text-white bg-[var(--color-danger)] border-2 border-[var(--color-dark)] rounded hover:-translate-y-0.5 transition-all shadow-[2px_2px_0px_var(--color-dark)]"
-                        title="Huỷ"
+                        onClick={() => {
+                            if (window.confirm('Huỷ đơn hàng này? Người mua sẽ bị đánh giá -1.')) {
+                                handleCancelTransaction(product.id);
+                            }
+                        }}
+                        className="p-1.5 text-white bg-[#ff6b9d] border-2 border-[var(--color-dark)] rounded hover:-translate-y-0.5 transition-all shadow-[2px_2px_0px_var(--color-dark)]"
+                        title="Huỷ đơn"
                     >
-                        <BiTrash size={14} />
+                        <BiX size={14} />
                     </button>
                 </div>
             ) : (
@@ -207,14 +241,14 @@ const SellerProducts = () => {
                     🔥 Đang bán ({activeTab === 'active' ? products.length : '...'})
                 </button>
                 <button 
-                    onClick={() => setActiveTab('sold')}
+                    onClick={() => setActiveTab('orders')}
                     className={`flex-1 py-3 text-sm font-black uppercase tracking-wide transition-all ${
-                        activeTab === 'sold' 
+                        activeTab === 'orders' 
                         ? 'bg-[var(--color-primary)] text-white' 
                         : 'text-[var(--color-dark)] hover:bg-gray-200'
                     }`}
                 >
-                    🏆 Đã bán ({activeTab === 'sold' ? products.length : '...'})
+                    <BiShoppingBag size={14} className="inline mr-1" /> Orders ({activeTab === 'orders' ? products.length : '...'})
                 </button>
             </div>
 
@@ -239,7 +273,7 @@ const SellerProducts = () => {
                         {/* Header Modal */}
                         <div className="p-4 border-b-2 border-[var(--color-dark)] flex justify-between items-center bg-gray-100">
                             <h3 className="font-black text-lg text-[var(--color-dark)] flex items-center gap-2">
-                                <BiStar className="text-yellow-500" /> ĐÁNH GIÁ NGƯỜI MUA
+                                <BiStar className="text-yellow-500" /> ĐÁNH GIÁ {activeTab === 'orders' ? 'NGƯỜI MUA' : 'NGƯỜI BÁN'}
                             </h3>
                             <button 
                                 onClick={() => setShowRateModal(false)} 

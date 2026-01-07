@@ -46,7 +46,10 @@ const ProductDetail = () => {
     bidSuccess,
     handlePlaceBid,
     handleBuyNow,
-  } = useBidding(product);
+  } = useBidding(product, () => bidHistoryRef.current?.refreshBidHistory?.());
+
+  const [bidType, setBidType] = React.useState('manual');
+  const bidHistoryRef = React.useRef(null); // Ref to trigger bid history refresh
 
   // Use Q&A hook
   const {
@@ -76,6 +79,7 @@ const ProductDetail = () => {
 
           {/* 2. Tabs: Mô tả, Hỏi đáp, Vận chuyển */}
           <ProductTabs 
+            ref={bidHistoryRef}
             product={product} 
             faqs={faqs}
             questions={questions}
@@ -85,6 +89,10 @@ const ProductDetail = () => {
             isAskingQuestion={qaLoading}
             currentUserId={cur_user?.id}
             sellerId={product.seller_id}
+            onBidSuccess={() => {
+              // Only refresh bid history, don't switch tabs
+              setTimeout(() => bidHistoryRef.current?.refreshBidHistory?.(), 100);
+            }}
           />
 
         </div>
@@ -120,7 +128,7 @@ const ProductDetail = () => {
                 {highestBidder && (
                     <div className="bg-[var(--pg-main,#fffffe)] border-[3px] border-solid border-[var(--pg-stroke,#094067)] rounded-[16px] p-[24px] shadow-[6px_6px_0px_rgba(9,64,103,0.15)] transition-transform duration-200 ease-out mt-[20px]">
                         <h5 className="flex items-center gap-[10px] font-bold text-[var(--pg-headline,#094067)] mb-[15px] before:content-[''] before:block before:w-[8px] before:h-[24px] before:bg-[var(--pg-tertiary,#ef4565)] before:rounded-[4px] text-[16px] mt-0">
-                            🏆 Người giữ giá cao nhất
+                             Người giữ giá cao nhất
                         </h5>
                         <UserInfo user={highestBidder} role="bidder" isHighestBidder={true} />
                     </div>
@@ -153,12 +161,40 @@ const ProductDetail = () => {
                 {bidError && <div className="p-[12px] rounded-[8px] font-semibold mb-[15px] border-[2px] border-solid bg-[#ffd1d1] text-[#d32f2f] border-[#d32f2f] animate-[popIn_0.3s_cubic-bezier(0.175,0.885,0.32,1.275)]">⚠️ {bidError}</div>}
                 {bidSuccess && <div className="p-[12px] rounded-[8px] font-semibold mb-[15px] border-[2px] border-solid bg-[#d1f7d6] text-[#1b5e20] border-[#1b5e20] animate-[popIn_0.3s_cubic-bezier(0.175,0.885,0.32,1.275)]">✅ Đặt giá thành công!</div>}
 
+
+                {/* --- BIDDING TABS --- */}
+                <div className="flex bg-gray-100 p-1 mb-4 rounded-lg">
+                    <button
+                        className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${bidType === 'manual' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        onClick={() => setBidType('manual')}
+                    >
+                        Đặt giá thường
+                    </button>
+                    <button
+                        className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${bidType === 'auto' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        onClick={() => setBidType('auto')}
+                    >
+                        Tự động (Max Bid)
+                    </button>
+                </div>
+
                 <div className="bg-[var(--pg-main,#fffffe)]">
+                  {bidType === 'auto' && (
+                    <div className="mb-2 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800 animate-fadeIn">
+                         <strong>Đấu giá tự động:</strong> Nhập mức giá tối đa bạn có thể trả. Hệ thống sẽ tự động đặt giá giúp bạn từng bước một để giữ vị trí dẫn đầu, nhưng không vượt quá mức tối đa này.
+                    </div>
+                  )}
+                  {bidType === 'manual' && (
+                    <div className="mb-2 p-3 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-800 animate-fadeIn">
+                         <strong>Truyền thống:</strong> Nhập giá bạn muốn đặt ngay lập tức. Giá hiện tại của sản phẩm sẽ nhảy lên mức giá này nếu bạn dẫn đầu.
+                    </div>
+                  )}
+
                   <input
                     type="text"
                     value={bidAmount}
                     onChange={setBidAmount}
-                    placeholder="Nhập giá muốn đặt..."
+                    placeholder={bidType === 'auto' ? "Nhập giá tối đa bạn muốn trả..." : "Nhập giá muốn đặt..."}
                     className="w-full p-[12px] border-[2px] border-solid border-[var(--pg-stroke,#094067)] rounded-[8px] text-[16px] font-semibold text-[var(--pg-headline,#094067)] bg-[var(--pg-bg,#fffffe)] mb-[8px] transition-all duration-200 focus:outline-none focus:border-[var(--pg-highlight,#3da9fc)] focus:shadow-[0_0_0_3px_rgba(61,169,252,0.2)]"
                     disabled={isPlacingBid}
                   />
@@ -171,7 +207,7 @@ const ProductDetail = () => {
                         setBidAmount({ target: { value: String(minBid) } });
                     }}
                   >
-                    <span className="font-semibold">💡 Giá thấp nhất hợp lệ:</span> 
+                    <span className="font-semibold"> Giá tối đa đề xuất (Tối thiểu):</span> 
                     <strong className="text-[var(--pg-headline,#094067)] font-bold">
                         {formatPriceVN((Number(product.current_price) || Number(product.starting_price)) + (Number(product.step_price) || 100000))}
                     </strong>
@@ -180,11 +216,14 @@ const ProductDetail = () => {
                 </div>
 
                 <button
-                  className="w-full p-[14px] border-[2px] border-solid border-[var(--pg-stroke,#094067)] rounded-[8px] text-[16px] font-bold cursor-pointer transition-transform duration-100 shadow-[4px_4px_0_rgba(9,64,103,0.2)] mb-[12px] bg-[var(--pg-button,#3da9fc)] text-[var(--pg-button-text,#fffffe)] hover:enabled:-translate-x-[2px] hover:enabled:-translate-y-[2px] hover:enabled:shadow-[6px_6px_0_rgba(9,64,103,0.2)] active:enabled:translate-x-0 active:enabled:translate-y-0 active:enabled:shadow-[2px_2px_0_rgba(9,64,103,0.2)] disabled:bg-[#ccc] disabled:border-[#999] disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none"
-                  onClick={handlePlaceBid}
+                  className={`w-full p-[14px] border-[2px] border-solid border-[var(--pg-stroke,#094067)] rounded-[8px] text-[16px] font-bold cursor-pointer transition-transform duration-100 shadow-[4px_4px_0_rgba(9,64,103,0.2)] mb-[12px] 
+                  bg-[var(--pg-button,#3da9fc)] text-[var(--pg-button-text,#fffffe)] 
+                  ${bidType === 'manual' ? 'bg-[#ef4444] border-[#991b1b] shadow-[#991b1b] hover:enabled:shadow-[#991b1b] text-white' : ''}
+                  hover:enabled:-translate-x-[2px] hover:enabled:-translate-y-[2px] hover:enabled:shadow-[6px_6px_0_rgba(9,64,103,0.2)] active:enabled:translate-x-0 active:enabled:translate-y-0 active:enabled:shadow-[2px_2px_0_rgba(9,64,103,0.2)] disabled:bg-[#ccc] disabled:border-[#999] disabled:shadow-none disabled:cursor-not-allowed disabled:transform-none`}
+                  onClick={() => handlePlaceBid(bidType === 'auto')}
                   disabled={isPlacingBid}
                 >
-                  {isPlacingBid ? 'Đang xử lý...' : 'ĐẶT GIÁ NGAY'}
+                  {isPlacingBid ? 'Đang xử lý...' : (bidType === 'auto' ? 'ĐẶT GIÁ TỰ ĐỘNG' : 'ĐẶT GIÁ NGAY')}
                 </button>
 
                 {product.buy_now_price && (

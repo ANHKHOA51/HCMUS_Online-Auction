@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { formatPriceVN } from '../utils/formatCurrency';
 import { getRelativeTime } from '../utils/timeUtil';
 import { useBidHistory } from '../hooks/useBidHistory';
@@ -6,19 +6,28 @@ import Pagination from './Pagination';
 import { bidService } from '../services/bid';
 import UserReviewsModal from './UserReviewsModal'; // Import Modal
 
-const BidHistory = ({ productId, isSeller }) => {
+const BidHistory = forwardRef(({ productId, isSeller }, ref) => {
   const { bidHistory, isLoading, error, refreshBidHistory } = useBidHistory(productId);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedBidder, setSelectedBidder] = useState(null); // State for modal
   const itemsPerPage = 5;
+
+  // Expose refreshBidHistory via ref
+  useImperativeHandle(ref, () => ({
+    refreshBidHistory
+  }), [refreshBidHistory]);
 
   const bids = bidHistory;
 
   const maskName = (name) => {
     if (!name) return 'Ẩn danh';
     if (isSeller) return name; // Show full name if seller
-    // Masking logic matching backend
-    return name.split('').map((char, index) => index % 2 === 0 ? char : '*').join('');
+    // Show first letter + asterisks + last letter (e.g., "John Doe" → "J*** D**")
+    const parts = name.split(' ');
+    return parts.map(part => {
+      if (part.length <= 2) return '*'.repeat(part.length);
+      return part[0] + '*'.repeat(part.length - 2) + part[part.length - 1];
+    }).join(' ');
   };
 
   const handleReject = async (bidId, bidderName) => {
@@ -55,7 +64,7 @@ const BidHistory = ({ productId, isSeller }) => {
           <div className="flex flex-col gap-[12px]">
             {currentBids.map((bid, index) => {
               const realRank = indexOfFirstItem + index + 1;
-              const displayName = maskName(bid.full_name || bid.username);
+              const displayName = maskName(bid.bidder_name || bid.full_name || bid.username);
               
               // Xử lý Rank Badge styles
               let rankBadgeClass = "bg-[#e0e0e0] text-[var(--ph-paragraph)] border-[var(--ph-stroke)]";
@@ -76,23 +85,23 @@ const BidHistory = ({ productId, isSeller }) => {
 
               return (
                 <div key={bid.id} className={`flex justify-between items-center p-[12px] rounded-[8px] transition-transform duration-200 max-[480px]:p-[10px] ${bidItemClass}`}>
-                  <div className="flex items-center gap-[12px]">
-                    <div className={`w-[28px] h-[28px] rounded-full font-bold text-[0.85rem] flex items-center justify-center border ${rankBadgeClass}`}>
+                  <div className="flex items-center gap-[12px] min-w-0 flex-1">
+                    <div className={`w-[28px] h-[28px] rounded-full font-bold text-[0.85rem] flex items-center justify-center border flex-shrink-0 ${rankBadgeClass}`}>
                       {realRank}
                     </div>
-                    <div className="flex flex-col">
+                    <div className="flex flex-col min-w-0">
                       <span 
-                        className={`font-bold text-[var(--ph-headline)] text-[0.95rem] max-[480px]:text-[0.85rem] ${isSeller ? 'cursor-pointer underline' : ''}`}
+                        className={`font-bold text-[var(--ph-headline)] text-[0.95rem] max-[480px]:text-[0.85rem] truncate ${isSeller ? 'cursor-pointer underline' : ''}`}
                         onClick={() => isSeller && setSelectedBidder({id: bid.bidder_id, name: bid.full_name || bid.username})}
                         title={isSeller ? "Xem đánh giá người này" : ""}
                       >
                         {displayName}
                         {realRank === 1 && <span className="ml-1"> 👑</span>}
                       </span>
-                      <span className="text-[0.75rem] text-[var(--ph-paragraph)]">{new Date(bid.time).toLocaleString('vi-VN')}</span>
+                      <span className="text-[0.75rem] text-[var(--ph-paragraph)] truncate">{new Date(bid.time).toLocaleString('vi-VN')}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-[10px]">
+                  <div className="flex items-center gap-[10px] flex-shrink-0">
                     <div className={`font-extrabold max-[480px]:text-[0.9rem] ${bidAmountClass}`}>
                       {formatPriceVN(bid.amount)}
                     </div>
@@ -129,6 +138,8 @@ const BidHistory = ({ productId, isSeller }) => {
       )}
     </div>
   );
-};
+});
+
+BidHistory.displayName = 'BidHistory';
 
 export default BidHistory;

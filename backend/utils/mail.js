@@ -96,4 +96,158 @@ export async function sendResetPasswordMail(toEmail, password) {
     }
 }
 
+export async function sendBidSuccessMail(toEmail, userName, productName, bidAmount) {
+    try {
+        console.log('📧 Sending Bid Success mail to:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: `✅ Đặt giá thành công: ${productName}`,
+            html: `
+                <p>Xin chào ${userName},</p>
+                <p>Bạn đã đặt giá thành công cho sản phẩm <strong>${productName}</strong>.</p>
+                <p>Giá đặt: <strong style="color: #0d6efd;">${Number(bidAmount).toLocaleString('vi-VN')} VNĐ</strong></p>
+                <p>Chúc bạn may mắn!</p>
+            `
+        });
+        return true;
+    } catch (error) {
+        console.error('Bid success email error:', error.message);
+        return false;
+    }
+}
+
+
+export async function sendNewBidNotificationToSeller(toEmail, sellerName, productName, bidAmount, bidderName) {
+    try {
+        console.log('📧 Sending New Bid mail to Seller:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: `💰 Giá mới cho sản phẩm: ${productName}`,
+            html: `
+                <p>Xin chào ${sellerName},</p>
+                <p>Sản phẩm <strong>${productName}</strong> vừa nhận được lượt đặt giá mới.</p>
+                <p><strong>Người đặt:</strong> ${bidderName}</p>
+                <p><strong>Giá đặt:</strong> <span style="color: #0d6efd; font-weight: bold;">${Number(bidAmount).toLocaleString('vi-VN')} VNĐ</span></p>
+            `
+        });
+        return true;
+    } catch (error) {
+        console.error('Seller new bid email error:', error.message);
+        return false;
+    }
+}
+
+export async function sendOutbidNotification(toEmail, userName, productName, newPrice) {
+    try {
+        console.log('📧 Sending Outbid mail to Previous Bidder:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: `⚠️ Bạn đã bị vượt giá: ${productName}`,
+            html: `
+                <p>Xin chào ${userName},</p>
+                <p>Có người vừa đặt giá cao hơn bạn cho sản phẩm <strong>${productName}</strong>.</p>
+                <p>Giá hiện tại: <strong style="color: #d63384;">${Number(newPrice).toLocaleString('vi-VN')} VNĐ</strong></p>
+                <p>Hãy đặt giá lại ngay để giành chiến thắng!</p>
+            `
+        });
+        return true;
+    } catch (error) {
+        console.error('Outbid email error:', error.message);
+        return false;
+    }
+}
+
+export async function sendBidRejectedMail(toEmail, userName, productName) {
+    try {
+        console.log('📧 Sending Reject mail to Bidder:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: `🚫 Lượt đặt giá bị từ chối: ${productName}`,
+            html: `
+                <p>Xin chào ${userName},</p>
+                <p>Lượt đặt giá của bạn cho sản phẩm <strong>${productName}</strong> đã bị người bán từ chối.</p>
+            `
+        });
+        return true;
+    } catch (error) {
+        console.error('Reject bid email error:', error.message);
+        return false;
+    }
+}
+
+export async function sendNewAnswerNotification(toEmail, userName, productName, question, answer) {
+    try {
+        console.log('📧 Sending New Answer mail to:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: `💬 Phản hồi mới về sản phẩm: ${productName}`,
+            html: `
+                <p>Xin chào ${userName},</p>
+                <p>Người bán đã trả lời câu hỏi về sản phẩm <strong>${productName}</strong>:</p>
+                <div style="background: #f8f9fa; padding: 10px; margin: 10px 0;">
+                    <p><strong>Q:</strong> ${question}</p>
+                    <p><strong>A:</strong> <span style="color: #0d6efd;">${answer}</span></p>
+                </div>
+            `
+        });
+        return true;
+    } catch (error) {
+        console.error('New answer email error:', error.message);
+        return false;
+    }
+}
+
+
+export async function sendAuctionEndWinnerMail(toEmail, userName, productName, price) {
+    try {
+        console.log('📧 Sending Winner mail to:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: `🏆 CHÚC MỪNG CHIẾN THẮNG: ${productName}`,
+            html: `
+                <div style="text-align: center; border: 2px solid #ffd803; padding: 20px;">
+                    <h2 style="color: #e67e22;">Chúc mừng ${userName}!</h2>
+                    <p>Bạn đã chiến thắng đấu giá sản phẩm:</p>
+                    <h3>${productName}</h3>
+                    <p>Với mức giá: <strong>${Number(price).toLocaleString('vi-VN')} VNĐ</strong></p>
+                    <p>Vui lòng đăng nhập vào hệ thống để xem chi tiết và liên hệ người bán.</p>
+                </div>
+            `
+        });
+        return true;
+    } catch (error) {
+        console.error('Winner email error:', error.message);
+        return false;
+    }
+}
+
+export async function sendAuctionEndSellerMail(toEmail, userName, productName, winnerName, price) {
+    try {
+        console.log('📧 Sending Seller mail to:', toEmail);
+        const result = await transporter.sendMail({
+            from: "Online Auction",
+            to: toEmail,
+            subject: `📦 Đấu giá kết thúc: ${productName}`,
+            html: `
+                <p>Xin chào ${userName},</p>
+                <p>Sản phẩm <strong>${productName}</strong> đã kết thúc đấu giá.</p>
+                ${winnerName 
+                    ? `<p><strong>Người thắng:</strong> ${winnerName}</p><p><strong>Giá cuối:</strong> ${Number(price).toLocaleString('vi-VN')} VNĐ</p>` 
+                    : '<p><strong>Kết quả:</strong> Không có người mua.</p>'}
+                    <p>Vui lòng đăng nhập vào hệ thống để xem chi tiết.</p>
+            `
+        });
+        return true;
+    } catch (error) {
+        console.error('Seller email error:', error.message);
+        return false;
+    }
+}
+
 export default transporter;

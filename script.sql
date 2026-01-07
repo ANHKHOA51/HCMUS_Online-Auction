@@ -10,6 +10,19 @@ CREATE TABLE public.activity_logs (
   CONSTRAINT activity_logs_pkey PRIMARY KEY (id),
   CONSTRAINT activity_logs_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
+CREATE TABLE public.auto_bids (
+  id integer NOT NULL DEFAULT nextval('auto_bids_id_seq'::regclass),
+  product_id integer NOT NULL,
+  bidder_id integer NOT NULL,
+  max_auto_bid numeric NOT NULL,
+  current_bid_amount numeric NOT NULL,
+  status text DEFAULT 'active'::text CHECK (status = ANY (ARRAY['active'::text, 'exhausted'::text, 'won'::text, 'lost'::text])),
+  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT auto_bids_pkey PRIMARY KEY (id),
+  CONSTRAINT auto_bids_product_id_foreign FOREIGN KEY (product_id) REFERENCES public.products(id),
+  CONSTRAINT auto_bids_bidder_id_foreign FOREIGN KEY (bidder_id) REFERENCES public.users(id)
+);
 CREATE TABLE public.bidder_requests (
   id integer NOT NULL DEFAULT nextval('bidder_requests_id_seq'::regclass),
   product_id integer NOT NULL,
@@ -28,6 +41,7 @@ CREATE TABLE public.bids (
   bid_amount numeric NOT NULL,
   bid_time timestamp without time zone DEFAULT now(),
   status integer DEFAULT 1,
+  is_auto_bid boolean DEFAULT false,
   CONSTRAINT bids_pkey PRIMARY KEY (id),
   CONSTRAINT bids_product_id_fkey FOREIGN KEY (product_id) REFERENCES public.products(id),
   CONSTRAINT bids_bidder_id_fkey FOREIGN KEY (bidder_id) REFERENCES public.users(id)
@@ -65,6 +79,16 @@ CREATE TABLE public.notifications (
   CONSTRAINT notifications_pkey PRIMARY KEY (id),
   CONSTRAINT notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
   CONSTRAINT notifications_related_product_id_fkey FOREIGN KEY (related_product_id) REFERENCES public.products(id)
+);
+CREATE TABLE public.order_messages (
+  id integer NOT NULL DEFAULT nextval('order_messages_id_seq'::regclass),
+  order_id integer,
+  sender_id integer,
+  content text,
+  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT order_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT order_messages_order_id_foreign FOREIGN KEY (order_id) REFERENCES public.orders(id),
+  CONSTRAINT order_messages_sender_id_foreign FOREIGN KEY (sender_id) REFERENCES public.users(id)
 );
 CREATE TABLE public.orders (
   id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
@@ -112,7 +136,7 @@ CREATE TABLE public.products (
   images ARRAY,
   start_time timestamp without time zone DEFAULT now(),
   end_time timestamp without time zone NOT NULL,
-  status character varying DEFAULT 'active'::character varying CHECK (status::text = ANY (ARRAY['active'::character varying, 'ended'::character varying, 'cancelled'::character varying]::text[])),
+  status character varying DEFAULT 'active'::character varying CHECK (status::text = ANY (ARRAY['active'::character varying, 'sold'::character varying, 'cancelled'::character varying, 'expired'::character varying]::text[])),
   winner_id integer,
   created_at timestamp without time zone DEFAULT now(),
   updated_at timestamp without time zone DEFAULT now(),
@@ -145,7 +169,7 @@ CREATE TABLE public.ratings (
   to_user_id integer,
   product_id integer,
   comment text,
-  score character varying CHECK (score::text = ANY (ARRAY['+'::character varying, '-'::character varying]::text[])),
+  score character varying CHECK (score::text = ANY (ARRAY['+1'::character varying, '-1'::character varying]::text[])),
   created_at timestamp without time zone DEFAULT now(),
   CONSTRAINT ratings_pkey PRIMARY KEY (id),
   CONSTRAINT ratings_from_user_id_fkey FOREIGN KEY (from_user_id) REFERENCES public.users(id),
@@ -159,6 +183,15 @@ CREATE TABLE public.refresh_tokens (
   created_at timestamp without time zone DEFAULT now(),
   CONSTRAINT refresh_tokens_pkey PRIMARY KEY (id),
   CONSTRAINT user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id)
+);
+CREATE TABLE public.upgrade_requests (
+  id integer NOT NULL DEFAULT nextval('upgrade_requests_id_seq'::regclass),
+  user_id integer,
+  reason character varying,
+  status character varying DEFAULT 'pending'::character varying,
+  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT upgrade_requests_pkey PRIMARY KEY (id),
+  CONSTRAINT upgrade_requests_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
 CREATE TABLE public.users (
   id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
@@ -185,4 +218,4 @@ CREATE TABLE public.watch_lists (
   CONSTRAINT watch_lists_pkey PRIMARY KEY (id),
   CONSTRAINT watch_lists_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id),
   CONSTRAINT watch_lists_product_id_foreign FOREIGN KEY (product_id) REFERENCES public.products(id)
-);
+);t

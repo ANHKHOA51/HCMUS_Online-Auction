@@ -3,40 +3,66 @@ import authMiddleware, { verifyBidderEligibility } from '../middlewares/auth.mid
 const router = express.Router();
 import * as bidService from '../services/bid.service.js';
 import bidModel from '../models/bid.model.js';
+import productModel from '../models/product.model.js';
+import { db } from '../utils/db.js';
 
-
-// GET lịch sử bid của sản phẩm
+/**
+ * GET lịch sử bid của sản phẩm
+ * 
+ * ⚠️ PROXY BIDDING: Tuyệt đối KHÔNG hiển thị max_auto_bid
+ * Chỉ hiển thị bid_amount từ bảng bids (giá công khai)
+ * 
+ * Ví dụ:
+ * - User A đặt Auto Bid max=5.000k
+ * - Hệ thống lưu vào auto_bids (ẩn)
+ * - Lịch sử hiển thị chỉ bid_amount (ví dụ 1.000k, 1.100k, 1.200k...)
+ * - KHÔNG bao giờ lộ 5.000k
+ */
 router.get('/:productId/history', async (req, res) => {
     try {
         const { productId } = req.params;
+        
+        // Lấy lịch sử từ bảng bids (chỉ public bids)
         const bids = await bidModel.getByProductId(productId);
-        res.json({ success: true, data: bids });
+
+        if (!bids || bids.length === 0) {
+            return res.json({ success: true, data: [] });
+        }
+
+        // Chỉ trả về thông tin công khai, KHÔNG hiển thị max_auto_bid
+        const publicHistory = bids.map(bid => ({
+            id: bid.id,
+            bidder_id: bid.bidder_id,
+            bidder_name: bid.full_name || bid.username,
+            amount: bid.amount, // bid_amount từ bảng bids (công khai)
+            time: bid.time,
+            is_auto_bid: bid.is_auto_bid // Chỉ để người dùng biết bid này là auto hay manual
+        }));
+
+        res.json({ success: true, data: publicHistory });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Lỗi lấy lịch sử' });
+        console.error('History fetch error:', err);
+        res.status(500).json({ error: 'Lỗi lấy lịch sử đấu giá' });
     }
 });
 
 router.post('/:id/bid', authMiddleware, verifyBidderEligibility, async (req, res) => {
     try {
         const { id } = req.params;
-        const { price } = req.body;
+        const { price, isAutoBid } = req.body; // Receive isAutoBid flag
         const userId = req.user.id;
 
-        // Gọi Service
-        await bidService.placeBid(userId, id, parseInt(price));
+        // Call Service with proper parameters
+        const result = await bidService.placeBid(userId, id, parseFloat(price), !!isAutoBid);
 
-        res.json({ success: true, message: 'Ra giá thành công!' });
+        res.json({ success: true, data: result });
 
     } catch (err) {
-        // Xử lý lỗi từ Service ném ra
-        console.error(err);
-        const statusCode = err.message.includes('Sản phẩm') || err.message.includes('Giá') ? 400 : 500;
+        console.error('Bid error:', err);
+        const statusCode = err.message.includes('Sản phẩm') || err.message.includes('Giá') || err.message.includes('trần') ? 400 : 500;
         res.status(statusCode).json({ error: err.message });
     }
 });
-
-import productModel from '../models/product.model.js';
 
 router.post('/reject/:id', authMiddleware, async (req, res) => {
     try {
@@ -54,6 +80,16 @@ router.post('/reject/:id', authMiddleware, async (req, res) => {
         }
 
         await bidModel.rejectBid(id, bid.product_id);
+
+        // Fetch User Info for Email
+        const { sendBidRejectedMail } = await import('../utils/mail.js'); // Dynamic import
+        const db = (await import('../utils/db.js')).db;
+        const rejectedUser = await db('users').where('id', bid.bidder_id).first();
+        
+        if (rejectedUser) {
+            sendBidRejectedMail(rejectedUser.email, rejectedUser.full_name, product.name).catch(console.error);
+        }
+
         res.json({ success: true, message: 'Rejected bidder successfully' });
     } catch (err) {
         console.error(err);

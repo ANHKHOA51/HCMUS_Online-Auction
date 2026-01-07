@@ -2,9 +2,10 @@ import axiosInstance from './axiosInstance';
 
 export const bidService = {
     // Đặt giá mới
-    async placeBid(productId, bidAmount, token) {
+    async placeBid(productId, bidAmount, isAutoBid = true) {
         const response = await axiosInstance.post(`/bids/${productId}/bid`, {
-            price: bidAmount
+            price: bidAmount,
+            isAutoBid
         });
         return response.data;
     },

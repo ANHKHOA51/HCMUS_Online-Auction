@@ -4,7 +4,7 @@ import { productService } from '../services/product';
 import { bidService } from '../services/bid';
 import { useAuth } from '../contexts/AuthContext';
 
-export const useBidding = (product) => {
+export const useBidding = (product, onBidSuccess = null) => {
   const { cur_user } = useAuth();
   const [bidAmount, setBidAmount] = useState('');
   const [isPlacingBid, setIsPlacingBid] = useState(false);
@@ -71,27 +71,37 @@ export const useBidding = (product) => {
   };
 
   // Place bid
-  const handlePlaceBid = async () => {
+  const handlePlaceBid = async (isAutoBid = true) => {
     if (!validateBidAmount()) return;
+    
+    // Default to strict manual if not specified, or respect the flag passed from UI
+    // Note: The UI now passes true for Auto, false for Manual.
 
     const amount = parseNumber(bidAmount);
 
     // 3. Confirmation
-    const confirmMsg = `Bạn có chắc chắn muốn đặt giá ${formatPriceVN(amount)} cho sản phẩm này?`;
+    const modeText = isAutoBid ? "TỰ ĐỘNG (Max Bid)" : "TRUYỀN THỐNG (Giá chốt)";
+    const confirmMsg = `[Chế độ: ${modeText}]\nBạn có chắc chắn muốn đặt giá ${formatPriceVN(amount)}?`;
+    
     if (!window.confirm(confirmMsg)) return;
 
     try {
       setIsPlacingBid(true);
       // Lấy token NGAY LÚC GỌI (không phải khi mount)
-      const token = sessionStorage.getItem('accessToken');
-      const result = await bidService.placeBid(product.id, amount, token);
-      console.log('Placing bid:', amount);
+      // const token = sessionStorage.getItem('accessToken'); // Service now uses axiosInstance
+      const result = await bidService.placeBid(product.id, amount, isAutoBid);
+      console.log('Placing bid:', amount, 'Auto:', isAutoBid, 'Result:', result);
       
       setBidSuccess(true);
       setBidAmount('');
-      setTimeout(() => setBidSuccess(false), 3000);
-      // Reload page to update data
-      setTimeout(() => window.location.reload(), 1000);
+      
+      // Refresh bid history WITHOUT navigating away
+      if (onBidSuccess) {
+        setTimeout(() => onBidSuccess(), 800);
+      }
+      
+      // Keep success message visible longer
+      setTimeout(() => setBidSuccess(false), 4500);
     } catch (err) {
       setBidError(err.response?.data?.error || 'Lỗi khi đặt giá. Vui lòng thử lại.');
       console.error('Error placing bid:', err);

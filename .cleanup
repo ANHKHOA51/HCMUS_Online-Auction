@@ -1,0 +1,16 @@
+# Cleanup: Old SQL files (use db/ folder instead)
+complete_database_setup.sql
+database_complete_with_seed.sql
+db_exact_backup.sql
+dump_schema.sql
+script.sql
+test.http
+a.http
+check_db.js
+create_mock_order.js
+setup_orders.js
+test_proxy_bidding.js
+auction.db
+backend.log
+.DS_Store
+package-lock 2.json

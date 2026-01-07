@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import useSellerOrders from '../hooks/useSellerOrders';
 import PaymentVerification from './PaymentVerification';
 import CancelOrderModal from './CancelOrderModal';
-import { Eye, CheckCircle, XCircle, Clock, Truck, Ban, Star, PackageCheck, AlertCircle } from 'lucide-react';
-import { formatPrice } from '../../../utils/formatCurrency';
-import { cancelOrder, markOrderDelivered } from '../../../services/order';
+import { BiCheckCircle, BiXCircle, BiTime, BiShoppingBag, BiPackage } from 'react-icons/bi';
+import { formatPriceVN } from '../../../utils/formatCurrency';
+import { cancelOrder } from '../../../services/order';
+import CompactProductTable from '../../../components/CompactProductTable';
+
+const ITEMS_PER_PAGE = 5;
 
 export default function SellerOrderList() {
-    const { orders, loading, error, confirmOrder, rejectOrder, fetchOrders } = useSellerOrders();
+    const { orders, loading, fetchOrders } = useSellerOrders();
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [cancellingOrder, setCancellingOrder] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const handleConfirmCancel = async (orderId, reason) => {
         const res = await cancelOrder(orderId, reason);
@@ -20,207 +24,111 @@ export default function SellerOrderList() {
         }
     };
 
-    const handleMarkDelivered = async (order) => {
-        if (window.confirm(`Xác nhận đơn hàng ${order.product_name} đã được giao thành công?`)) {
-            const res = await markOrderDelivered(order.id);
-            if (res.ok) {
-                fetchOrders();
-            } else {
-                alert(res.message);
-            }
+    const getImageUrl = (images) => {
+        if (Array.isArray(images) && images.length > 0) return images[0];
+        if (typeof images === 'string') {
+            try { return JSON.parse(images)[0]; } catch(e) { return images; }
         }
+        return 'https://via.placeholder.com/100';
     };
 
-    const getStatusBadge = (status) => {
-        switch (status) {
-            case 'paid':
-                return (
-                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 border border-green-200">
-                        <CheckCircle className="w-3 h-3" /> Paid
-                    </span>
-                );
-            case 'shipping':
-                return (
-                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                        <Truck className="w-3 h-3" /> Shipping
-                    </span>
-                );
-            case 'shipped':
-                return (
-                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 border border-green-200">
-                        <PackageCheck className="w-3 h-3" /> Delivered
-                    </span>
-                );
-            case 'rejected':
-                return (
-                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200">
-                        <XCircle className="w-3 h-3" /> Rejected
-                    </span>
-                );
-            case 'cancelled':
-                return (
-                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-800 border border-gray-200">
-                        <Ban className="w-3.5 h-3.5" /> Cancelled
-                    </span>
-                );
-            default:
-                return (
-                    <span className="flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
-                        <Clock className="w-3 h-3" /> Pending
-                    </span>
-                );
+    const statusBadge = (status) => {
+        switch(status) {
+            case 'pending': return <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded font-bold text-xs uppercase">Chờ xác nhận</span>;
+            case 'paid': return <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded font-bold text-xs uppercase">Đã thanh toán</span>;
+            case 'shipped': return <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded font-bold text-xs uppercase">Đã gửi hàng</span>;
+            case 'completed': return <span className="px-2 py-1 bg-green-100 text-green-800 rounded font-bold text-xs uppercase">Hoàn tất</span>;
+            case 'cancelled': return <span className="px-2 py-1 bg-red-100 text-red-800 rounded font-bold text-xs uppercase">Đã hủy</span>;
+            default: return <span className="px-2 py-1 bg-gray-100 text-gray-800 rounded font-bold text-xs uppercase">{status}</span>;
         }
     };
-
-    if (loading) return (
-        <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-    );
-
-    if (error) return (
-        <div className="text-center text-red-500 py-10">
-            <AlertCircle className="w-10 h-10 mx-auto mb-2 opacity-50" />
-            <p>Error: {error}</p>
-        </div>
-    );
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">Order Management</h1>
-                <p className="text-gray-500 mt-1">Manage and verify payments from your buyers.</p>
+        <div className="bg-[var(--color-background)] rounded-xl border-2 border-[var(--color-dark)] shadow-[4px_4px_0px_var(--color-dark)] overflow-hidden">
+            <div className="p-4 border-b-2 border-[var(--color-dark)] bg-[#e0f2fe]">
+                <h3 className="text-lg font-black text-[var(--color-dark)] flex items-center gap-2 uppercase tracking-wide">
+                    <BiShoppingBag className="text-2xl" /> 
+                    Quản lý Orders
+                </h3>
             </div>
-
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                {orders.length === 0 ? (
-                    <div className="text-center py-16">
-                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Clock className="w-8 h-8 text-gray-300" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900">No orders found</h3>
-                        <p className="text-gray-500">You haven't sold any items yet.</p>
+            
+            <div className="p-4">
+                {loading ? (
+                    <div className="text-center py-8 font-bold text-[var(--color-paragraph)]">Đang tải...</div>
+                ) : orders.length === 0 ? (
+                    <div className="text-center py-12 text-[var(--color-paragraph)]">
+                        <BiShoppingBag className="text-4xl mx-auto mb-2 opacity-30" />
+                        <p className="font-bold">Chưa có orders nào</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Product</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Buyer</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200">
-                                {orders.map((order) => (
-                                    <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                {/* Placeholder image if not handling parsing yet */}
-                                                <div className="w-10 h-10 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden">
-                                                    {(() => {
-                                                        const getImage = (imgData) => {
-                                                            if (!imgData) return null;
-                                                            if (Array.isArray(imgData)) return imgData[0];
-                                                            try {
-                                                                const parsed = JSON.parse(imgData);
-                                                                return Array.isArray(parsed) ? parsed[0] : parsed;
-                                                            } catch (e) {
-                                                                return imgData;
-                                                            }
-                                                        };
-                                                        const imgSrc = getImage(order.product_images);
-
-                                                        return imgSrc ? (
-                                                            <img src={imgSrc} alt="" className='w-full h-full object-cover' />
-                                                        ) : (
-                                                            <div className='w-full h-full bg-gray-200' />
-                                                        );
-                                                    })()}
+                    <>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm text-left border-collapse">
+                                <thead className="bg-gray-100 border-b-2 border-[var(--color-dark)]">
+                                    <tr>
+                                        <th className="px-4 py-3 text-xs font-black text-[var(--color-dark)] uppercase tracking-wide">Sản phẩm</th>
+                                        <th className="px-4 py-3 text-xs font-black text-[var(--color-dark)] uppercase tracking-wide">Giá</th>
+                                        <th className="px-4 py-3 text-xs font-black text-[var(--color-dark)] uppercase tracking-wide">Trạng thái</th>
+                                        <th className="px-4 py-3 text-xs font-black text-[var(--color-dark)] uppercase tracking-wide">Thời gian</th>
+                                        <th className="px-4 py-3 text-xs font-black text-[var(--color-dark)] uppercase tracking-wide">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {orders.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((item) => (
+                                        <tr key={item.id} className="border-b-2 border-[var(--color-dark)] last:border-b-0 hover:bg-blue-50 transition-colors bg-[var(--color-white)]">
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-12 h-12 rounded-lg border-2 border-[var(--color-dark)] overflow-hidden flex-shrink-0 bg-white shadow-[2px_2px_0px_var(--color-dark)]">
+                                                        <img src={getImageUrl(item.product_images)} alt={item.product_name} className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-[var(--color-dark)] font-bold truncate max-w-[150px]" title={item.product_name}>{item.product_name}</div>
+                                                        <div className="text-xs text-[var(--color-paragraph)] font-medium">Người mua: {item.buyer_name}</div>
+                                                    </div>
                                                 </div>
-                                                <p className="text-sm font-medium text-gray-900 line-clamp-1 max-w-[200px]" title={order.product_name}>{order.product_name}</p>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm text-gray-900">{order.buyer_name}</p>
-                                            <p className="text-xs text-gray-500">{order.buyer_email}</p>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm font-medium text-gray-900">{formatPrice(Number(order.amount))} ₫</p>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</p>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            {getStatusBadge(order.status)}
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                {order.status === 'pending' && (
-                                                    <>
-                                                        <button
-                                                            onClick={() => setCancellingOrder(order)}
-                                                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 !rounded-md transition-colors"
-                                                            title="Hủy đơn hàng"
-                                                        >
-                                                            <Ban className="w-3.5 h-3.5" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setSelectedOrder(order)}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 !rounded-md transition-colors"
-                                                        >
-                                                            <Eye className="w-3.5 h-3.5" />
-                                                            Verify
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {order.status === 'shipping' && (
-                                                    <span className="text-xs text-blue-600 font-medium italic px-2">
-                                                        Chờ người mua xác nhận
-                                                    </span>
-                                                )}
-                                                {order.status === 'shipped' && (
-                                                    <button
-                                                        onClick={() => setSelectedOrder(order)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 !rounded-md transition-colors"
-                                                    >
-                                                        <Star className="w-3.5 h-3.5" />
-                                                        Rate Buyer
+                                            </td>
+                                            <td className="px-4 py-3 text-[var(--color-dark)] font-bold">{formatPriceVN(Number(item.amount))}</td>
+                                            <td className="px-4 py-3">{statusBadge(item.status)}</td>
+                                            <td className="px-4 py-3 flex items-center gap-1 text-[var(--color-paragraph)] font-medium">
+                                                <BiTime className="text-blue-600" />
+                                                <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                                            </td>
+                                            <td className="px-4 py-3 flex gap-2">
+                                                {item.status === 'paid' && (
+                                                    <button onClick={() => setSelectedOrder(item)} className="flex items-center gap-1 px-3 py-1.5 bg-[#3da9fc] text-white rounded-[6px] text-xs font-bold border-2 border-[#094067] shadow-[2px_2px_0px_#094067] hover:-translate-y-0.5 transition-all">
+                                                        <BiPackage /> Gửi
                                                     </button>
                                                 )}
-                                                {['cancelled', 'rejected'].includes(order.status) && (
-                                                    <span className="text-xs text-gray-400 font-medium px-2">Closed</span>
+                                                {item.status === 'shipped' && (
+                                                    <button onClick={() => setSelectedOrder(item)} className="flex items-center gap-1 px-3 py-1.5 bg-[#a1c181] text-white rounded-[6px] text-xs font-bold border-2 border-[#2d5016] shadow-[2px_2px_0px_#2d5016] hover:-translate-y-0.5 transition-all">
+                                                        <BiCheckCircle /> Xác nhận
+                                                    </button>
                                                 )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                                {item.status === 'pending' && (
+                                                    <button onClick={() => setCancellingOrder(item)} className="flex items-center gap-1 px-3 py-1.5 bg-[#ff6b9d] text-white rounded-[6px] text-xs font-bold border-2 border-[#c44569] shadow-[2px_2px_0px_#c44569] hover:-translate-y-0.5 transition-all">
+                                                        <BiXCircle /> Hủy
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {Math.ceil(orders.length / ITEMS_PER_PAGE) > 1 && (
+                            <div className="flex justify-center items-center gap-2 mt-4 pt-4 border-t-2 border-[var(--color-dark)]">
+                                <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="px-3 py-1 bg-[var(--color-button)] text-[var(--color-button-text)] border-2 border-[var(--color-dark)] rounded font-bold text-xs disabled:opacity-50">← Trước</button>
+                                <span className="font-bold text-[var(--color-dark)]">Trang {currentPage} / {Math.ceil(orders.length / ITEMS_PER_PAGE)}</span>
+                                <button disabled={currentPage === Math.ceil(orders.length / ITEMS_PER_PAGE)} onClick={() => setCurrentPage(p => p + 1)} className="px-3 py-1 bg-[var(--color-button)] text-[var(--color-button-text)] border-2 border-[var(--color-dark)] rounded font-bold text-xs disabled:opacity-50">Sau →</button>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
-            {selectedOrder && (
-                <PaymentVerification
-                    order={selectedOrder}
-                    onClose={() => setSelectedOrder(null)}
-                    onConfirm={confirmOrder}
-                    onReject={rejectOrder}
-                    initialShowRating={selectedOrder.status === 'shipped'}
-                />
-            )}
-
-            {cancellingOrder && (
-                <CancelOrderModal
-                    order={cancellingOrder}
-                    onClose={() => setCancellingOrder(null)}
-                    onConfirm={handleConfirmCancel}
-                />
-            )}
+            {selectedOrder && <PaymentVerification order={selectedOrder} onClose={() => setSelectedOrder(null)} onConfirm={() => { fetchOrders(); setSelectedOrder(null); }} />}
+            {cancellingOrder && <CancelOrderModal order={cancellingOrder} onClose={() => setCancellingOrder(null)} onConfirm={handleConfirmCancel} />}
         </div>
     );
 }
